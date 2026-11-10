@@ -239,7 +239,7 @@ function renderGuide() {
   if (!guide || panel.hidden) return;
   const details = node(collection ? "details" : "section", "guide-details");
   if (collection) {
-    details.append(node("summary", "", "专题导览与证据边界"));
+    details.append(node("summary", "", "专题介绍"));
     details.append(node("p", "guide-summary", guide.summary));
   } else {
     const jump = node("div", "topic-paper-entry");
@@ -358,13 +358,9 @@ function renderList() {
       node("span", "type", typeLabels[p.paper_type]),
       node("span", "", "·"),
       node("span", "", String(p.year)),
-      node("span", "", "·"),
-      node("span", "", p.evidence.length + " 处原文证据"),
     );
-    if (p.rsi_evidence)
-      meta.append(node("span", "rsi-status", p.rsi_evidence.status));
     if (p.origin === "example")
-      meta.append(node("span", "example-label", "初始化示例"));
+      meta.append(node("span", "example-label", "示例论文"));
     const bottom = node("div", "paper-bottom");
     const tags = node("div", "paper-tags");
     for (const t of p.topics)
@@ -448,144 +444,32 @@ function showRoute() {
     node("p", "author", paper.authors.join(" · ")),
   );
   if (paper.origin === "example")
-    head.append(
-      node(
-        "p",
-        "example-label",
-        "初始化示例 · 用于展示收录规范，不代表用户已读。",
-      ),
-    );
+    head.append(node("p", "example-label", "示例论文"));
   const actions = node("div", "reader-actions");
   const source =
     paper.source.url ||
     data.config.repository_url + "/blob/main/" + paper.source.attachment;
-  actions.append(
-    link("阅读原文 ↗", source, "", true),
-    link(
-      "查看卡片与版本 ↗",
-      data.config.repository_url + "/blob/main/cards/" + paper.id + ".md",
-      "",
-      true,
-    ),
-  );
+  actions.append(link("阅读原文 ↗", source, "", true));
   head.append(actions);
   reader.append(head);
-  if (paper.rsi_evidence) {
-    const proof = node("section", "rsi-proof");
-    proof.append(node("h3", "", "递归闭环与证据边界"));
-    const list = node("dl");
-    for (const [key, label] of [
-      ["status", "证据状态"],
-      ["next_round_role", "下一轮职责"],
-      ["fixed_components", "固定组件"],
-      ["capability_evidence", "改进能力证据"],
-    ])
-      list.append(
-        node("dt", "", label),
-        node("dd", "", paper.rsi_evidence[key]),
-      );
-    proof.append(list);
-    reader.append(proof);
-  }
-  if (paper.classification_reason) {
-    const classification = node("aside", "paper-classification");
-    classification.setAttribute("aria-label", "论文归类依据");
-    classification.append(node("p", "eyebrow", "知识库归类"));
-    const paths = node("div", "classification-paths");
-    for (const t of paper.topics) {
-      const path = node("span");
-      path.append(
-        link(data.config.topics[t], "?topic=" + encodeURIComponent(t)),
-      );
-      for (const s of paper.subtopics.filter(
-        (s) => data.config.subtopics[s].topic === t,
-      )) {
-        path.append(
-          node(
-            "span",
-            "",
-            " · " +
-              data.config.axes[data.config.subtopics[s].axis].label +
-              "：",
-          ),
-          link(
-            data.config.subtopics[s].label,
-            "?topic=" +
-              encodeURIComponent(t) +
-              "&subtopic=" +
-              encodeURIComponent(s),
-          ),
-        );
-      }
-      paths.append(path);
-    }
-    for (const c of paper.collections)
-      paths.append(
-        link(
-          "交叉入口 · " + data.config.collections[c].label,
-          "?collection=" + encodeURIComponent(c),
-        ),
-      );
-    classification.append(
-      paths,
-      node("p", "classification-reason", paper.classification_reason),
-    );
-    reader.append(classification);
-  }
+  const visibleSections = Object.entries(data.sections).filter(
+    ([key]) => key !== "relevance",
+  );
   const toc = node("nav", "toc");
   toc.setAttribute("aria-label", "卡片目录");
-  for (const [key, title] of Object.entries(data.sections)) {
+  for (const [key, title] of visibleSections) {
     const a = node("a", "", title);
     a.href = "#paper/" + id + "/" + key;
     toc.append(a);
   }
   reader.append(toc);
-  for (const [key, title] of Object.entries(data.sections)) {
+  for (const [key, title] of visibleSections) {
     const section = node("section", "reader-section");
     section.id = key;
     const heading = node("h3", "", title);
-    if (key === "relevance")
-      heading.append(node("span", "analysis-label", "知识库分析"));
     section.append(heading, node("p", "", paper.sections[key].text));
-    const citations = node("div", "citations");
-    for (const eid of paper.sections[key].evidence) {
-      const e = paper.evidence.find((x) => x.id === eid);
-      const a = node(
-        "a",
-        "",
-        "[" +
-          eid +
-          " · " +
-          (paper.source.format === "pdf" ? "p." + e.page : e.locator) +
-          "]",
-      );
-      a.href = "#paper/" + id + "/" + eid;
-      citations.append(a);
-    }
-    section.append(citations);
     reader.append(section);
   }
-  const evidence = node("section", "reader-section");
-  evidence.append(node("h3", "", "原文证据"));
-  for (const e of paper.evidence) {
-    const item = node("div", "evidence");
-    item.id = e.id;
-    item.append(
-      node(
-        "small",
-        "",
-        e.id +
-          " · " +
-          e.locator +
-          (paper.source.format === "pdf"
-            ? " · 来源页 " + e.page
-            : " · 网页全文"),
-      ),
-      node("blockquote", "", e.quote),
-    );
-    evidence.append(item);
-  }
-  reader.append(evidence);
   const related = node("section", "reader-section");
   related.append(node("h3", "", "相关论文"));
   const relations = [...paper.related];
@@ -606,12 +490,7 @@ function showRoute() {
     node(
       "p",
       "reader-end",
-      "收录 " +
-        paper.added_at +
-        " · 更新 " +
-        paper.updated_at +
-        " · Codex 全文整理与证据复核 · 提示词 v" +
-        paper.review.prompt_version,
+      "收录 " + paper.added_at + " · 更新 " + paper.updated_at,
     ),
   );
   const part = location.hash.split("/")[2];
@@ -635,8 +514,11 @@ async function init() {
         p.authors,
         p.tags,
         p.one_liner,
-        p.sections,
-        p.classification_reason,
+        Object.fromEntries(
+          Object.entries(p.sections)
+            .filter(([key]) => key !== "relevance")
+            .map(([key, value]) => [key, value.text]),
+        ),
         p.topics.map((t) => data.config.topics[t]),
         p.subtopics.map((s) => data.config.subtopics[s].label),
         p.collections.map((c) => data.config.collections[c].label),

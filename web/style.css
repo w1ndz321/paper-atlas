@@ -229,24 +229,6 @@ main {
   font: 14px var(--font);
   color: var(--muted);
 }
-.paper-classification {
-  margin: 26px 0;
-  padding: 22px 0;
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-  font-size: 17px;
-  line-height: 1.7;
-}
-.classification-paths {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 22px;
-  margin-top: 10px;
-}
-.classification-reason {
-  color: var(--muted);
-  margin: 12px 0 0;
-}
 .toolbar {
   display: flex;
   align-items: center;
@@ -501,63 +483,6 @@ footer {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   color: #37373b;
-}
-.analysis-label {
-  display: inline-block;
-  margin-left: 12px;
-  font-size: 14px;
-  font-weight: 400;
-  letter-spacing: 0;
-  color: var(--muted);
-  vertical-align: middle;
-}
-.citations {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 16px;
-}
-.citations a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 34px;
-  padding: 4px 12px;
-  border-radius: 9px;
-  background: var(--page);
-  color: var(--link);
-  font-size: 14px;
-  text-decoration: none;
-}
-.citations a:hover {
-  background: var(--tint);
-}
-.evidence {
-  margin-bottom: 12px;
-  padding: 24px 26px;
-  border-radius: 18px;
-  background: var(--page);
-  scroll-margin-top: 100px;
-  border: 2px solid transparent;
-  transition:
-    background 0.2s,
-    border-color 0.2s;
-}
-.evidence.is-highlighted {
-  border-color: #c88b63;
-  background: #fff1e1;
-}
-.evidence small {
-  display: block;
-  color: var(--muted);
-  font-size: 14px;
-  line-height: 1.6;
-}
-.evidence blockquote {
-  margin: 12px 0 0;
-  font: 18px/1.65 var(--font);
-  color: var(--ink);
-  overflow-wrap: anywhere;
-  white-space: pre-wrap;
 }
 .related-link {
   display: block;
@@ -831,13 +756,6 @@ dialog .close {
   .reader-section p {
     font-size: 18px;
     line-height: 1.9;
-  }
-  .evidence {
-    padding: 20px;
-    scroll-margin-top: 84px;
-  }
-  .evidence blockquote {
-    font-size: 17px;
   }
   .related-link {
     padding: 21px;
@@ -1126,35 +1044,6 @@ dialog .close {
   width: 26px;
   height: 26px;
 }
-.rsi-status {
-  font-size: 13px;
-  padding: 3px 8px;
-  border-radius: 5px;
-  background: rgb(255 254 251 / 75%);
-  color: var(--link);
-}
-.rsi-proof {
-  margin: 30px 0;
-  padding: 24px 0;
-  border-block: 1px solid var(--line);
-}
-.rsi-proof h3 {
-  font-size: 20px;
-  margin: 0 0 18px;
-}
-.rsi-proof dl {
-  display: grid;
-  grid-template-columns: 110px minmax(0, 1fr);
-  gap: 12px 20px;
-  margin: 0;
-  font-size: 16px;
-}
-.rsi-proof dt {
-  color: var(--muted);
-}
-.rsi-proof dd {
-  margin: 0;
-}
 .guide-details > summary {
   cursor: pointer;
   font-size: 17px;
@@ -1198,13 +1087,6 @@ dialog .close {
 }
 .guide-points {
   font-size: 16px;
-}
-.classification-paths {
-  display: block;
-}
-.classification-paths > span {
-  display: block;
-  margin: 10px 0;
 }
 @media (max-width: 1099px) {
   .paper-list {
@@ -1295,13 +1177,6 @@ dialog .close {
   }
   .question-table {
     font-size: 15px;
-  }
-  .rsi-proof dl {
-    grid-template-columns: 1fr;
-    gap: 5px;
-  }
-  .rsi-proof dd {
-    margin-bottom: 12px;
   }
 }
 @media (max-width: 400px) {

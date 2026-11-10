@@ -102,7 +102,6 @@ function renderTopics() {
     const count = data.papers.filter(
       (p) => !id || p.topics.includes(id),
     ).length;
-    if (id && count === 0) continue;
     $("topics").append(
       filterButton(label, count, topic === id, () => selectView(id)),
     );
@@ -256,7 +255,9 @@ function renderList() {
   $("feedback").textContent = filtered.length
     ? ""
     : data.papers.length
-      ? subtopic && !data.papers.some((p) => p.subtopics.includes(subtopic))
+      ? topic && !data.papers.some((p) => p.topics.includes(topic))
+        ? "这个 Topic 还没有论文。在 Codex 中提供论文并要求收录即可。"
+        : subtopic && !data.papers.some((p) => p.subtopics.includes(subtopic))
         ? "该子类尚未收录论文。0 篇表示当前馆藏，不代表该方向没有研究。"
         : "没有找到匹配的论文。试试其他关键词或分类。"
       : "知识库已就绪。在 Codex 中提交第一篇论文即可开始。";

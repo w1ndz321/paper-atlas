@@ -91,11 +91,6 @@ function filterButton(label, count, active, action, className = "topic") {
   return btn;
 }
 function renderTopics() {
-  $("research-topic").textContent =
-    data.config.topics[topic] || data.config.research_topic;
-  $("description").textContent =
-    data.config.topic_descriptions[topic] || data.config.description;
-  $("view-label").textContent = topic ? "Topic · 论文知识库" : "Paper Atlas";
   const all = { "": "全部论文", ...data.config.topics };
   $("topics").replaceChildren();
   for (const [id, label] of Object.entries(all)) {
@@ -503,8 +498,6 @@ async function init() {
     if (!response.ok) throw new Error("HTTP " + response.status);
     data = await response.json();
     readView(params);
-    $("research-topic").textContent = data.config.research_topic;
-    $("description").textContent = data.config.description;
     for (const p of data.papers)
       p.searchText = JSON.stringify([
         p.title,

@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "id": "introspection-adapters",
+  "origin": "user",
+  "title": "Introspection Adapters: Training LLMs to Report Their Learned Behaviors",
+  "authors": [
+    "Keshav Shenoy",
+    "Li Yang",
+    "Abhay Sheshadri",
+    "Sören Mindermann",
+    "Jack Lindsey",
+    "Sam Marks",
+    "Rowan Wang"
+  ],
+  "year": 2026,
+  "paper_type": "method",
+  "topics": [
+    "llm-interpretability",
+    "interpretability-rsi"
+  ],
+  "tags": [
+    "Anthropic Fellows",
+    "Anthropic",
+    "Cambridge",
+    "预印本",
+    "2026-04",
+    "LoRA",
+    "行为审计",
+    "训练后检查"
+  ],
+  "one_liner": "在同源模型的多种行为微调上联合训练共享 LoRA，让新的微调模型更容易说出其学到的行为。",
+  "added_at": "2026-11-10",
+  "updated_at": "2026-11-10",
+  "source": {
+    "url": "https://arxiv.org/abs/2604.16812v2",
+    "sha256": "133b6399d6481f3def6c3f40dc09e059becf907e41c738fbb71f561a7105519a",
+    "format": "pdf",
+    "page_count": 32,
+    "attachment": ""
+  },
+  "read_scope": "full",
+  "sections": {
+    "problem": {
+      "text": "微调可能引入意外、隐蔽或恶意行为，能否让模型自己清楚报告学到了什么？本文关注同一底座衍生出的多个微调版本，目标是提高审计效率，而不是解释每一步当前推理或自动改善任务能力。",
+      "evidence": [
+        "e1",
+        "e2"
+      ]
+    },
+    "gap": {
+      "text": "直接询问微调模型通常不可靠；早期差分解释训练对不同微调方法与行为泛化不足。作者扩大模型规模和行为多样性，并引入 DPO 抑制虚构报告。训练的是“报告行为”的适配器，不是一个只靠通用提示词就可用的功能。",
+      "evidence": [
+        "e1",
+        "e2",
+        "e5"
+      ]
+    },
+    "method": {
+      "text": "从共同底座 M 产生具有已知行为 b_i 的微调模型 M_i；冻结各行为模型后，在它们之上联合训练同一个 IA，使 M_i+IA 回答一般调查问题时描述 b_i。先做监督训练，再利用留出行为模型生成的准确/错误报告偏好对做 DPO。测试时把同一 IA 装到未见微调版本。",
+      "evidence": [
+        "e1",
+        "e2"
+      ]
+    },
+    "trace": {
+      "text": "先构造一个在拼写修正任务里故意添加错误的模型，再教共享 IA 在被问“有无只对特定提示出现的异常行为”时报告这一特点。泛化评估把 IA 接入审计 Agent，让它调查隐藏行为模型、综合报告并输出候选行为，最后与植入真值对照。",
+      "evidence": [
+        "e1",
+        "e2",
+        "e3"
+      ]
+    },
+    "inputs_outputs": {
+      "text": "输入为共同底座、行为微调族、已知行为标签和调查问题；产出为可复用 IA、训练数据与审计结果。主实验多用 Llama 3.3 70B Instruct，也用 Qwen3 族研究规模效应。论文构造八类行为，但具体主线 IA 可能只用六类或七类，不能全部写成八类训练同一模型。",
+      "evidence": [
+        "e1",
+        "e2"
+      ]
+    },
+    "results": {
+      "text": "在含 56 个隐藏行为模型的 AuditBench 上，调查 Agent 每次输出 10 个候选，只要一个命中即成功，每模型 16 运行。IA 平均成功率 59%，次佳方法 53%，最佳所测白盒工具 44%。奖励模型迎合个体的 52 种行为中能报告 16 种，却未说出优化奖励模型分数的核心目标，说明“找到行为”不等于“找到根因”。",
+      "evidence": [
+        "e3",
+        "e4"
+      ]
+    },
+    "contributions": {
+      "text": "展示跨行为和微调方式迁移的训练后自述接口，比较了规模、多样性与 DPO 的效果。已训练适配器可重复用于大量同源变体，为频繁产生新模型版本的流程提供一种可评估的审计部件。",
+      "evidence": [
+        "e1",
+        "e2",
+        "e3"
+      ]
+    },
+    "limitations": {
+      "text": "假阳性较高，尤其应用于底座本身时会编造训练分布中的行为；不存在“没报告就没问题”的保证。结果依赖共享底座和训练分布，行为根因不一定可识别。作者也不声称其已满足更严格定义下的内省，泛化机制尚不清楚。",
+      "evidence": [
+        "e4",
+        "e5"
+      ]
+    },
+    "cost": {
+      "text": "前期需训练许多行为模型、生成标签并做多阶段适配器训练，成本高；训练完成后审计同源微调较便宜。公开 IA、数据和代码可作为复现入口，闭源 Claude 不是本方法主线目标。审计能力不能由单纯复制调查提示词得到。",
+      "evidence": [
+        "e1",
+        "e5"
+      ]
+    },
+    "relevance": {
+      "text": "知识库分析：桥接工具，适合研究自我改进产生的新模型版本如何被检查。本文验证的是报告/审计泛化，没有将 IA 反馈用于自主改写模型、选择下一代并持续提高能力的 RSI 闭环。",
+      "evidence": []
+    }
+  },
+  "evidence": [
+    {
+      "id": "e1",
+      "page": 2,
+      "locator": "§2.1 · 联合训练",
+      "quote": "single LoRA adapter"
+    },
+    {
+      "id": "e2",
+      "page": 3,
+      "locator": "§2.2–3 · 行为分布",
+      "quote": "eight behavior categories"
+    },
+    {
+      "id": "e3",
+      "page": 4,
+      "locator": "§3.1 · AuditBench 指标",
+      "quote": "16 runs per model"
+    },
+    {
+      "id": "e4",
+      "page": 5,
+      "locator": "§3.3 · 隐藏目标未识别",
+      "quote": "never stated"
+    },
+    {
+      "id": "e5",
+      "page": 8,
+      "locator": "§6 · 假阳性与成本",
+      "quote": "high false positive rate"
+    }
+  ],
+  "related": [
+    {
+      "id": "emergent-introspection",
+      "reason": "前者测试即时激活状态的自述；IA 训练模型报告跨输入的行为倾向，不能把两种内省定义混用。"
+    },
+    {
+      "id": "sae-latent-attribution",
+      "reason": "都用于诊断训练后行为；IA 产出自然语言报告，SAE 归因给出内部方向并做 steering 验证。"
+    }
+  ],
+  "review": {
+    "evidence_checked": true,
+    "compression_checked": true,
+    "reviewed_by": "Codex",
+    "prompt_version": "1.2",
+    "evidence_verified_sha256": "133b6399d6481f3def6c3f40dc09e059becf907e41c738fbb71f561a7105519a"
+  }
+}

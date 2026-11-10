@@ -4,7 +4,7 @@
 
 - 作者：Yuru Wang, Lejun Cheng, Yuxin Zuo, Sihang Zeng, Bingxiang He, Che Jiang, Junlin Yang, Yuchong Wang, Kaikai Zhao, Weifeng Huang, Kai Tian, Zhenzhao Yuan, Jincheng Zhong, Weizhi Wang, Ning Ding, Bowen Zhou, Kaiyan Zhang
 - 年份：2026 · 类型：benchmark
-- 主题：科研 Agent 评测 / 代码 Agent 评测 / 基准设计与评价方法
+- 主题：Agent 评测 · 背景
 - [原文](https://arxiv.org/abs/2606.24530v1) · 收录：2026-11-10 · 更新：2026-11-10
 
 ## 研究问题

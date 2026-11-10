@@ -146,6 +146,41 @@ main {
   color: var(--muted);
   margin: 20px 0 0;
 }
+.topic-guide {
+  padding: 26px 0 30px;
+  border-bottom: 1px solid var(--line);
+}
+.guide-summary {
+  margin: 10px 0;
+  font-size: 20px;
+  line-height: 1.65;
+  max-width: 880px;
+}
+.guide-points {
+  padding-left: 1.2em;
+  margin: 14px 0 18px;
+  font-size: 17px;
+  line-height: 1.8;
+  color: var(--muted);
+}
+.guide-reading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  font-size: 16px;
+  line-height: 1.6;
+}
+.guide-reading > span {
+  color: var(--muted);
+}
+.guide-reading a {
+  color: var(--blue);
+  text-decoration: none;
+}
+.guide-reading a:hover {
+  text-decoration: underline;
+}
 .total {
   color: var(--muted);
   font-size: 16px;

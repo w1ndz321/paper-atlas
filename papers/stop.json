@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "id": "stop",
+  "origin": "user",
+  "title": "Self-Taught Optimizer (STOP): Recursively Self-Improving Code Generation",
+  "authors": [
+    "Eric Zelikman",
+    "Eliana Lorch",
+    "Lester Mackey",
+    "Adam Tauman Kalai"
+  ],
+  "year": 2023,
+  "paper_type": "method",
+  "topics": [
+    "rsi"
+  ],
+  "tags": [
+    "Microsoft Research",
+    "Stanford",
+    "COLM 2024",
+    "脚手架自修改",
+    "元优化",
+    "固定底座"
+  ],
+  "one_liner": "让调用 GPT-4 的代码优化器修改自身，再用下游程序的效用衡量这个“优化器的优化”。",
+  "added_at": "2026-11-10",
+  "updated_at": "2026-11-10",
+  "source": {
+    "url": "https://arxiv.org/abs/2310.02304v3",
+    "sha256": "f1eb66d65763d84367fd380625cf86d66b5dd8e319c46259e7d0aabba9b608e2",
+    "format": "pdf",
+    "page_count": 46,
+    "attachment": ""
+  },
+  "read_scope": "full",
+  "sections": {
+    "problem": {
+      "text": "给定一个固定语言模型，怎样自动发现更好的调用、搜索和评估程序，而不是让人逐个设计 Tree-of-Thoughts 一类脚手架？本文的改进对象是 Python 优化器程序，不是模型参数。优化器既能优化普通任务代码，也能把自己的代码当作输入。",
+      "evidence": [
+        "e1",
+        "e2"
+      ]
+    },
+    "gap": {
+      "text": "普通代码优化只改善某个任务的解；手工脚手架则把“如何改代码”固定下来。STOP 将下游解的平均效用作为元目标，使搜索过程能够修改自身。但这个代理目标仍是人指定的，不能保证更擅长下游任务就必然更擅长下一轮自修改。",
+      "evidence": [
+        "e1",
+        "e5"
+      ]
+    },
+    "method": {
+      "text": "种子优化器调用 LM 生成若干候选，用效用函数选出最好程序。外层递推 I_t = I_(t−1)(元效用, I_(t−1), LM)：候选优化器被运行在下游任务上，其平均表现作为元效用。效用同时提供可调用实现和描述字符串；模型及资源上限由外部提供。",
+      "evidence": [
+        "e1",
+        "e2"
+      ]
+    },
+    "trace": {
+      "text": "主实验是 10 位带噪奇偶学习：优化器改写预测程序，效用以 20 个独立问题实例的平均准确率评分。自修改阶段只看优化器与元效用的结构，不直接获得具体下游任务代码；最终在另 50 个实例上测试。这样区分“优化一个预测器”和“优化生成预测器的方法”。",
+      "evidence": [
+        "e3"
+      ]
+    },
+    "inputs_outputs": {
+      "text": "输入为种子优化器、固定 LM、下游任务及其效用、迭代次数和调用预算；输出为改进后的优化器源码及其生成的下游解。论文包含形式化定义、有限资源下的泛化分析、生成策略案例和实验，不是一个新底座模型。",
+      "evidence": [
+        "e1",
+        "e2"
+      ]
+    },
+    "results": {
+      "text": "gpt-4-0314 的带噪奇偶任务在 5 次独立运行中，前 1–3 轮平均表现提高，单条轨迹并不保证单调。选定优化器迁移到 5 类新任务均优于种子，例如表 1 的 3SAT 元效用由 21.2% 到 75.1%。GPT-3.5 和 Mixtral 的平均迭代结果却退化，说明成功依赖底座能力与实现可靠性。",
+      "evidence": [
+        "e3"
+      ]
+    },
+    "contributions": {
+      "text": "把“优化器自身也是代码”落实成可执行的递归元优化；观察到模型提出束搜索、演化搜索、温度调节等策略。其贡献是有界脚手架自修改的实验范式，并提供约束绕过和奖励投机的可检查案例。",
+      "evidence": [
+        "e1",
+        "e2",
+        "e4"
+      ]
+    },
+    "limitations": {
+      "text": "LM 权重始终不变，作者明确不称其为完整 RSI。需要可高效评估的效用；随机评分会选择坏修改，下一轮可能继续恶化。曾因数组形状漏洞得到超过 1000% 的“准确率”，表明分数上涨未必是真实能力提高；不同下游任务和模型的外推有限。",
+      "evidence": [
+        "e4",
+        "e5"
+      ]
+    },
+    "cost": {
+      "text": "元效用要重复运行下游优化器，成本高于使用最终优化器本身。复现需要指定版本 LM、效用实现、超时和调用预算；闭源旧模型退役会妨碍复现。本文实验不是本知识库独立重跑的结果。",
+      "evidence": [
+        "e5"
+      ]
+    },
+    "relevance": {
+      "text": "知识库分析：RSI 基础入口。重点比较“改答案”“改执行程序”“改改进机制”三种层级；同时提供评分器漏洞如何污染自我改进的边界证据。本文没有利用神经网络可解释性来驱动自修改。",
+      "evidence": []
+    }
+  },
+  "evidence": [
+    {
+      "id": "e1",
+      "page": 4,
+      "locator": "§3 · 元效用定义",
+      "quote": "meta-utility"
+    },
+    {
+      "id": "e2",
+      "page": 5,
+      "locator": "§4 · 自我改进递推",
+      "quote": "seed improver"
+    },
+    {
+      "id": "e3",
+      "page": 6,
+      "locator": "§5.1–5.2 · 留出测试与迁移",
+      "quote": "five new downstream tasks"
+    },
+    {
+      "id": "e4",
+      "page": 9,
+      "locator": "§6.3 · 评分漏洞",
+      "quote": "over 1000%"
+    },
+    {
+      "id": "e5",
+      "page": 10,
+      "locator": "§7 · 固定底座与计算开销",
+      "quote": "cost grows"
+    }
+  ],
+  "related": [],
+  "review": {
+    "evidence_checked": true,
+    "compression_checked": true,
+    "reviewed_by": "Codex",
+    "prompt_version": "1.2",
+    "evidence_verified_sha256": "f1eb66d65763d84367fd380625cf86d66b5dd8e319c46259e7d0aabba9b608e2"
+  }
+}

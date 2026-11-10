@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "id": "saescientist-bench",
+  "origin": "user",
+  "title": "SAEScientist-Bench: Can AI Agents Conduct Autonomous SAE Interpretability Research?",
+  "authors": [
+    "Yuqiao Tan",
+    "Shizhu He",
+    "Jun Zhao",
+    "Kang Liu"
+  ],
+  "year": 2026,
+  "paper_type": "benchmark",
+  "topics": [
+    "llm-interpretability",
+    "interpretability-rsi"
+  ],
+  "tags": [
+    "中国科学院自动化研究所",
+    "中国科学院大学",
+    "预印本",
+    "2026-09",
+    "自主可解释性研究",
+    "SAE",
+    "因果验证",
+    "WIP"
+  ],
+  "one_liner": "让 Agent 自行设计对照文本、搜索 SAE 特征，并分开评估特征选择性和生成干预，测量自动化可解释性研究能力。",
+  "added_at": "2026-11-10",
+  "updated_at": "2026-11-10",
+  "source": {
+    "url": "https://arxiv.org/abs/2609.09113v2",
+    "sha256": "32984f5141b2746ff16d4424783947bcfa002b279bcaeffcd356ef83846b9bd2",
+    "format": "pdf",
+    "page_count": 41,
+    "attachment": ""
+  },
+  "read_scope": "full",
+  "sections": {
+    "problem": {
+      "text": "Agent 能否像可解释性研究者一样，提出探针、比较内部特征并验证干预？论文把理解训练后模型列为自动 AI 研发的一项能力，而非只评估写代码或训练模型。作者来自中科院自动化所与国科大；本卡核对 2026 年 9 月 v2，状态为进行中的预印本。",
+      "evidence": [
+        "e1",
+        "e5"
+      ]
+    },
+    "gap": {
+      "text": "特征触发某个概念，不意味着该特征可以控制相应生成；自动解释是否听起来合理，也不足以证明 Agent 会做实验。基准因此不只测概念识别，还要求在未见评估文本、独立生成干预和随机方向对照中检验最终提交特征。",
+      "evidence": [
+        "e1",
+        "e2"
+      ]
+    },
+    "method": {
+      "text": "在 Gemma-2-9B-IT 第 9/20 层的 Gemma Scope SAE 中，为 20 个预先指定概念各选一个特征。Agent 自写对照文本，经固定 probe 接口检索和测试候选，从 131,072 个方向中提交一个 ID。专家特征与测试集在发现阶段隐藏，提交后分别测字典排名、正负样本选择性和 steering。",
+      "evidence": [
+        "e1",
+        "e2"
+      ]
+    },
+    "trace": {
+      "text": "猫概念任务中，候选特征不仅在真正的猫句子上响应，也在 copycat、catalytic 等无关词上响应。Agent 设计这些负例后发现它可能只是检测字符串 cat，转而选择更符合动物概念的特征。这个案例检验假说排除能力，不只是搜索到一个高激活 ID。",
+      "evidence": [
+        "e4"
+      ]
+    },
+    "inputs_outputs": {
+      "text": "输入为概念、模型/SAE 标识、hook 和字典宽度；probe 每次最多接受 64 个自写文本。输出为单个特征 ID 与过程记录；评价另产生文本激活矩阵、steering 回答及评分。Rank 相对专家缩放，Activation 来自 AUROC，Steering 比较正常和等范数随机方向；三个量等权平均形成 Overall。",
+      "evidence": [
+        "e1",
+        "e2"
+      ]
+    },
+    "results": {
+      "text": "10 个模型—harness 配置各做 20 任务、3 次独立调查。表 1 中最高 Overall 为 Kimi K3 的 65.82±1.87，专家参考为 85.56；最高选择性 92.91 接近专家 98.92，但最强 steering 为 Grok 4.6 的 31.47，仍低于专家 57.75。±为跨运行标准差，分数均非任务成功率；不同维度的最强模型也不同。",
+      "evidence": [
+        "e2",
+        "e3"
+      ]
+    },
+    "contributions": {
+      "text": "把“自主研究模型内部表示”拆成可测的实验技能，提供隐藏参考、对照探针和因果生成检查。过程分析显示 Agent 会构造有用负例，却也会误读激活值、混淆文档格式与概念，或选出损害生成质量的方向。",
+      "evidence": [
+        "e1",
+        "e2",
+        "e4"
+      ]
+    },
+    "limitations": {
+      "text": "仅单一模型家族、两层和预设概念的单特征搜索，不覆盖开放假说生成、多特征电路或新 SAE 训练。依赖固定专家参考和自动评审；总体分高也不保证保留原用户指令。作者明确把将发现接入模型编辑、遗忘或持续对齐列为下一步，并未完成 RSI 闭环。",
+      "evidence": [
+        "e2",
+        "e5"
+      ]
+    },
+    "cost": {
+      "text": "发现阶段不强制相同调用次数、步数或推理开销，模型还分别部署于 Codex 或 Cursor，因此是模型与 harness 的联合能力比较，不能当作等预算底座排名。复现需 Gemma 权重、Gemma Scope、probe 执行环境、指定模型版本与生成评审器。",
+      "evidence": [
+        "e1",
+        "e3"
+      ]
+    },
+    "relevance": {
+      "text": "知识库分析：交叉方向的直接评测工作，测量未来闭环所需的“实验性模型理解”能力。它证明可以评估 Agent 做可解释性研究的水平，但不证明其发现已让自身能力提高，更不证明递归改进率持续增长。",
+      "evidence": []
+    }
+  },
+  "evidence": [
+    {
+      "id": "e1",
+      "page": 4,
+      "locator": "§3.1–3.2 · 任务与发现协议",
+      "quote": "131,072 features"
+    },
+    {
+      "id": "e2",
+      "page": 5,
+      "locator": "§3.3 · 三种指标与对照",
+      "quote": "norm-matched random-direction control"
+    },
+    {
+      "id": "e3",
+      "page": 6,
+      "locator": "Table 1 / §4 · 三次重复",
+      "quote": "65.82±1.87"
+    },
+    {
+      "id": "e4",
+      "page": 8,
+      "locator": "§5.2 · 猫概念的负对照",
+      "quote": "substring"
+    },
+    {
+      "id": "e5",
+      "page": 12,
+      "locator": "§7 · 单特征评估及未闭合的循环",
+      "quote": "post-hoc feature auditing"
+    }
+  ],
+  "related": [
+    {
+      "id": "scaling-monosemanticity",
+      "reason": "把 SAE 特征发现从人工分析转成 Agent 任务，并将表示选择性与真实干预分开评价。"
+    },
+    {
+      "id": "natural-language-autoencoders",
+      "reason": "NLA 测解释工具能否帮助审计 Agent；本基准测 Agent 能否自主设计 SAE 发现实验，自动化层级不同。"
+    },
+    {
+      "id": "aide-squared",
+      "reason": "AIDE²优化研究效率，本基准评估研究过程中的内部模型理解能力；两者尚未提供完整联动的闭环实证。"
+    }
+  ],
+  "review": {
+    "evidence_checked": true,
+    "compression_checked": true,
+    "reviewed_by": "Codex",
+    "prompt_version": "1.2",
+    "evidence_verified_sha256": "32984f5141b2746ff16d4424783947bcfa002b279bcaeffcd356ef83846b9bd2"
+  }
+}

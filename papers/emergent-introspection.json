@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "id": "emergent-introspection",
+  "origin": "user",
+  "title": "Emergent Introspective Awareness in Large Language Models",
+  "authors": [
+    "Jack Lindsey"
+  ],
+  "year": 2025,
+  "paper_type": "analysis",
+  "topics": [
+    "llm-interpretability",
+    "interpretability-rsi"
+  ],
+  "tags": [
+    "Anthropic",
+    "技术报告",
+    "模型内省",
+    "概念注入",
+    "元认知",
+    "因果干预"
+  ],
+  "one_liner": "把已知概念向量注入模型内部，以受控干预检验模型能否识别并报告自身状态，而非只根据输出猜测。",
+  "added_at": "2026-11-10",
+  "updated_at": "2026-11-10",
+  "source": {
+    "url": "https://transformer-circuits.pub/2025/introspection/index.html",
+    "sha256": "4ee698ebe1f4f9c6d9c76fd981e286acf8ce73d825936bf4195955e5dd7f6dcd",
+    "format": "html",
+    "page_count": 1,
+    "attachment": ""
+  },
+  "read_scope": "full",
+  "sections": {
+    "problem": {
+      "text": "模型说“我在想什么”时，是否真的在读取内部状态，还是根据问题和外部文本编造自述？本文用受控概念注入提供因果检验，研究当前状态的内省，不把普通反思提示直接当成机制证据。",
+      "evidence": [
+        "e1",
+        "e2"
+      ]
+    },
+    "gap": {
+      "text": "只聊天难以区分准确报告、训练得到的常识性自述和事后解释。作者要求准确性、因果依赖、内部性和元认知表征：尤其不能让模型先说出某个词，再通过阅读自己输出“发现”刚才的状态。最后一项只有间接证据，尚未直接定位。",
+      "evidence": [
+        "e1"
+      ]
+    },
+    "method": {
+      "text": "从目标模型激活构造概念方向，并在残差流特定层、token 与强度上注入，检查模型是否在说出概念前先认出异常。另测能否区分注入状态与输入文本、识别人工预填输出，以及在指令或激励下控制某概念表示。通过跨层、跨模型和对照向量分析失败情况。",
+      "evidence": [
+        "e1",
+        "e2",
+        "e4"
+      ]
+    },
+    "trace": {
+      "text": "在本来没有相关词的对话中注入一个概念，询问是否检测到被注入的想法。成功不仅是说出该概念，还要先承认有异常且回答连贯。另一实验要求分别复述输入句子与报告先前思考的词：模型若能分别答对，才说明没有简单混淆输入与内部状态。",
+      "evidence": [
+        "e2",
+        "e4"
+      ]
+    },
+    "inputs_outputs": {
+      "text": "输入为 Claude 系列模型、概念向量、提示模板及注入层/强度；输出为生成回答、概念识别/句子复述/预填判断指标和激活测量。系统比较使用 temperature=1，多数展示案例使用 0；对照中还有后训练变体和基础模型。",
+      "evidence": [
+        "e2",
+        "e4"
+      ]
+    },
+    "results": {
+      "text": "Opus 4/4.1 通常强于其他所测 Claude 模型，但并非所有模型间都有单调趋势。在最优层和强度下，Opus 4.1 的主要注入识别实验约 20% 试次成功；生产模型的 100 次无注入对照未观测到误报。注入过强会导致词汇执着、答非所问或乱码，不能把这些当成内省。",
+      "evidence": [
+        "e2",
+        "e3"
+      ]
+    },
+    "contributions": {
+      "text": "将内省从会话印象转化为可控内部干预问题，同时设计区分“感到一个概念”和“通过自己的输出推断概念”的判据。不同实验在不同层最敏感，也提示可能有多种窄机制，而非单一全局自我监控器。",
+      "evidence": [
+        "e1",
+        "e2",
+        "e4"
+      ]
+    },
+    "limitations": {
+      "text": "提示模板有限，注入是训练中未见的人工场景，概念方向也可能混入其他含义。不同 Claude 模型同时有许多差异，难以归因性能变化；机制仍是假说。结果不构成人类式自我意识、主观体验或通用可靠内省的证明。",
+      "evidence": [
+        "e1",
+        "e5"
+      ]
+    },
+    "cost": {
+      "text": "需要访问模型内部激活、采样概念和进行跨层强度扫描，普通 API 自述不能复现该因果协议。闭源目标模型限制独立完整复现；该工作没有提供 RSI 训练流程或自修改成本。",
+      "evidence": [
+        "e2",
+        "e5"
+      ]
+    },
+    "relevance": {
+      "text": "知识库分析：桥接基础，研究系统能否获得关于自己的可靠信息。这是潜在自我诊断信号的证据，不是“知道问题后会自动修复”或“修复后更会自改”的证据。本文未验证解释驱动的 RSI。",
+      "evidence": []
+    }
+  },
+  "evidence": [
+    {
+      "id": "e1",
+      "page": 1,
+      "locator": "Defining Introspection · 判据",
+      "quote": "Metacognitive Representation"
+    },
+    {
+      "id": "e2",
+      "page": 1,
+      "locator": "Self-report of Injected Thoughts · 注入设置",
+      "quote": "injection strength of 2"
+    },
+    {
+      "id": "e3",
+      "page": 1,
+      "locator": "Failure Modes · 成功率边界",
+      "quote": "about 20% of trials"
+    },
+    {
+      "id": "e4",
+      "page": 1,
+      "locator": "Distinguishing Prior Thoughts from Text Inputs",
+      "quote": "chance performance"
+    },
+    {
+      "id": "e5",
+      "page": 1,
+      "locator": "Limitations and Future Work · 提示与人工干预",
+      "quote": "artificial scenario"
+    }
+  ],
+  "related": [
+    {
+      "id": "cot-faithfulness",
+      "reason": "都质疑自然语言自述能否代表真实内部因素；本工作通过概念注入检验状态报告的因果依赖。"
+    },
+    {
+      "id": "circuit-tracing",
+      "reason": "使用内部干预验证模型自述，与从特征计算图解释机制的目标不同，两种证据可以互补。"
+    }
+  ],
+  "review": {
+    "evidence_checked": true,
+    "compression_checked": true,
+    "reviewed_by": "Codex",
+    "prompt_version": "1.2",
+    "evidence_verified_sha256": "4ee698ebe1f4f9c6d9c76fd981e286acf8ce73d825936bf4195955e5dd7f6dcd"
+  }
+}

@@ -1,21 +1,119 @@
 {
   "name": "Paper Atlas",
-  "research_topic": "Agent 评测 Benchmark",
-  "description": "收录 Agent 评测论文，快速查阅任务、方法、结果与原文证据。",
+  "research_topic": "RSI 与 LLM 可解释性",
+  "description": "追踪自我改进系统，理解模型内部机制，连接两条研究脉络。",
   "repository_url": "https://github.com/w1ndz321/paper-atlas",
-  "scope": "收录 Agent 评测 benchmark、任务环境、评价指标、评分协议和基准分析工作。围绕公开论文记录其实际测量对象、实验设置、验证方式、结果与局限。",
+  "scope": "收录递归自我改进、自我改进 Agent、LLM 可解释性及其交叉研究，保留 Agent 评测作为背景。优先原论文与机构完整技术报告，区分有界改进、改进过程的改进与开放式 RSI。",
   "research_questions": [
-    "这个 benchmark 测量哪些 Agent 能力，包含什么任务和环境？",
-    "任务如何构建，结果如何评分和验证？",
-    "模型、工具、提示词、预算和数据设置如何影响结果？",
-    "已报告的结果支持什么结论，有哪些局限和复现条件？"
+    "改进对象是答案、提示词、记忆、Agent 程序、权重，还是改进机制本身？哪些组件仍由人固定？",
+    "改进由谁提出、用什么信号选择，是否验证预算公平、跨任务迁移及多轮稳定性？",
+    "可解释性方法观察或干预什么内部对象，解释是否经过独立的因果或行为检验？",
+    "解释或内省是否真正进入改进或审计闭环？哪些连接已有实验，哪些仅是知识库分析？"
   ],
   "topics": {
-    "general-agents": "通用 Agent 评测",
-    "tool-use": "工具调用评测",
-    "web-computer": "网页与计算机操作",
-    "coding-agents": "代码 Agent 评测",
-    "scientific-agents": "科研 Agent 评测",
-    "benchmark-design": "基准设计与评价方法"
+    "rsi": "RSI · 自我改进",
+    "llm-interpretability": "LLM 可解释性",
+    "interpretability-rsi": "可解释性 × RSI",
+    "agent-benchmarks": "Agent 评测 · 背景"
+  },
+  "topic_guides": {
+    "rsi": {
+      "summary": "这条线关注系统到底改进了什么，以及改进后的系统是否更善于继续改进。先看冻结底座上的程序优化，再看 Agent 源码演化与研究效率。",
+      "points": [
+        "改进对象：STOP 改优化器脚手架，DGM 改 Agent 工具与工作流，AlphaEvolve 改算法和训练基础设施。",
+        "证据升级：任务分数提高 → 留出任务迁移 → 固定预算下研究效率提高 → 后续自改能力提高。各层不能互相替代。",
+        "近期边界：AIDE²报告多轮研究效率改善，但其 ignition test 仍不足以证明改进后的 Agent 更善于驱动下一轮改进。"
+      ],
+      "reading_order": [
+        {
+          "id": "stop",
+          "label": "STOP"
+        },
+        {
+          "id": "darwin-godel-machine",
+          "label": "DGM"
+        },
+        {
+          "id": "alphaevolve",
+          "label": "AlphaEvolve"
+        },
+        {
+          "id": "aide-squared",
+          "label": "AIDE² · 2026"
+        }
+      ]
+    },
+    "llm-interpretability": {
+      "summary": "从内部表示中读出信息、解释计算机制、主动改变行为，是三个不同目标。这批代表作串起因果定位、稀疏特征、电路追踪与解释忠实性。",
+      "points": [
+        "因果定位与编辑：ROME 用污染、恢复和参数编辑检验事实关联，区别于仅能预测标签的探针。",
+        "特征与电路：SAE 尝试分离叠加概念；CLT 进一步追踪特征之间的计算。重构准确不保证机制完全忠实。",
+        "自然语言接口：CoT、内省、IA 和 NLA 让解释更易阅读，但要分别检验漏报、虚构、覆盖范围和干预效用。"
+      ],
+      "reading_order": [
+        {
+          "id": "rome",
+          "label": "ROME"
+        },
+        {
+          "id": "scaling-monosemanticity",
+          "label": "稀疏特征"
+        },
+        {
+          "id": "circuit-tracing",
+          "label": "电路追踪"
+        },
+        {
+          "id": "cot-faithfulness",
+          "label": "CoT 忠实性"
+        }
+      ]
+    },
+    "interpretability-rsi": {
+      "summary": "交叉 Topic 收集可解释性进入自动化研发的已有连接：状态读取、训练后审计、行为调试，以及 Agent 自主做可解释性实验。桥接工具与真正的自改闭环分别看待。",
+      "points": [
+        "已有实证：SAE 归因帮助定位并干预异常行为，NLA 帮助 Agent 调查隐藏动因，IA 帮助报告微调后的行为。",
+        "更直接的评测：SAEScientist-Bench 测 Agent 设计对照探针和验证特征的能力；它发现概念区分与可靠生成干预之间仍有明显差距。",
+        "本批证据边界：尚未验证“解释反馈驱动多轮自身改进，并使后续改进能力持续提高”的完整链条。模型会自述不能替代这一验证。"
+      ],
+      "reading_order": [
+        {
+          "id": "saescientist-bench",
+          "label": "SAEScientist · 2026"
+        },
+        {
+          "id": "natural-language-autoencoders",
+          "label": "NLA · 2026"
+        },
+        {
+          "id": "introspection-adapters",
+          "label": "IA · 2026"
+        },
+        {
+          "id": "sae-latent-attribution",
+          "label": "SAE 行为调试"
+        }
+      ]
+    },
+    "agent-benchmarks": {
+      "summary": "保留最初收录的三篇背景文献，作为任务环境、科学能力测量和评价协议的参考。",
+      "points": [
+        "这些论文测量 Agent 表现，不单独构成 RSI 或模型内部机制解释的证据。"
+      ],
+      "reading_order": [
+        {
+          "id": "scienceagentbench",
+          "label": "ScienceAgentBench"
+        },
+        {
+          "id": "naturebench",
+          "label": "NatureBench"
+        },
+        {
+          "id": "dont-pass-at-k",
+          "label": "Don't Pass@k"
+        }
+      ]
+    }
   }
 }

@@ -292,6 +292,24 @@ def validate(root=ROOT):
             attachment = root / p["source"]["attachment"]
             if attachment.is_file() and hashlib.sha256(attachment.read_bytes()).hexdigest() != p["source"]["sha256"]:
                 errors.append(f"{path.name}: 附件哈希不一致")
+    guides = cfg.get("topic_guides", {})
+    if not isinstance(guides, dict):
+        errors.append("topic_guides 必须是按主题组织的对象")
+    else:
+        by_id = {p.get("id"): p for p in papers}
+        for topic, guide in guides.items():
+            if (topic not in cfg["topics"] or not isinstance(guide, dict)
+                    or not isinstance(guide.get("summary"), str) or not guide["summary"].strip()
+                    or not isinstance(guide.get("points"), list)
+                    or not all(isinstance(x, str) and x.strip() for x in guide["points"])
+                    or not isinstance(guide.get("reading_order"), list)):
+                errors.append(f"{topic}: 主题导读缺少有效内容")
+                continue
+            for item in guide["reading_order"]:
+                if (not isinstance(item, dict) or not isinstance(item.get("label"), str) or not item["label"].strip()
+                        or not isinstance(item.get("id"), str)
+                        or item.get("id") not in by_id or topic not in by_id[item["id"]].get("topics", [])):
+                    errors.append(f"{topic}: 推荐阅读必须指向本主题已收录的论文")
     if errors:
         raise Invalid("\n".join(errors))
     return papers
@@ -377,6 +395,7 @@ def build(output, root=ROOT):
         shutil.copyfile(root / "web" / name, output / name)
     inbox = [read(p) for p in sorted((root / "inbox").glob("*.json"))]
     public_config = {k: cfg[k] for k in ("name", "research_topic", "description", "topics", "repository_url")}
+    public_config["topic_guides"] = cfg.get("topic_guides", {})
     write(output / "data.json", {"config": public_config, "papers": sorted(papers, key=lambda p: (p["added_at"], p["id"]), reverse=True), "sections": SECTIONS, "pending_count": len(inbox)})
     # Only website assets and reviewed cards are published; extraction caches/drafts never enter dist.
     (output / ".nojekyll").touch()

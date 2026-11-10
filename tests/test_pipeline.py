@@ -171,6 +171,28 @@ class PipelineTests(unittest.TestCase):
         with self.assertRaises(kb.Invalid):
             kb.render_cards(self.root, check=True)
 
+    def test_topic_reading_links_require_published_paper_in_same_topic(self):
+        self.store(self.paper())
+        guide = {"summary": "研究脉络", "points": ["研究边界"], "reading_order": [{"id": "example", "label": "Read"}]}
+        cfg = copy.deepcopy(self.cfg)
+        cfg["topics"]["other-topic"] = "其他主题"
+        for topic, paper_id in (("general-agents", "missing"), ("other-topic", "example"), ("general-agents", [])):
+            bad = copy.deepcopy(guide)
+            bad["reading_order"][0]["id"] = paper_id
+            cfg["topic_guides"] = {topic: bad}
+            kb.write(self.root / "config.json", cfg)
+            with self.assertRaisesRegex(kb.Invalid, "推荐阅读"):
+                kb.validate(self.root)
+
+    def test_topic_guides_are_published_with_valid_reading_links(self):
+        self.store(self.paper())
+        guides = {"general-agents": {"summary": "研究脉络", "points": ["研究边界"], "reading_order": [{"id": "example", "label": "Read"}]}}
+        cfg = {**self.cfg, "topic_guides": guides}
+        kb.write(self.root / "config.json", cfg)
+        kb.render_cards(self.root)
+        kb.build(self.root / "dist", self.root)
+        self.assertEqual(kb.read(self.root / "dist/data.json")["config"]["topic_guides"], guides)
+
     def test_path_traversal_and_unsafe_urls_rejected(self):
         self.assertFalse(kb.slug_ok("../../outside"))
         self.assertFalse(kb.safe_url("javascript:alert(1)"))

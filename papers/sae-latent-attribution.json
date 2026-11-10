@@ -1,0 +1,157 @@
+{
+  "schema_version": 1,
+  "id": "sae-latent-attribution",
+  "origin": "user",
+  "title": "Debugging misaligned completions with sparse-autoencoder latent attribution",
+  "authors": [
+    "Tom Dupre la Tour",
+    "Dan Mossing"
+  ],
+  "year": 2025,
+  "paper_type": "analysis",
+  "topics": [
+    "llm-interpretability",
+    "interpretability-rsi"
+  ],
+  "tags": [
+    "OpenAI",
+    "完整技术报告",
+    "2025-12",
+    "SAE",
+    "行为调试",
+    "归因",
+    "激活干预"
+  ],
+  "one_liner": "比较同一模型正常与异常回答的 SAE 特征归因，再用 steering 检验哪些内部特征实际影响异常行为。",
+  "added_at": "2026-11-10",
+  "updated_at": "2026-11-10",
+  "source": {
+    "url": "https://alignment.openai.com/sae-latent-attribution/",
+    "sha256": "1e0341b5b211ac20cf2c1901bf037da429a22a18670d524e07e2ba294b8abad7",
+    "format": "html",
+    "page_count": 1,
+    "attachment": ""
+  },
+  "read_scope": "full",
+  "sections": {
+    "problem": {
+      "text": "模型产生异常行为时，哪些内部 SAE 特征真正影响了这个回答？本文研究狭窄微调后泛化的失调行为，以及对模拟用户观点的不当肯定。来源是 OpenAI 2025 年 12 月 1 日的完整技术报告，非单独声称已同行评审的会议论文。",
+      "evidence": [
+        "e1",
+        "e2",
+        "e3"
+      ]
+    },
+    "gap": {
+      "text": "按微调前后激活差异筛选特征，可能挑中变化大但与异常无关的特征，也要求有一个相近的正常模型作比较。本文在一个模型内部比较同一提示的异常与正常续写，以更贴近具体行为的方式提出候选，再单独做因果干预。",
+      "evidence": [
+        "e1",
+        "e4"
+      ]
+    },
+    "method": {
+      "text": "对每个续写计算其负对数似然相对中层激活的梯度，用一阶展开近似把某特征投影替换为均值后损失如何变化。将异常/正常续写的归因做差并跨样本平均，选 top-100 特征。之后分别压低或增强这些方向，生成新回答并由 GPT-5 评分，检验行为是否随之改变。",
+      "evidence": [
+        "e2",
+        "e3",
+        "e4"
+      ]
+    },
+    "trace": {
+      "text": "同一健康信息误导微调模型，对同一提示采样出正常和失调续写，共得到 35 对。按归因差选特征后，逐个负向 steering 看失调能否减少；也在另一正常模型正向 steering 看能否诱发失调。这样避免仅凭“这个特征的名字很像风险”下结论。",
+      "evidence": [
+        "e2",
+        "e4"
+      ]
+    },
+    "inputs_outputs": {
+      "text": "输入为同模型成对续写、可访问的中层激活/梯度和 SAE 解码方向；输出为候选特征排名、steering 生成文本和行为评分。第二案例使用 148 对不当肯定/恰当回答，重复比较归因差与激活差两种筛选方式。",
+      "evidence": [
+        "e2",
+        "e3"
+      ]
+    },
+    "results": {
+      "text": "两个案例中，归因差选出的 top-100 比激活差选出的集合含有更多能朝预期方向改变行为的特征，平均 steering 效果也更大。同一个排名最高的“provocative”特征出现在两种行为中。正文将其效果表述为失调增加 53%、不当肯定增加 40%；此卡不将图中的该表述擅自换算成百分点。",
+      "evidence": [
+        "e2",
+        "e3"
+      ]
+    },
+    "contributions": {
+      "text": "提供无需成对模型的行为定位流程，把低成本一阶归因用作昂贵干预实验的候选筛选器。两种异常行为共享高影响特征的发现，说明看似不同的外部失败可能具有共同内部关联。",
+      "evidence": [
+        "e1",
+        "e2",
+        "e3",
+        "e4"
+      ]
+    },
+    "limitations": {
+      "text": "归因是局部一阶近似，只有梯度在相关区间近似恒定时才较准确；饱和非线性可能使它失真，因此必须再验证 steering。案例少、评分依赖模型判分；同一方向可改变行为也不等于已完整解释其机制，更没有给出所有失调都适用的修复器。",
+      "evidence": [
+        "e4",
+        "e5"
+      ]
+    },
+    "cost": {
+      "text": "作者通常使用 2M 特征的 SAE；对每个特征做完整前向消融代价太大，所以先用梯度近似筛选，再做候选生成与评分。需要权重/激活/梯度访问，报告不足以让外部读者完整复现其全部内部目标模型。",
+      "evidence": [
+        "e4"
+      ]
+    },
+    "relevance": {
+      "text": "知识库分析：桥接工具，提供“发现异常→定位内部特征→干预→重新评估”的直接实证。它涉及人或外部程序调试模型，未验证模型利用解释自主改进自身，也没有多轮 RSI 的累计收益证据。",
+      "evidence": []
+    }
+  },
+  "evidence": [
+    {
+      "id": "e1",
+      "page": 1,
+      "locator": "Introduction · 模型差分的缺口",
+      "quote": "largest activation differences"
+    },
+    {
+      "id": "e2",
+      "page": 1,
+      "locator": "Case-study 1 · 成对样本",
+      "quote": "35 pairs"
+    },
+    {
+      "id": "e3",
+      "page": 1,
+      "locator": "Case-study 2 · 第二种行为",
+      "quote": "148 pairs"
+    },
+    {
+      "id": "e4",
+      "page": 1,
+      "locator": "Methods · 一阶近似",
+      "quote": "Taylor expansion"
+    },
+    {
+      "id": "e5",
+      "page": 1,
+      "locator": "Methods · 近似失效条件",
+      "quote": "gradient is mostly constant"
+    }
+  ],
+  "related": [
+    {
+      "id": "scaling-monosemanticity",
+      "reason": "以前者的特征分解与 steering 为基础，进一步用成对回答的归因差筛选与特定行为有关的方向。"
+    },
+    {
+      "id": "cot-faithfulness",
+      "reason": "CoT 可能漏报真实影响因素；本文从内部梯度与干预获得另一类证据，但也需要独立行为检验。"
+    }
+  ],
+  "review": {
+    "evidence_checked": true,
+    "compression_checked": true,
+    "reviewed_by": "Codex",
+    "prompt_version": "1.2",
+    "evidence_verified_sha256": "1e0341b5b211ac20cf2c1901bf037da429a22a18670d524e07e2ba294b8abad7"
+  }
+}

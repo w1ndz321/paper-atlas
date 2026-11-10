@@ -4,7 +4,7 @@
 
 - 作者：Ziru Chen, Shijie Chen, Yuting Ning, Qianheng Zhang, Boshi Wang, Botao Yu, Yifei Li, Zeyi Liao, Chen Wei, Zitong Lu, Vishal Dey, Mingyi Xue, Frazier N. Baker, Benjamin Burns, Daniel Adu-Ampratwum, Xuhui Huang, Xia Ning, Song Gao, Yu Su, Huan Sun
 - 年份：2024 · 类型：benchmark
-- 主题：科研 Agent 评测 / 代码 Agent 评测 / 基准设计与评价方法
+- 主题：Agent 评测 · 背景
 - [原文](https://arxiv.org/abs/2410.05080v1) · 收录：2026-11-10 · 更新：2026-11-10
 
 ## 研究问题

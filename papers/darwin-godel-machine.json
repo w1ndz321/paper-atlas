@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "id": "darwin-godel-machine",
+  "origin": "user",
+  "title": "Darwin Gödel Machine: Open-Ended Evolution of Self-Improving Agents",
+  "authors": [
+    "Jenny Zhang",
+    "Shengran Hu",
+    "Cong Lu",
+    "Robert Lange",
+    "Jeff Clune"
+  ],
+  "year": 2025,
+  "paper_type": "framework",
+  "topics": [
+    "rsi"
+  ],
+  "tags": [
+    "Sakana AI",
+    "UBC",
+    "Vector Institute",
+    "ICLR 2026",
+    "开放式搜索",
+    "Agent 源码"
+  ],
+  "one_liner": "用冻结底座的编码 Agent 改写自身工具与工作流，并保存多条演化分支作为后续改进的踏脚石。",
+  "added_at": "2026-11-10",
+  "updated_at": "2026-11-10",
+  "source": {
+    "url": "https://arxiv.org/abs/2505.22954v3",
+    "sha256": "13ff4abe0c7ad4a7dd3b4876d19a8bf940e39e70dabbf06065aa774a6c3457de",
+    "format": "pdf",
+    "page_count": 72,
+    "attachment": ""
+  },
+  "read_scope": "full",
+  "sections": {
+    "problem": {
+      "text": "能否让编码 Agent 改写自身实现，并积累可供未来改进使用的历史版本？DGM 将“修改自己的仓库”视为编码任务，以编码 benchmark 作为能力代理。本文核对版本为 arXiv v3、ICLR 2026，首次公开年份为 2025。",
+      "evidence": [
+        "e1",
+        "e2"
+      ]
+    },
+    "gap": {
+      "text": "理论 Gödel Machine 要求先证明修改有益，实际复杂系统中很难做到。只保留最新或最高分版本又可能丢掉暂时退步却有潜力的分支。DGM 用经验评测替代证明，并以版本档案维持多样化搜索；这不等于获得理论最优或无限进步保证。",
+      "evidence": [
+        "e1"
+      ]
+    },
+    "method": {
+      "text": "从档案中按表现与已生成后代数采样父 Agent。父 Agent 分析日志、提出功能改进并改写自己的代码；子代通过编译和基本代码编辑检查后进入档案，再以编码任务分数参与后续选择。底座冻结，档案维护及父代采样程序固定、不能自修改。",
+      "evidence": [
+        "e1",
+        "e2"
+      ]
+    },
+    "trace": {
+      "text": "初始编辑工具一次查看或替换整个文件。演化出的版本增加按行查看、字符串精确替换、上下文总结以及多候选补丁排序。图 3 的最终谱系还经过两次分数下降：这些中间版本没有被丢弃，后续分支在其基础上得到更好 Agent。",
+      "evidence": [
+        "e4"
+      ]
+    },
+    "inputs_outputs": {
+      "text": "输入为初始 Python Agent、冻结 FM、编码任务、评测器及搜索设置；输出为 Agent 版本档案、源码差异、谱系与分数。SWE-bench 使用 Verified 子集；Polyglot 报 pass@1，不让任务执行 Agent看到真实测试反馈，不能直接等同排行榜的 pass@2。",
+      "evidence": [
+        "e1",
+        "e3"
+      ]
+    },
+    "results": {
+      "text": "每个主搜索运行 80 轮；自修改用 Claude 3.5 Sonnet (New)，SWE 评估也用该模型，Polyglot 评估用 o3-mini。SWE 的 200 题评估由 20.0% 到 50.0%；Polyglot 搜索的 50 题子集由 14.0% 到 38.0%，全 225 题复评则由 14.2% 到 30.7%。去掉自修改或开放档案的消融较弱，并报告跨模型、跨 benchmark 迁移。",
+      "evidence": [
+        "e2",
+        "e3"
+      ]
+    },
+    "contributions": {
+      "text": "将源码自修改、编码能力评估与开放式版本档案结合，展示工具和工作流可自动演化。分支谱系使较差中间解也能为后续发现提供组件，而不是只按眼前最佳分数爬山。贡献在经验系统设计，不是完成原始 Gödel Machine 的证明义务。",
+      "evidence": [
+        "e1",
+        "e4"
+      ]
+    },
+    "limitations": {
+      "text": "“编码成绩反映自我改进能力”是重要假设。任务与评估仍由人定义，底座与开放式搜索过程固定；没有重训基础模型，也未证明长期自我加速。搜索中使用 benchmark 子集做选择，需将其与跨 benchmark 留出测试分开理解。",
+      "evidence": [
+        "e2",
+        "e5"
+      ]
+    },
+    "cost": {
+      "text": "SWE 主运行约两周，并有显著 API 开销。复现要匹配论文 v3 的模型版本、80 轮设置、分阶段题集、并行度、工具和隔离执行环境；公开实现与谱系便于追踪，但本库未独立重跑。",
+      "evidence": [
+        "e5"
+      ]
+    },
+    "relevance": {
+      "text": "知识库分析：RSI 的 Agent 源码演化代表作。适合与 STOP 比较单一优化器和多分支档案，与 AIDE²比较编码代理目标和直接研究效率目标。论文讨论可解释性风险，但并未验证机制解释驱动的 RSI。",
+      "evidence": []
+    }
+  },
+  "evidence": [
+    {
+      "id": "e1",
+      "page": 4,
+      "locator": "§3 · 自修改与归档",
+      "quote": "archive of all discovered agents"
+    },
+    {
+      "id": "e2",
+      "page": 5,
+      "locator": "§3–4 · 固定搜索过程与实验",
+      "quote": "not modifiable"
+    },
+    {
+      "id": "e3",
+      "page": 6,
+      "locator": "§4.2–4.4 · 分阶段评估及结果",
+      "quote": "report pass@1"
+    },
+    {
+      "id": "e4",
+      "page": 7,
+      "locator": "Fig.3 · 工具与工作流变化",
+      "quote": "string replacement"
+    },
+    {
+      "id": "e5",
+      "page": 10,
+      "locator": "§6 · 计算与代理目标边界",
+      "quote": "about 2 weeks"
+    }
+  ],
+  "related": [
+    {
+      "id": "stop",
+      "reason": "同为冻结底座的程序自修改；DGM 保存多分支 Agent 档案，STOP 主流程每轮保留一个优化器。"
+    }
+  ],
+  "review": {
+    "evidence_checked": true,
+    "compression_checked": true,
+    "reviewed_by": "Codex",
+    "prompt_version": "1.2",
+    "evidence_verified_sha256": "13ff4abe0c7ad4a7dd3b4876d19a8bf940e39e70dabbf06065aa774a6c3457de"
+  }
+}

@@ -28,9 +28,7 @@
   "year": 2024,
   "paper_type": "benchmark",
   "topics": [
-    "scientific-agents",
-    "coding-agents",
-    "benchmark-design"
+    "agent-benchmarks"
   ],
   "tags": [
     "科学数据分析",

@@ -4,7 +4,7 @@
 
 - 作者：Mohsen Hariri, Amirhossein Samandar, Michael Hinczewski, Vipin Chaudhary
 - 年份：2025 · 类型：method
-- 主题：基准设计与评价方法
+- 主题：Agent 评测 · 背景
 - [原文](https://arxiv.org/abs/2510.04265v1) · 收录：2026-11-10 · 更新：2026-11-10
 
 ## 研究问题

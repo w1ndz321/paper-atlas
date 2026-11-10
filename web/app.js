@@ -65,6 +65,28 @@ function renderTopics() {
     });
     $("topics").append(btn);
   }
+  const guide = data.config.topic_guides?.[topic];
+  const panel = $("topic-guide");
+  panel.replaceChildren();
+  panel.hidden = !guide;
+  if (guide) {
+    panel.append(node("p", "eyebrow", "主题导读 · 知识库分析"));
+    panel.append(node("p", "guide-summary", guide.summary));
+    const points = node("ul", "guide-points");
+    for (const point of guide.points) points.append(node("li", "", point));
+    panel.append(points);
+    if (guide.reading_order.length) {
+      const reading = node("div", "guide-reading");
+      reading.append(node("span", "", "建议阅读"));
+      for (const [i, item] of guide.reading_order.entries()) {
+        if (i) reading.append(node("span", "guide-arrow", "→"));
+        reading.append(
+          link(item.label, "#paper/" + encodeURIComponent(item.id)),
+        );
+      }
+      panel.append(reading);
+    }
+  }
 }
 function renderList() {
   const terms = $("search")

@@ -25,9 +25,7 @@
   "year": 2026,
   "paper_type": "benchmark",
   "topics": [
-    "scientific-agents",
-    "coding-agents",
-    "benchmark-design"
+    "agent-benchmarks"
   ],
   "tags": [
     "NatureGym",

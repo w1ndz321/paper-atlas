@@ -42,6 +42,7 @@ function updateQuery(push = false, hash = location.hash) {
   for (const id of subtopics) query.append("subtopic", id);
   if (collection) query.set("collection", collection);
   if (guideOpen) query.set("view", "guide");
+  else if (topic && !collection) query.set("view", "works");
   if ($("type-filter").value) query.set("type", $("type-filter").value);
   if ($("sort").value !== "added") query.set("sort", $("sort").value);
   history[push ? "pushState" : "replaceState"](
@@ -72,9 +73,17 @@ function readView(state) {
   subtopics = [
     ...new Set(ids.filter((id) => data.config.subtopics[id].topic === topic)),
   ];
+  const researchTopic = Object.values(data.config.axes).some(
+    (axis) => axis.topic === topic,
+  );
   guideOpen =
-    state.get("view") === "guide" &&
-    Object.hasOwn(data.config.topic_guides, topic);
+    researchTopic &&
+    !collection &&
+    !subtopics.length &&
+    !state.get("q") &&
+    !state.get("type") &&
+    (state.get("view") === "guide" ||
+      (!state.has("view") && !state.has("sort")));
   for (const id of subtopics) expandedAxes.add(data.config.subtopics[id].axis);
 }
 function closeSidebar() {
@@ -93,8 +102,16 @@ function selectView(nextTopic = "", nextSubtopic = "", nextCollection = "") {
   topic = nextTopic;
   subtopics = nextSubtopic ? [nextSubtopic] : [];
   collection = nextCollection;
-  guideOpen = false;
   if (collection) topic = data.config.collections[collection].topic || "";
+  guideOpen =
+    !collection &&
+    !nextSubtopic &&
+    Object.values(data.config.axes).some((axis) => axis.topic === topic);
+  if (guideOpen) {
+    $("search").value = "";
+    $("type-filter").value = "";
+    $("sort").value = "added";
+  }
   if (nextSubtopic) expandedAxes.add(data.config.subtopics[nextSubtopic].axis);
   closeSidebar();
   refreshView();
@@ -148,18 +165,6 @@ function renderTopics() {
       ),
     );
     if (id === topic && !collection) {
-      const guideButton = filterButton(
-        "从问题开始 ↗",
-        null,
-        guideOpen,
-        () => {
-          guideOpen = !guideOpen;
-          closeSidebar();
-          refreshView();
-        },
-        "guide-entry",
-      );
-      branch.append(guideButton);
       const axes = Object.entries(data.config.axes).filter(
         ([, axis]) => axis.topic === id,
       );
@@ -229,20 +234,6 @@ function renderTopics() {
       () => selectView(interest),
     ),
   );
-  if (topic === interest)
-    collections.append(
-      filterButton(
-        "从问题开始 ↗",
-        null,
-        guideOpen,
-        () => {
-          guideOpen = !guideOpen;
-          closeSidebar();
-          refreshView();
-        },
-        "guide-entry",
-      ),
-    );
   renderGuide();
   const crumbs = $("breadcrumb");
   crumbs.replaceChildren();
@@ -259,8 +250,6 @@ function renderTopics() {
       node("span", "", "›"),
       node("span", "", data.config.collections[collection].label),
     );
-  if (guideOpen)
-    crumbs.append(node("span", "", "›"), node("span", "", "从问题开始"));
   const filters = $("selected-filters");
   filters.replaceChildren();
   for (const id of subtopics) {
@@ -288,16 +277,11 @@ function renderGuide() {
     ? data.config.collections[collection]
     : data.config.topic_guides[topic];
   if (!guide || panel.hidden) return;
-  const details = node("details", "guide-details");
-  details.open = guideOpen;
-  details.append(
-    node(
-      "summary",
-      "",
-      collection ? "专题导览与证据边界" : "带着问题，选择入口",
-    ),
-  );
-  details.append(node("p", "guide-summary", guide.summary));
+  const details = node(collection ? "details" : "section", "guide-details");
+  if (collection) {
+    details.append(node("summary", "", "专题导览与证据边界"));
+    details.append(node("p", "guide-summary", guide.summary));
+  }
   if (guide.questions?.length) {
     const table = node("table", "question-table");
     const head = node("thead");
@@ -338,6 +322,7 @@ function renderGuide() {
     table.append(body);
     details.append(table);
   }
+  if (!collection) details.append(node("p", "guide-summary", guide.summary));
   const points = node("ul", "guide-points");
   for (const point of guide.points) points.append(node("li", "", point));
   details.append(points);
@@ -707,7 +692,13 @@ async function init() {
       }
     });
     $("search-form").onsubmit = (event) => event.preventDefault();
-    $("search").oninput = renderList;
+    $("search").oninput = () => {
+      if (guideOpen) {
+        guideOpen = false;
+        renderTopics();
+      }
+      renderList();
+    };
     $("type-filter").onchange = renderList;
     $("sort").onchange = renderList;
     $("close-help").onclick = () => $("help").close();

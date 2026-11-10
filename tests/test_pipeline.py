@@ -337,13 +337,22 @@ class PipelineTests(unittest.TestCase):
         program = r"""
 const fs = require('node:fs'), vm = require('node:vm'), assert = require('node:assert/strict');
 const source = fs.readFileSync(process.argv[1], 'utf8').replace(/\ninit\(\);\s*$/, '');
-const api = vm.runInNewContext(source + '\n;({ setData: value => data=value, matchesFacets, readView, getView:()=>({topic,subtopics,collection}) })', { URL, URLSearchParams, location:{search:''} });
+const api = vm.runInNewContext(source + '\n;({ setData: value => data=value, matchesFacets, readView, getView:()=>({topic,subtopics,collection,guideOpen}) })', { URL, URLSearchParams, location:{search:''} });
 const data = JSON.parse(fs.readFileSync(0,'utf8')); api.setData(data);
+api.readView(new URLSearchParams('topic=rsi'));
+assert.equal(api.getView().guideOpen,true);
+api.readView(new URLSearchParams('topic=rsi&view=works'));
+assert.equal(api.getView().guideOpen,false);
+api.readView(new URLSearchParams('topic=rsi&q=optimizer'));
+assert.equal(api.getView().guideOpen,false);
+api.readView(new URLSearchParams('topic=interest-exploration'));
+assert.equal(api.getView().guideOpen,false);
 const selected = ['interp-q-knowledge','interp-q-behavior'];
 assert.equal(data.papers.filter(p=>api.matchesFacets(p,selected)).length,6);
 assert.equal(data.papers.filter(p=>api.matchesFacets(p,[...selected,'interp-m-sae'])).length,3);
 api.readView(new URLSearchParams('topic=rsi-interpretability&subtopic=interp-representations'));
 assert.equal(api.getView().topic,'llm-interpretability');
+assert.equal(api.getView().guideOpen,false);
 api.readView(new URLSearchParams('topic=rsi&subtopic=rsi-agent-programs'));
 assert.equal(api.getView().subtopics[0],'rsi-rec-agent');
 api.readView(new URLSearchParams('topic=interpretability-rsi'));

@@ -934,8 +934,7 @@ dialog .close {
 }
 .topic,
 .collection,
-.subtopic,
-.guide-entry {
+.subtopic {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -966,14 +965,12 @@ dialog .close {
 }
 .topic:hover,
 .subtopic:hover,
-.guide-entry:hover,
 .collection:hover {
   background: var(--page);
   color: var(--link);
 }
 .topic.active,
 .subtopic.active,
-.guide-entry.active,
 .collection.active {
   background: var(--tint);
   color: var(--link);
@@ -982,11 +979,7 @@ dialog .close {
 .topic:active {
   transform: none;
 }
-.guide-entry {
-  color: var(--link);
-  font-size: 14px;
-  padding-left: 22px;
-}
+
 .facet-group {
   margin: 4px 0;
 }

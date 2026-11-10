@@ -70,6 +70,19 @@ def config(root=ROOT):
     cfg = read(root / "config.json")
     if not cfg.get("research_topic") or not cfg.get("topics") or not all(slug_ok(k) and isinstance(v, str) and v for k, v in cfg["topics"].items()):
         raise Invalid("config.json 必须包含研究主题和合法的主题分类。")
+    for axis in ("subtopics", "collections"):
+        values = cfg.get(axis, {})
+        if not isinstance(values, dict):
+            raise Invalid(axis + " 必须是受控分类对象")
+        for key, item in values.items():
+            if (not slug_ok(key) or not isinstance(item, dict)
+                    or not isinstance(item.get("label"), str) or not item["label"].strip()):
+                raise Invalid(axis + " 缺少有效 id 或名称")
+            if axis == "subtopics" and (item.get("topic") not in cfg["topics"]
+                    or not isinstance(item.get("definition"), str) or not item["definition"].strip()):
+                raise Invalid("子类必须指定有效父主题与分类边界")
+            if axis == "collections" and key in cfg["topics"]:
+                raise Invalid("交叉入口不能同时作为主主题")
     return cfg
 
 
@@ -186,6 +199,9 @@ def prepare(args, root=ROOT):
     draft = {
         "schema_version": 1, "id": args.id, "origin": "user", "title": "", "authors": [], "year": date.today().year,
         "paper_type": "method", "topics": [], "tags": [], "one_liner": "",
+        "subtopics": own.get("subtopics", []) if own else [],
+        "collections": own.get("collections", []) if own else [],
+        "classification_reason": own.get("classification_reason", "") if own else "",
         "added_at": own["added_at"] if own else str(date.today()), "updated_at": str(date.today()),
         "source": source, "read_scope": "full", "sections": {k: {"text": "", "evidence": []} for k in SECTIONS},
         "evidence": [], "related": [],
@@ -217,6 +233,20 @@ def check_record(p, cfg, ids, root=ROOT, source=None):
     need(p.get("paper_type") in TYPES, "非法文章类型")
     topics = p.get("topics", [])
     need(isinstance(topics, list) and bool(topics) and all(isinstance(t, str) and t in cfg["topics"] for t in topics), "主题缺失或不属于受控分类")
+    for axis in ("subtopics", "collections"):
+        values = p.get(axis, [])
+        valid = (isinstance(values, list) and all(isinstance(x, str) and x in cfg.get(axis, {}) for x in values)
+                 and len(values) == len(set(values)))
+        need(valid, axis + " 必须使用不重复的受控分类")
+        if axis == "subtopics" and valid:
+            parents = {cfg[axis][x]["topic"] for x in values}
+            need(isinstance(topics, list) and all(isinstance(t, str) for t in topics) and parents.issubset(topics), "子类与父主题不一致")
+            for parent in {x["topic"] for x in cfg.get(axis, {}).values()}:
+                if isinstance(topics, list) and parent in topics:
+                    need(parent in parents, parent + " 缺少适用子类")
+    if "subtopics" in cfg:
+        reason = p.get("classification_reason", "")
+        need(isinstance(reason, str) and len(reason.strip()) >= 12, "缺少实质归类依据")
     need(isinstance(p.get("tags"), list) and all(isinstance(t, str) and t.strip() for t in p["tags"]), "tags 必须是文字列表")
     need(p.get("read_scope") == "full", "未阅读全文，不能作为完成卡片发布")
     src = p.get("source", {})
@@ -292,13 +322,13 @@ def validate(root=ROOT):
             attachment = root / p["source"]["attachment"]
             if attachment.is_file() and hashlib.sha256(attachment.read_bytes()).hexdigest() != p["source"]["sha256"]:
                 errors.append(f"{path.name}: 附件哈希不一致")
-    guides = cfg.get("topic_guides", {})
-    if not isinstance(guides, dict):
-        errors.append("topic_guides 必须是按主题组织的对象")
-    else:
+    for axis, guides in (("topics", cfg.get("topic_guides", {})), ("collections", cfg.get("collections", {}))):
+        if not isinstance(guides, dict):
+            errors.append("导读必须是按入口组织的对象")
+            continue
         by_id = {p.get("id"): p for p in papers}
         for topic, guide in guides.items():
-            if (topic not in cfg["topics"] or not isinstance(guide, dict)
+            if (topic not in cfg.get(axis, {}) or not isinstance(guide, dict)
                     or not isinstance(guide.get("summary"), str) or not guide["summary"].strip()
                     or not isinstance(guide.get("points"), list)
                     or not all(isinstance(x, str) and x.strip() for x in guide["points"])
@@ -308,7 +338,7 @@ def validate(root=ROOT):
             for item in guide["reading_order"]:
                 if (not isinstance(item, dict) or not isinstance(item.get("label"), str) or not item["label"].strip()
                         or not isinstance(item.get("id"), str)
-                        or item.get("id") not in by_id or topic not in by_id[item["id"]].get("topics", [])):
+                        or item.get("id") not in by_id or topic not in by_id[item["id"]].get(axis, [])):
                     errors.append(f"{topic}: 推荐阅读必须指向本主题已收录的论文")
     if errors:
         raise Invalid("\n".join(errors))
@@ -320,6 +350,12 @@ def markdown(p, cfg):
     out = [f"# {p['title']}", "", p["one_liner"], "", f"- 作者：{', '.join(p['authors'])}",
            f"- 年份：{p['year']} · 类型：{p['paper_type']}", f"- 主题：{' / '.join(cfg['topics'][x] for x in p['topics'])}",
            f"- [原文]({src}) · 收录：{p['added_at']} · 更新：{p['updated_at']}", ""]
+    if p.get("subtopics"):
+        out.extend(["- 子类：" + " / ".join(cfg["subtopics"][x]["label"] for x in p["subtopics"]), ""])
+    if p.get("collections"):
+        out.extend(["- 交叉入口：" + " / ".join(cfg["collections"][x]["label"] for x in p["collections"]), ""])
+    if p.get("classification_reason"):
+        out.extend(["归类依据（知识库分析）：" + p["classification_reason"], ""])
     for key, label in SECTIONS.items():
         s = p["sections"][key]
         out.extend(["## " + label, "", s["text"], "", "证据：" + ", ".join(s["evidence"]) if s["evidence"] else "研究关联分析；未作为论文结论。", ""])
@@ -396,6 +432,8 @@ def build(output, root=ROOT):
     inbox = [read(p) for p in sorted((root / "inbox").glob("*.json"))]
     public_config = {k: cfg[k] for k in ("name", "research_topic", "description", "topics", "repository_url")}
     public_config["topic_guides"] = cfg.get("topic_guides", {})
+    for key in ("subtopics", "collections", "classification_rules"):
+        public_config[key] = cfg.get(key, [] if key == "classification_rules" else {})
     write(output / "data.json", {"config": public_config, "papers": sorted(papers, key=lambda p: (p["added_at"], p["id"]), reverse=True), "sections": SECTIONS, "pending_count": len(inbox)})
     # Only website assets and reviewed cards are published; extraction caches/drafts never enter dist.
     (output / ".nojekyll").touch()

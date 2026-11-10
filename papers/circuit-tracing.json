@@ -181,5 +181,10 @@
     "reviewed_by": "Codex",
     "prompt_version": "1.2",
     "evidence_verified_sha256": "a70ce88c09533238154875dbb1320fd2d2aebedfd5fc7e782518385b3d597673"
-  }
+  },
+  "collections": [],
+  "subtopics": [
+    "interp-circuits"
+  ],
+  "classification_reason": "主要产出是连接特征与输出的计算路径和归因图，并检验路径的干预预测，归计算路径与电路。"
 }

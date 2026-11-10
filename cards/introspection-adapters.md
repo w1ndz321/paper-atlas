@@ -4,8 +4,14 @@
 
 - 作者：Keshav Shenoy, Li Yang, Abhay Sheshadri, Sören Mindermann, Jack Lindsey, Sam Marks, Rowan Wang
 - 年份：2026 · 类型：method
-- 主题：LLM 可解释性 / 可解释性 × RSI
+- 主题：LLM 可解释性
 - [原文](https://arxiv.org/abs/2604.16812v2) · 收录：2026-11-10 · 更新：2026-11-10
+
+- 子类：行为倾向与驱动因素
+
+- 交叉入口：可解释性 × RSI
+
+归类依据（知识库分析）：训练模型报告微调后形成的跨输入行为倾向，归行为倾向与驱动因素。作为训练后审计工具进入交叉入口，报告不等于自主修复。
 
 ## 研究问题
 

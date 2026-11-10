@@ -144,5 +144,10 @@
     "reviewed_by": "Codex",
     "prompt_version": "1.2",
     "evidence_verified_sha256": "13ff4abe0c7ad4a7dd3b4876d19a8bf940e39e70dabbf06065aa774a6c3457de"
-  }
+  },
+  "collections": [],
+  "subtopics": [
+    "rsi-agent-programs"
+  ],
+  "classification_reason": "直接演化的是编码 Agent 的工具和执行工作流，选择信号是编码任务表现；开放档案与父代选择固定，按执行程序归类。"
 }

@@ -158,5 +158,10 @@
     "reviewed_by": "Codex",
     "prompt_version": "1.2",
     "evidence_verified_sha256": "f092c8cbd65da89951ee6496374da9a54963f9035758c25ac6e4625f506df9ad"
-  }
+  },
+  "collections": [],
+  "subtopics": [
+    "rsi-compute-programs"
+  ],
+  "classification_reason": "在本库 RSI 视角下，相关贡献是优化调度、训练内核等计算程序并反馈 AI 基础设施；它属于邻近证据，没有在同一循环中自主更新底座权重。"
 }

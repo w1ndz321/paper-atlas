@@ -13,6 +13,8 @@ const typeLabels = {
 let data;
 const params = new URLSearchParams(location.search);
 let topic = params.get("topic") || "";
+let subtopic = params.get("subtopic") || "";
+let collection = params.get("collection") || "";
 let savedScroll = 0;
 const node = (tag, className, text) => {
   const el = document.createElement(tag);
@@ -31,17 +33,56 @@ function link(text, href, className = "", external = false) {
   }
   return el;
 }
-function updateQuery() {
+function updateQuery(push = false, hash = location.hash) {
   const query = new URLSearchParams();
   if ($("search").value) query.set("q", $("search").value);
   if (topic) query.set("topic", topic);
+  if (subtopic) query.set("subtopic", subtopic);
+  if (collection) query.set("collection", collection);
   if ($("type-filter").value) query.set("type", $("type-filter").value);
   if ($("sort").value !== "added") query.set("sort", $("sort").value);
-  history.replaceState(
+  history[push ? "pushState" : "replaceState"](
     null,
     "",
-    location.pathname + (query.size ? "?" + query : "") + location.hash,
+    location.pathname + (query.size ? "?" + query : "") + hash,
   );
+}
+function readView(state) {
+  const requestedTopic = state.get("topic") || "";
+  // Preserve links shared before the cross-entry was separated from Topics.
+  collection =
+    state.get("collection") ||
+    (Object.hasOwn(data.config.collections, requestedTopic)
+      ? requestedTopic
+      : "");
+  if (!Object.hasOwn(data.config.collections, collection)) collection = "";
+  topic = Object.hasOwn(data.config.topics, requestedTopic)
+    ? requestedTopic
+    : "";
+  subtopic = state.get("subtopic") || "";
+  const category = Object.hasOwn(data.config.subtopics, subtopic)
+    ? data.config.subtopics[subtopic]
+    : undefined;
+  if (category && !topic) topic = category.topic;
+  if (!category || category.topic !== topic) subtopic = "";
+  if (collection) topic = subtopic = "";
+}
+function selectView(nextTopic = "", nextSubtopic = "", nextCollection = "") {
+  topic = nextTopic;
+  subtopic = nextSubtopic;
+  collection = nextCollection;
+  updateQuery(true, "");
+  renderTopics();
+  renderList();
+  showRoute();
+}
+function filterButton(label, count, active, action, className = "topic") {
+  const btn = node("button", className + (active ? " active" : ""));
+  btn.type = "button";
+  btn.setAttribute("aria-pressed", String(active));
+  btn.append(node("b", "", label), node("span", "", String(count)));
+  btn.addEventListener("click", action);
+  return btn;
 }
 function renderTopics() {
   const all = { "": "全部论文", ...data.config.topics };
@@ -51,30 +92,108 @@ function renderTopics() {
       (p) => !id || p.topics.includes(id),
     ).length;
     if (id && count === 0) continue;
-    const btn = node("button", "topic" + (topic === id ? " active" : ""));
-    btn.type = "button";
-    btn.setAttribute("aria-pressed", String(topic === id));
-    btn.append(node("b", "", label), node("span", "", String(count)));
-    btn.addEventListener("click", () => {
-      topic = id;
-      if (location.hash)
-        history.pushState(null, "", location.pathname + location.search);
-      renderTopics();
-      renderList();
-      showRoute();
-    });
-    $("topics").append(btn);
+    $("topics").append(
+      filterButton(label, count, !collection && topic === id, () =>
+        selectView(id),
+      ),
+    );
   }
-  const guide = data.config.topic_guides?.[topic];
+  const navigation = $("topics");
+  const selected = navigation.querySelector(".active");
+  if (selected && navigation.scrollWidth > navigation.clientWidth) {
+    navigation.scrollLeft +=
+      selected.getBoundingClientRect().left -
+      navigation.getBoundingClientRect().left -
+      (navigation.clientWidth - selected.offsetWidth) / 2;
+  }
+  const entries = $("collections");
+  entries.replaceChildren();
+  entries.hidden = !Object.keys(data.config.collections).length;
+  if (!entries.hidden)
+    entries.append(node("span", "filter-label", "交叉研究入口"));
+  for (const [id, entry] of Object.entries(data.config.collections)) {
+    const count = data.papers.filter((p) => p.collections.includes(id)).length;
+    entries.append(
+      filterButton(
+        entry.label,
+        count,
+        collection === id,
+        () => selectView("", "", id),
+        "collection",
+      ),
+    );
+  }
+  const children = Object.entries(data.config.subtopics).filter(
+    ([, s]) => s.topic === topic,
+  );
+  const secondary = $("subtopics");
+  secondary.replaceChildren();
+  secondary.hidden = !children.length;
+  if (children.length) {
+    secondary.append(
+      node(
+        "span",
+        "filter-label",
+        topic === "rsi" ? "按改进对象" : "按解释对象",
+      ),
+    );
+    const count = data.papers.filter((p) => p.topics.includes(topic)).length;
+    secondary.append(
+      filterButton(
+        "全部子类",
+        count,
+        !subtopic,
+        () => selectView(topic),
+        "subtopic",
+      ),
+    );
+    for (const [id, child] of children) {
+      const count = data.papers.filter((p) => p.subtopics.includes(id)).length;
+      secondary.append(
+        filterButton(
+          child.label,
+          count,
+          subtopic === id,
+          () => selectView(topic, id),
+          "subtopic",
+        ),
+      );
+    }
+  }
+  const parentGuide = data.config.topic_guides?.[topic];
+  const category = data.config.subtopics[subtopic];
+  const guide = collection
+    ? data.config.collections[collection]
+    : category
+      ? {
+          summary: category.definition,
+          points: [],
+          reading_order: (parentGuide?.reading_order || []).filter((item) =>
+            data.papers
+              .find((p) => p.id === item.id)
+              ?.subtopics.includes(subtopic),
+          ),
+        }
+      : parentGuide;
   const panel = $("topic-guide");
   panel.replaceChildren();
   panel.hidden = !guide;
   if (guide) {
-    panel.append(node("p", "eyebrow", "主题导读 · 知识库分析"));
+    panel.append(
+      node(
+        "p",
+        "eyebrow",
+        category
+          ? "分类边界 · " + category.label
+          : collection
+            ? "交叉导读 · 知识库分析"
+            : "主题导读 · 知识库分析",
+      ),
+    );
     panel.append(node("p", "guide-summary", guide.summary));
     const points = node("ul", "guide-points");
     for (const point of guide.points) points.append(node("li", "", point));
-    panel.append(points);
+    if (guide.points.length) panel.append(points);
     if (guide.reading_order.length) {
       const reading = node("div", "guide-reading");
       reading.append(node("span", "", "建议阅读"));
@@ -98,6 +217,8 @@ function renderList() {
   const filtered = data.papers.filter(
     (p) =>
       (!topic || p.topics.includes(topic)) &&
+      (!subtopic || p.subtopics.includes(subtopic)) &&
+      (!collection || p.collections.includes(collection)) &&
       (!type || p.paper_type === type) &&
       terms.every((t) => p.searchText.includes(t)),
   );
@@ -111,11 +232,17 @@ function renderList() {
   );
   $("papers").replaceChildren();
   $("total").textContent = filtered.length + " / " + data.papers.length + " 篇";
-  $("active-label").textContent = data.config.topics[topic] || "全部论文";
+  $("active-label").textContent =
+    data.config.collections[collection]?.label ||
+    data.config.subtopics[subtopic]?.label ||
+    data.config.topics[topic] ||
+    "全部论文";
   $("feedback").textContent = filtered.length
     ? ""
     : data.papers.length
-      ? "没有找到匹配的论文。试试其他关键词或分类。"
+      ? subtopic && !data.papers.some((p) => p.subtopics.includes(subtopic))
+        ? "该子类尚未收录论文。0 篇表示当前馆藏，不代表该方向没有研究。"
+        : "没有找到匹配的论文。试试其他关键词或分类。"
       : "知识库已就绪。在 Codex 中提交第一篇论文即可开始。";
   for (const [i, p] of filtered.entries()) {
     const row = link("", "#paper/" + encodeURIComponent(p.id), "paper-row");
@@ -134,6 +261,8 @@ function renderList() {
     const tags = node("div", "paper-tags");
     for (const t of p.topics)
       tags.append(node("span", "", data.config.topics[t]));
+    for (const s of p.subtopics)
+      tags.append(node("span", "", data.config.subtopics[s].label));
     const time = node("time", "", p.added_at + " 收录");
     time.dateTime = p.added_at;
     bottom.append(tags, time);
@@ -219,6 +348,45 @@ function showRoute() {
   );
   head.append(actions);
   reader.append(head);
+  if (paper.classification_reason) {
+    const classification = node("aside", "paper-classification");
+    classification.setAttribute("aria-label", "论文归类依据");
+    classification.append(node("p", "eyebrow", "知识库归类"));
+    const paths = node("div", "classification-paths");
+    for (const t of paper.topics) {
+      const path = node("span");
+      path.append(
+        link(data.config.topics[t], "?topic=" + encodeURIComponent(t)),
+      );
+      for (const s of paper.subtopics.filter(
+        (s) => data.config.subtopics[s].topic === t,
+      )) {
+        path.append(
+          node("span", "", " › "),
+          link(
+            data.config.subtopics[s].label,
+            "?topic=" +
+              encodeURIComponent(t) +
+              "&subtopic=" +
+              encodeURIComponent(s),
+          ),
+        );
+      }
+      paths.append(path);
+    }
+    for (const c of paper.collections)
+      paths.append(
+        link(
+          "交叉入口 · " + data.config.collections[c].label,
+          "?collection=" + encodeURIComponent(c),
+        ),
+      );
+    classification.append(
+      paths,
+      node("p", "classification-reason", paper.classification_reason),
+    );
+    reader.append(classification);
+  }
   const toc = node("nav", "toc");
   toc.setAttribute("aria-label", "卡片目录");
   for (const [key, title] of Object.entries(data.sections)) {
@@ -315,6 +483,7 @@ async function init() {
     const response = await fetch("data.json", { cache: "no-cache" });
     if (!response.ok) throw new Error("HTTP " + response.status);
     data = await response.json();
+    readView(params);
     $("research-topic").textContent = data.config.research_topic;
     $("description").textContent = data.config.description;
     for (const p of data.papers)
@@ -324,9 +493,11 @@ async function init() {
         p.tags,
         p.one_liner,
         p.sections,
+        p.classification_reason,
         p.topics.map((t) => data.config.topics[t]),
+        p.subtopics.map((s) => data.config.subtopics[s].label),
+        p.collections.map((c) => data.config.collections[c].label),
       ]).toLocaleLowerCase();
-    if (!(topic in data.config.topics)) topic = "";
     for (const [type, label] of Object.entries(typeLabels)) {
       const option = node("option", "", label);
       option.value = type;
@@ -377,8 +548,7 @@ async function init() {
     window.addEventListener("popstate", () => {
       const state = new URLSearchParams(location.search);
       $("search").value = state.get("q") || "";
-      topic =
-        state.get("topic") in data.config.topics ? state.get("topic") : "";
+      readView(state);
       $("type-filter").value = state.get("type") || "";
       $("sort").value = ["added", "year", "title"].includes(state.get("sort"))
         ? state.get("sort")

@@ -152,5 +152,10 @@
     "reviewed_by": "Codex",
     "prompt_version": "1.2",
     "evidence_verified_sha256": "8ba79e0ad1028e43b0a47ee06162c9b3996ec90f7990b7ec35993444e505409b"
-  }
+  },
+  "collections": [],
+  "subtopics": [
+    "rsi-improvement-programs"
+  ],
+  "classification_reason": "改写研究 Agent 的搜索与上下文程序，以固定预算下的研究优化效率为直接选择目标，归改进程序；更强的递归效率主张仍需 ignition test。"
 }

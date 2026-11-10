@@ -12,8 +12,7 @@
   "year": 2026,
   "paper_type": "benchmark",
   "topics": [
-    "llm-interpretability",
-    "interpretability-rsi"
+    "llm-interpretability"
   ],
   "tags": [
     "中国科学院自动化研究所",
@@ -157,5 +156,12 @@
     "reviewed_by": "Codex",
     "prompt_version": "1.2",
     "evidence_verified_sha256": "32984f5141b2746ff16d4424783947bcfa002b279bcaeffcd356ef83846b9bd2"
-  }
+  },
+  "collections": [
+    "interpretability-rsi"
+  ],
+  "subtopics": [
+    "interp-representations"
+  ],
+  "classification_reason": "测量 Agent 发现并验证概念特征的能力，研究对象仍是内部表征，论文类型独立标为评测基准。自主可解释性实验是其进入交叉入口的依据，尚未接入完整 RSI 闭环。"
 }

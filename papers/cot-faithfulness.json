@@ -162,5 +162,10 @@
     "reviewed_by": "Codex",
     "prompt_version": "1.2",
     "evidence_verified_sha256": "546afa672e0c50d50b7c86b7dbacb6f51d200be74f33577012d98cb18eee7600"
-  }
+  },
+  "collections": [],
+  "subtopics": [
+    "interp-reasoning"
+  ],
+  "classification_reason": "测量文字思维链是否承认实际影响决策的线索，解释对象是外显推理；合成奖励漏洞是其检验环境。"
 }

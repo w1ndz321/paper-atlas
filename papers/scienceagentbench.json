@@ -185,5 +185,8 @@
     "reviewed_by": "Codex",
     "prompt_version": "1.1",
     "evidence_verified_sha256": "5b4b8be139d6f88d53acaf89b18938d0c1749fc20f5d50db6989324772d993bc"
-  }
+  },
+  "collections": [],
+  "subtopics": [],
+  "classification_reason": "任务来自科学数据工作流，保留在 Agent 评测背景；输出 Python 程序并不构成 RSI 或 LLM 内部解释贡献，不强行赋研究子类。"
 }

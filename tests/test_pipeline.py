@@ -201,6 +201,76 @@ class PipelineTests(unittest.TestCase):
         p["source"]["attachment"] = "../../outside.pdf"
         self.assertTrue(kb.check_record(p, self.cfg, {"example"}, self.root))
 
+    def taxonomy(self):
+        cfg = copy.deepcopy(self.cfg)
+        cfg["topics"]["other-topic"] = "其他主题"
+        cfg["subtopics"] = {
+            "task-program": {"topic": "general-agents", "label": "任务程序", "definition": "按直接改进的程序对象分类"},
+            "other-object": {"topic": "other-topic", "label": "其他对象", "definition": "另一父主题下的研究对象"},
+        }
+        cfg["collections"] = {"cross-view": {"label": "交叉入口", "summary": "独立的交叉阅读入口", "points": ["需要实际连接证据"], "reading_order": [{"id": "example", "label": "Example"}]}}
+        p = self.paper()
+        p.update(subtopics=["task-program"], collections=["cross-view"], classification_reason="直接研究任务程序及其评价，按实际研究对象归类。")
+        return cfg, p
+
+    def test_taxonomy_rejects_orphan_duplicate_unknown_and_missing_assignments(self):
+        cfg, p = self.taxonomy()
+        for change in (
+            lambda x: x.update(subtopics=["other-object"]),
+            lambda x: x.update(subtopics=["task-program", "task-program"]),
+            lambda x: x.update(subtopics=["unknown"]),
+            lambda x: x.update(subtopics=[]),
+            lambda x: x.update(collections=["unknown"]),
+            lambda x: x.update(collections=["cross-view", "cross-view"]),
+            lambda x: x.update(classification_reason=""),
+            lambda x: x.update(topics=["cross-view"]),
+        ):
+            bad = copy.deepcopy(p)
+            change(bad)
+            with self.subTest(paper=bad):
+                self.assertTrue(kb.check_record(bad, cfg, {"example"}, self.root))
+
+    def test_taxonomy_boundaries_and_cross_collection_reach_published_card(self):
+        cfg, p = self.taxonomy()
+        kb.write(self.root / "config.json", cfg)
+        self.store(p)
+        kb.render_cards(self.root)
+        kb.build(self.root / "dist", self.root)
+        published = kb.read(self.root / "dist/data.json")
+        self.assertEqual(published["config"]["subtopics"], cfg["subtopics"])
+        self.assertNotIn("cross-view", published["config"]["topics"])
+        self.assertEqual(published["papers"][0]["collections"], ["cross-view"])
+        markdown = (self.root / "cards/example.md").read_text()
+        self.assertIn("归类依据（知识库分析）", markdown)
+        self.assertIn("子类：任务程序", markdown)
+        # A recommended cross-entry link cannot point to a nonmember.
+        p["collections"] = []
+        self.store(p)
+        with self.assertRaisesRegex(kb.Invalid, "推荐阅读"):
+            kb.validate(self.root)
+
+    def test_taxonomy_config_rejects_invalid_parent_and_mixed_entry(self):
+        cfg, _ = self.taxonomy()
+        cfg["subtopics"]["task-program"]["topic"] = "missing"
+        kb.write(self.root / "config.json", cfg)
+        with self.assertRaisesRegex(kb.Invalid, "父主题"):
+            kb.config(self.root)
+        cfg, _ = self.taxonomy()
+        cfg["topics"]["cross-view"] = "交叉入口"
+        kb.write(self.root / "config.json", cfg)
+        with self.assertRaisesRegex(kb.Invalid, "交叉入口"):
+            kb.config(self.root)
+
+    def test_prepare_update_preserves_classification_metadata(self):
+        cfg, p = self.taxonomy()
+        kb.write(self.root / "config.json", cfg)
+        self.store(p)
+        with patch.object(kb, "download", return_value=(self.text.encode(), "text/plain")):
+            kb.prepare(argparse.Namespace(id="example", url=p["source"]["url"], pdf=None, update=True), self.root)
+        draft = kb.read(self.root / ".local/example/draft.json")
+        for field in ("subtopics", "collections", "classification_reason"):
+            self.assertEqual(draft[field], p[field])
+
     def test_build_refuses_source_directory(self):
         with self.assertRaises(kb.Invalid):
             kb.build(self.root, self.root)

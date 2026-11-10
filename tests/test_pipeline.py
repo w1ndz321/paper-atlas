@@ -333,11 +333,11 @@ class PipelineTests(unittest.TestCase):
         self.assertFalse(any(axis["topic"] == "interest-exploration" for axis in cfg["axes"].values()))
 
     @unittest.skipUnless(shutil.which("node"), "需要 Node 验证读者页面筛选逻辑")
-    def test_reader_combines_facets_and_migrates_old_links(self):
+    def test_reader_navigates_one_category_and_migrates_old_links(self):
         program = r"""
 const fs = require('node:fs'), vm = require('node:vm'), assert = require('node:assert/strict');
 const source = fs.readFileSync(process.argv[1], 'utf8').replace(/\ninit\(\);\s*$/, '');
-const api = vm.runInNewContext(source + '\n;({ setData: value => data=value, matchesFacets, readView, getView:()=>({topic,subtopics,collection,guideOpen}) })', { URL, URLSearchParams, location:{search:''} });
+const api = vm.runInNewContext(source + '\n;({ setData: value => data=value, matchesCategory, readView, getView:()=>({topic,subtopic,collection,guideOpen}) })', { URL, URLSearchParams, location:{search:''} });
 const data = JSON.parse(fs.readFileSync(0,'utf8')); api.setData(data);
 api.readView(new URLSearchParams('topic=rsi'));
 assert.equal(api.getView().guideOpen,true);
@@ -347,18 +347,25 @@ api.readView(new URLSearchParams('topic=rsi&q=optimizer'));
 assert.equal(api.getView().guideOpen,false);
 api.readView(new URLSearchParams('topic=interest-exploration'));
 assert.equal(api.getView().guideOpen,false);
-const selected = ['interp-q-knowledge','interp-q-behavior'];
-assert.equal(data.papers.filter(p=>api.matchesFacets(p,selected)).length,6);
-assert.equal(data.papers.filter(p=>api.matchesFacets(p,[...selected,'interp-m-sae'])).length,3);
+assert.equal(data.papers.filter(p=>api.matchesCategory(p,'interp-q-knowledge')).length,4);
+assert.equal(data.papers.filter(p=>api.matchesCategory(p,'interp-m-sae')).length,4);
+api.readView(new URLSearchParams('topic=agent-benchmarks&subtopic=domain-physics&subtopic=domain-earth'));
+assert.equal(api.getView().subtopic,'domain-earth');
+assert.equal(data.papers.filter(p=>api.matchesCategory(p)).length,1);
+assert.equal(data.papers.find(p=>api.matchesCategory(p)).id,'scienceagentbench');
+api.readView(new URLSearchParams('topic=agent-benchmarks&subtopic=eval-metrics'));
+assert.equal(api.getView().subtopic,'eval-metrics');
+assert.equal(data.papers.filter(p=>api.matchesCategory(p)).length,1);
+assert.equal(data.papers.find(p=>api.matchesCategory(p)).id,'dont-pass-at-k');
 api.readView(new URLSearchParams('topic=rsi-interpretability&subtopic=interp-representations'));
 assert.equal(api.getView().topic,'llm-interpretability');
 assert.equal(api.getView().guideOpen,false);
 api.readView(new URLSearchParams('topic=rsi&subtopic=rsi-agent-programs'));
-assert.equal(api.getView().subtopics[0],'rsi-rec-agent');
+assert.equal(api.getView().subtopic,'rsi-rec-agent');
 api.readView(new URLSearchParams('topic=interpretability-rsi'));
 assert.equal(api.getView().collection,'interpretability-rsi');
 api.readView(new URLSearchParams('topic=rsi&subtopic=unknown&subtopic=interp-representations'));
-assert.equal(api.getView().subtopics.length,0);
+assert.equal(api.getView().subtopic,'');
 """
         subprocess.run(["node", "-e", program, str(kb.ROOT / "web/app.js")], input=json.dumps({"config": kb.config(), "papers": kb.records()}), text=True, capture_output=True, check=True)
 

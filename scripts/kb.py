@@ -438,6 +438,12 @@ def build(output, root=ROOT):
     output.mkdir(parents=True, exist_ok=True)
     for name in ("index.html", "app.js", "style.css"):
         shutil.copyfile(root / "web" / name, output / name)
+    # A new data schema must not run against an older browser-cached reader.
+    index = (output / "index.html").read_text(encoding="utf-8")
+    for name in ("app.js", "style.css"):
+        version = hashlib.sha256((output / name).read_bytes()).hexdigest()[:12]
+        index = index.replace(f'"{name}"', f'"{name}?v={version}"')
+    (output / "index.html").write_text(index, encoding="utf-8")
     inbox = [read(p) for p in sorted((root / "inbox").glob("*.json"))]
     public_config = {k: cfg[k] for k in ("name", "research_topic", "description", "topics", "repository_url")}
     public_config["topic_guides"] = cfg.get("topic_guides", {})

@@ -306,6 +306,20 @@ class PipelineTests(unittest.TestCase):
         kb.build(self.root / "dist", self.root)
         self.assertEqual(kb.read(self.root / "dist/data.json")["papers"], [])
 
+    def test_build_changes_asset_urls_when_reader_changes(self):
+        (self.root / "web/index.html").write_text('<link href="style.css"><script src="app.js"></script>')
+        kb.render_cards(self.root)
+        kb.build(self.root / "dist", self.root)
+        first = (self.root / "dist/index.html").read_text()
+        self.assertIn('app.js?v=', first)
+        self.assertIn('style.css?v=', first)
+        (self.root / "web/app.js").write_text('updated reader')
+        kb.build(self.root / "dist", self.root)
+        second = (self.root / "dist/index.html").read_text()
+        self.assertNotEqual(first, second)
+        expected = hashlib.sha256(b'updated reader').hexdigest()[:12]
+        self.assertIn('app.js?v=' + expected, second)
+
 
 if __name__ == "__main__":
     unittest.main()

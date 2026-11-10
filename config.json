@@ -1,0 +1,21 @@
+{
+  "name": "Paper Atlas",
+  "research_topic": "Agent 评测 Benchmark",
+  "description": "整理 Agent 评测基准的任务、环境、评分方法、实验结果与适用边界，方便检索和比较已读论文。",
+  "repository_url": "https://github.com/w1ndz321/paper-atlas",
+  "scope": "收录 Agent 评测 benchmark、任务环境、评价指标、评分协议和基准分析工作。围绕公开论文记录其实际测量对象、实验设置、验证方式、结果与局限。",
+  "research_questions": [
+    "这个 benchmark 测量哪些 Agent 能力，包含什么任务和环境？",
+    "任务如何构建，结果如何评分和验证？",
+    "模型、工具、提示词、预算和数据设置如何影响结果？",
+    "已报告的结果支持什么结论，有哪些局限和复现条件？"
+  ],
+  "topics": {
+    "general-agents": "通用 Agent 评测",
+    "tool-use": "工具调用评测",
+    "web-computer": "网页与计算机操作",
+    "coding-agents": "代码 Agent 评测",
+    "scientific-agents": "科研 Agent 评测",
+    "benchmark-design": "基准设计与评价方法"
+  }
+}

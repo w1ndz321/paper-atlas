@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="在 Codex 中读论文，在这里找回方法、证据和边界。"
+    />
+    <meta name="color-scheme" content="light" />
+    <title>Paper Atlas · 已读论文库</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="masthead">
+      <a class="brand" href="#" aria-label="Paper Atlas 首页"
+        ><span class="mark">P<span>·</span>A</span
+        ><span>Paper Atlas<small>已读论文库</small></span></a
+      >
+      <div class="header-links">
+        <button id="header-help">使用说明</button
+        ><a
+          id="repo-link"
+          class="repo"
+          target="_blank"
+          rel="noopener noreferrer"
+          >GitHub <span aria-hidden="true">↗</span></a
+        >
+      </div>
+    </header>
+    <div class="workspace">
+      <aside class="sidebar">
+        <p class="eyebrow">RESEARCH FOCUS</p>
+        <h1 id="research-topic">论文知识库</h1>
+        <p id="description" class="description"></p>
+        <div class="sidebar-rule"></div>
+        <p class="eyebrow">按研究问题浏览</p>
+        <nav id="topics" aria-label="主题分类"></nav>
+        <div class="sidebar-bottom">
+          <span class="status-dot"></span>在 Codex 阅读与收录<br /><span
+            class="muted"
+            >这里保留方法、结果和证据。</span
+          ><button id="help-button" class="help-button">
+            如何收录论文 <span>↗</span>
+          </button>
+        </div>
+      </aside>
+      <main>
+        <section id="library" aria-label="论文列表">
+          <div class="library-heading">
+            <div>
+              <p class="eyebrow">READING LIBRARY</p>
+              <h2>读过，随时找回。</h2>
+            </div>
+            <span id="total" class="total" aria-live="polite"></span>
+          </div>
+          <form id="search-form" class="search" role="search">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="10.7" cy="10.7" r="6.6"></circle>
+              <path d="m16 16 4.5 4.5"></path></svg
+            ><input
+              id="search"
+              type="search"
+              placeholder="搜索问题、方法、指标或结论…"
+              aria-label="搜索论文全文卡片"
+              autocomplete="off"
+            /><kbd>/</kbd>
+          </form>
+          <div class="toolbar">
+            <span id="active-label">全部论文</span>
+            <div>
+              <label class="sr-only" for="type-filter">文章类型</label
+              ><select id="type-filter">
+                <option value="">全部类型</option></select
+              ><label class="sr-only" for="sort">排序</label
+              ><select id="sort">
+                <option value="added">最近收录</option>
+                <option value="year">发表年份</option>
+                <option value="title">标题排序</option>
+              </select>
+            </div>
+          </div>
+          <p id="feedback" role="status" class="feedback">正在读取知识库…</p>
+          <div id="papers" class="paper-list"></div>
+          <footer id="footer">
+            每篇卡片保留原文证据；研究关联单独标注为分析。
+          </footer>
+        </section>
+        <article id="reader" hidden aria-label="论文详情"></article>
+      </main>
+    </div>
+    <dialog id="help">
+      <button id="close-help" class="close" aria-label="关闭">×</button>
+      <p class="eyebrow">CODEX → LIBRARY</p>
+      <h2>继续在 Codex 里读。</h2>
+      <p>在 Codex 中打开这个仓库，上传 PDF 或提供论文链接，然后说：</p>
+      <blockquote>阅读这篇论文，按仓库规范收录并同步到 GitHub。</blockquote>
+      <p>
+        Codex
+        会阅读全文、生成卡片、核对证据，并更新这里的索引。无需另外写笔记，也无需配置模型
+        API。
+      </p>
+      <p>
+        <a id="manual-link" target="_blank" rel="noopener noreferrer"
+          >查看完整使用手册 ↗</a
+        >
+      </p>
+    </dialog>
+    <script src="app.js" defer></script>
+  </body>
+</html>

@@ -13,10 +13,23 @@
   </head>
   <body>
     <header class="masthead">
-      <a class="brand" href="#" aria-label="Paper Atlas 首页"
-        ><span class="mark">P<span>·</span>A</span
-        ><span>Paper Atlas<small>已读论文库</small></span></a
-      >
+      <a class="brand" href="#" aria-label="Paper Atlas 首页">
+        <svg class="mark" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path
+            d="M14 7.5C10.8 5.5 7.2 5.3 3.5 6.5v16c3.7-1.2 7.3-1 10.5 1 3.2-2 6.8-2.2 10.5-1v-16C20.8 5.3 17.2 5.5 14 7.5Z"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M14 7.5v16M7 10.5l3.5.5M7 14.5l3.5.5M17.5 11l3.5-.5M17.5 15l3.5-.5"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+          />
+        </svg>
+        <span>Paper Atlas</span>
+      </a>
       <div class="header-links">
         <button id="header-help">使用说明</button
         ><a
@@ -29,30 +42,12 @@
       </div>
     </header>
     <div class="workspace">
-      <aside class="sidebar">
-        <p class="eyebrow">RESEARCH FOCUS</p>
-        <h1 id="research-topic">论文知识库</h1>
-        <p id="description" class="description"></p>
-        <div class="sidebar-rule"></div>
-        <p class="eyebrow">按研究问题浏览</p>
-        <nav id="topics" aria-label="主题分类"></nav>
-        <div class="sidebar-bottom">
-          <span class="status-dot"></span>在 Codex 阅读与收录<br /><span
-            class="muted"
-            >这里保留方法、结果和证据。</span
-          ><button id="help-button" class="help-button">
-            如何收录论文 <span>↗</span>
-          </button>
-        </div>
-      </aside>
       <main>
         <section id="library" aria-label="论文列表">
-          <div class="library-heading">
-            <div>
-              <p class="eyebrow">READING LIBRARY</p>
-              <h2>读过，随时找回。</h2>
-            </div>
-            <span id="total" class="total" aria-live="polite"></span>
+          <div class="library-intro">
+            <p class="eyebrow">论文知识库</p>
+            <h1 id="research-topic">论文知识库</h1>
+            <p id="description" class="description"></p>
           </div>
           <form id="search-form" class="search" role="search">
             <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -66,8 +61,12 @@
               autocomplete="off"
             /><kbd>/</kbd>
           </form>
+          <nav id="topics" aria-label="主题分类"></nav>
           <div class="toolbar">
-            <span id="active-label">全部论文</span>
+            <div class="result-summary">
+              <span id="active-label">全部论文</span>
+              <span id="total" class="total" aria-live="polite"></span>
+            </div>
             <div>
               <label class="sr-only" for="type-filter">文章类型</label
               ><select id="type-filter">
@@ -91,8 +90,8 @@
     </div>
     <dialog id="help">
       <button id="close-help" class="close" aria-label="关闭">×</button>
-      <p class="eyebrow">CODEX → LIBRARY</p>
-      <h2>继续在 Codex 里读。</h2>
+      <p class="eyebrow">论文收录</p>
+      <h2>在 Codex 中开始。</h2>
       <p>在 Codex 中打开这个仓库，上传 PDF 或提供论文链接，然后说：</p>
       <blockquote>阅读这篇论文，按仓库规范收录并同步到 GitHub。</blockquote>
       <p>

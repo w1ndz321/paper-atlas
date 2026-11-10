@@ -47,17 +47,14 @@ function renderTopics() {
   const all = { "": "全部论文", ...data.config.topics };
   $("topics").replaceChildren();
   for (const [id, label] of Object.entries(all)) {
+    const count = data.papers.filter(
+      (p) => !id || p.topics.includes(id),
+    ).length;
+    if (id && count === 0) continue;
     const btn = node("button", "topic" + (topic === id ? " active" : ""));
     btn.type = "button";
     btn.setAttribute("aria-pressed", String(topic === id));
-    btn.append(
-      node("b", "", label),
-      node(
-        "span",
-        "",
-        String(data.papers.filter((p) => !id || p.topics.includes(id)).length),
-      ),
-    );
+    btn.append(node("b", "", label), node("span", "", String(count)));
     btn.addEventListener("click", () => {
       topic = id;
       if (location.hash)
@@ -133,6 +130,10 @@ function renderList() {
   updateQuery();
 }
 function showRoute() {
+  document.body.classList.toggle(
+    "reading",
+    location.hash.startsWith("#paper/"),
+  );
   if (!location.hash.startsWith("#paper/")) {
     $("reader").hidden = true;
     $("library").hidden = false;
@@ -280,9 +281,11 @@ function showRoute() {
   );
   const part = location.hash.split("/")[2];
   if (part)
-    requestAnimationFrame(() =>
-      document.getElementById(part)?.scrollIntoView({ block: "start" }),
-    );
+    requestAnimationFrame(() => {
+      const target = document.getElementById(part);
+      target?.classList.add("is-highlighted");
+      target?.scrollIntoView({ block: "start" });
+    });
   else window.scrollTo(0, 0);
 }
 async function init() {
@@ -313,13 +316,11 @@ async function init() {
       ? params.get("sort")
       : "added";
     $("repo-link").href = data.config.repository_url;
-    $("readme-link").href =
-      data.config.repository_url + "/blob/main/README.md";
+    $("readme-link").href = data.config.repository_url + "/blob/main/README.md";
     $("search-form").onsubmit = (event) => event.preventDefault();
     $("search").oninput = renderList;
     $("type-filter").onchange = renderList;
     $("sort").onchange = renderList;
-    $("help-button").onclick = () => $("help").showModal();
     $("close-help").onclick = () => $("help").close();
     $("header-help").onclick = () => $("help").showModal();
     $("help").onclick = (event) => {

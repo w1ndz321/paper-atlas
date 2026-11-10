@@ -5,7 +5,7 @@ description: 在本仓库中阅读并规范收录用户提交的论文 PDF 或�
 
 # 论文阅读与收录
 
-从仓库根目录执行。先读 `config.json`、`prompts/summarize.md`、`templates/paper.md`、`docs/schema.md`。无需用户笔记或模型 API。
+从仓库根目录执行。先读 `config.json` 和 `prompts/summarize.md`，后者包含写作要求、固定结构与数据字段。无需用户笔记或模型 API。
 
 1. 确定本篇简短英文 id。运行 `python scripts/kb.py prepare --id <id> --url <official-url>`，或 `--pdf <user-uploaded-pdf>`。本地 PDF 有官方链接时同时提供 `--url`。程序识别 arXiv 摘要链接并下载 PDF，去除版本号做身份去重。已有论文修订使用同一 id 和 `--update`。
 2. 阅读 `.local/<id>/fulltext.txt` 全文，按需分段读取，不因输出截断漏掉实验或限制。PDF 的图、表或公式影响结论时查看原始页；记录公式和评分规则，不能根据破损提取自行补写。核对标题、作者和论文版本。HTML 来源需亲自确认是全文，不是登录页或摘要页。

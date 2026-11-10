@@ -313,8 +313,8 @@ async function init() {
       ? params.get("sort")
       : "added";
     $("repo-link").href = data.config.repository_url;
-    $("manual-link").href =
-      data.config.repository_url + "/blob/main/docs/使用手册.md";
+    $("readme-link").href =
+      data.config.repository_url + "/blob/main/README.md";
     $("search-form").onsubmit = (event) => event.preventDefault();
     $("search").oninput = renderList;
     $("type-filter").onchange = renderList;

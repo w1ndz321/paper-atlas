@@ -1,5 +1,5 @@
 # Paper Atlas
 
-Agent 评测 Benchmark 文献库，保存论文总结与证据。
+Agent 评测 Benchmark 论文库，保存总结与证据。
 
-在 Codex 打开仓库，上传论文，说“阅读、收录并同步”。[手册](docs/使用手册.md)
+在 Codex 打开仓库，提供 PDF 或链接，说“阅读、收录并同步到 GitHub”。网页自动更新。

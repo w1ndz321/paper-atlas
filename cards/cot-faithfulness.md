@@ -4,12 +4,12 @@
 
 - 作者：Yanda Chen, Joe Benton, Ansh Radhakrishnan, Jonathan Uesato, Carson Denison, John Schulman, Arushi Somani, Peter Hase, Misha Wagner, Fabien Roger, Vlad Mikulik, Samuel R. Bowman, Jan Leike, Jared Kaplan, Ethan Perez
 - 年份：2025 · 类型：analysis
-- 主题：RSI 与 LLM 可解释性
+- 主题：LLM 可解释性
 - [原文](https://arxiv.org/abs/2505.05410v1) · 收录：2026-11-10 · 更新：2026-11-10
 
-- 子类：外显推理过程
+- 子类：解释忠实性与监测 / 思维链与推理文本 / 行为对照与忠实性测试
 
-归类依据（知识库分析）：测量文字思维链是否承认实际影响决策的线索，解释对象是外显推理；合成奖励漏洞是其检验环境。
+归类依据（知识库分析）：用成对提示与线索实验检验思维链忠实性；外显解释可靠性不能替代内部机制证据。
 
 ## 研究问题
 

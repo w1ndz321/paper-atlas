@@ -13,7 +13,7 @@
   "year": 2026,
   "paper_type": "framework",
   "topics": [
-    "rsi-interpretability"
+    "rsi"
   ],
   "tags": [
     "Weco AI",
@@ -155,7 +155,16 @@
   },
   "collections": [],
   "subtopics": [
-    "rsi-improvement-programs"
+    "rsi-task-research",
+    "rsi-cap-research",
+    "rsi-cap-improvement",
+    "rsi-rec-improver"
   ],
-  "classification_reason": "改写研究 Agent 的搜索与上下文程序，以固定预算下的研究优化效率为直接选择目标，归改进程序；更强的递归效率主张仍需 ignition test。"
+  "classification_reason": "主循环由固定外层改进内层；另以 ignition test 将演化后的 AIDE47 部署为外层改进器。三种子结果不足以确定改进效率优势，专项检验不等于主循环已持续自加速。",
+  "rsi_evidence": {
+    "status": "递归再部署检验 · 结果未定",
+    "next_round_role": "ignition test 将演化后的 AIDE47 用作外层改进器。",
+    "fixed_components": "主循环的外层模型、选择规则与任务评估仍固定。",
+    "capability_evidence": "每组仅三个种子，端点接近；作者不认定改进器更优或样本效率优势已确立。"
+  }
 }

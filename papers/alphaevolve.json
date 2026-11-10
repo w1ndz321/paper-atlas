@@ -26,7 +26,7 @@
   "year": 2025,
   "paper_type": "framework",
   "topics": [
-    "rsi-interpretability"
+    "rsi"
   ],
   "tags": [
     "Google DeepMind",
@@ -161,7 +161,15 @@
   },
   "collections": [],
   "subtopics": [
-    "rsi-compute-programs"
+    "rsi-task-compute",
+    "rsi-cap-efficiency",
+    "rsi-rec-background"
   ],
-  "classification_reason": "在本库 RSI 视角下，相关贡献是优化调度、训练内核等计算程序并反馈 AI 基础设施；它属于邻近证据，没有在同一循环中自主更新底座权重。"
+  "classification_reason": "优化算法与训练计算基础设施，未验证演化后的改进器承担下一轮改进；作为 RSI 邻近背景保留。",
+  "rsi_evidence": {
+    "status": "邻近背景 · 未验证递归闭环",
+    "next_round_role": "论文未验证演化后的改进器用于后续自改。",
+    "fixed_components": "程序种群、候选生成与验证框架提供外部优化过程。",
+    "capability_evidence": "算法与计算基础设施收益不能直接视为 Agent 后续自改能力增强。"
+  }
 }

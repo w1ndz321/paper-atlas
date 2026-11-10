@@ -10,7 +10,7 @@
   "year": 2025,
   "paper_type": "analysis",
   "topics": [
-    "rsi-interpretability"
+    "llm-interpretability"
   ],
   "tags": [
     "OpenAI",
@@ -157,7 +157,11 @@
     "interpretability-rsi"
   ],
   "subtopics": [
-    "interp-behavior"
+    "interp-q-behavior",
+    "interp-representations",
+    "interp-m-sae",
+    "interp-m-attribution",
+    "interp-m-intervention"
   ],
-  "classification_reason": "核心问题是哪些内部因素驱动异常回答，并以归因和干预验证，归行为倾向与驱动因素；使用 SAE 不改变研究对象。作为行为调试工具进入交叉入口。"
+  "classification_reason": "对比异常与正常回答的特征归因，并通过干预检验行为影响，属于诊断与行为调试桥接证据。"
 }

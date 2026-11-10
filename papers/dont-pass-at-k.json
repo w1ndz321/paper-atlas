@@ -178,7 +178,9 @@
   },
   "collections": [],
   "subtopics": [
-    "eval-metrics"
+    "domain-general",
+    "eval-metrics",
+    "activity-na"
   ],
-  "classification_reason": "主要贡献是根据分类计数估计表现与不确定性，并研究有限采样下的模型比较，归 Agent 评测下的评分指标与估计；不是新的任务环境。"
+  "classification_reason": "研究评分统计与不确定性估计，作为 AI4S 评测的通用背景方法；没有实际科学领域 Agent 或科研活动实验。"
 }

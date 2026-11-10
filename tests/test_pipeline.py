@@ -3,6 +3,8 @@ import copy
 import hashlib
 import importlib.util
 import json
+import shutil
+import subprocess
 from pathlib import Path
 import tempfile
 import unittest
@@ -263,13 +265,93 @@ class PipelineTests(unittest.TestCase):
 
     def test_prepare_update_preserves_classification_metadata(self):
         cfg, p = self.taxonomy()
+        p["rsi_evidence"] = {"status": "待核验的测试状态", "next_round_role": "演化后的程序实际承担后续修改。"}
         kb.write(self.root / "config.json", cfg)
         self.store(p)
         with patch.object(kb, "download", return_value=(self.text.encode(), "text/plain")):
             kb.prepare(argparse.Namespace(id="example", url=p["source"]["url"], pdf=None, update=True), self.root)
         draft = kb.read(self.root / ".local/example/draft.json")
-        for field in ("subtopics", "collections", "classification_reason"):
+        for field in ("subtopics", "collections", "classification_reason", "rsi_evidence"):
             self.assertEqual(draft[field], p[field])
+
+    def test_each_applicable_dimension_requires_a_label(self):
+        cfg, p = self.taxonomy()
+        cfg["axes"] = {
+            "target": {"topic": "general-agents", "label": "对象", "question": "研究哪个对象？"},
+            "method": {"topic": "general-agents", "label": "方法", "question": "采用什么方法？"},
+            "other": {"topic": "other-topic", "label": "其他", "question": "其他对象是什么？"},
+        }
+        cfg["subtopics"]["task-program"]["axis"] = "target"
+        cfg["subtopics"]["other-object"]["axis"] = "other"
+        cfg["subtopics"]["method-label"] = {"topic": "general-agents", "axis": "method", "label": "干预", "definition": "根据干预验证"}
+        self.assertIn("method 缺少维度标签", kb.check_record(p, cfg, {"example"}, self.root))
+        p["subtopics"].append("method-label")
+        self.assertEqual([], kb.check_record(p, cfg, {"example"}, self.root))
+        kb.write(self.root / "config.json", cfg)
+        self.store(p)
+        kb.render_cards(self.root)
+        kb.build(self.root / "dist", self.root)
+        self.assertEqual(cfg["axes"], kb.read(self.root / "dist/data.json")["config"]["axes"])
+        cfg["subtopics"]["task-program"]["axis"] = "other"
+        kb.write(self.root / "config.json", cfg)
+        with self.assertRaisesRegex(kb.Invalid, "分类维度"):
+            kb.config(self.root)
+
+    def test_question_entry_cannot_open_another_topics_dimension(self):
+        cfg, p = self.taxonomy()
+        cfg["axes"] = {"first": {"topic": "general-agents", "label": "第一", "question": "第一问题？"}, "second": {"topic": "other-topic", "label": "第二", "question": "第二问题？"}}
+        cfg["subtopics"]["task-program"]["axis"] = "first"
+        cfg["subtopics"]["other-object"]["axis"] = "second"
+        cfg["topic_guides"] = {"general-agents": {"summary": "根据问题进入分类", "points": [], "reading_order": [], "questions": [{"question": "研究哪个问题？", "label": "查看", "axis": "second"}]}}
+        self.store(p)
+        kb.write(self.root / "config.json", cfg)
+        with self.assertRaisesRegex(kb.Invalid, "问题入口"):
+            kb.validate(self.root)
+        cfg["topic_guides"]["general-agents"]["questions"][0]["axis"] = "first"
+        kb.write(self.root / "config.json", cfg)
+        kb.validate(self.root)
+
+    def test_rsi_needs_next_round_role_and_separate_capability_evidence(self):
+        cfg = copy.deepcopy(self.cfg)
+        cfg["topics"]["rsi"] = "RSI"
+        cfg["axes"] = {"recursion": {"topic": "rsi", "label": "递归机制", "question": "谁承担下一轮改进？"}}
+        cfg["subtopics"] = {"recursive-agent": {"topic": "rsi", "axis": "recursion", "label": "递归 Agent", "definition": "演化后 Agent 承担后续自修改"}}
+        p = self.paper()
+        p.update(topics=["rsi"], subtopics=["recursive-agent"], classification_reason="演化后的 Agent 承担下一轮自修改，但能力增益须单独检验。")
+        self.assertTrue(kb.check_record(p, cfg, {"example"}, self.root))
+        p["rsi_evidence"] = {"status": "结构闭环已有证据", "next_round_role": "演化后的 Agent 实际生成后续修改。", "fixed_components": "底座模型与外部评价协议保持固定。", "capability_evidence": "只有任务分数，尚无独立改进效率证据。"}
+        self.assertEqual([], kb.check_record(p, cfg, {"example"}, self.root))
+        kb.write(self.root / "config.json", cfg)
+        self.store(p)
+        kb.render_cards(self.root)
+        self.assertIn(p["rsi_evidence"]["capability_evidence"], (self.root / "cards/example.md").read_text())
+
+    def test_research_topics_have_three_independent_dimensions(self):
+        cfg = kb.config()
+        for topic in ("agent-benchmarks", "rsi", "llm-interpretability"):
+            self.assertEqual(3, sum(axis["topic"] == topic for axis in cfg["axes"].values()))
+        self.assertFalse(any(axis["topic"] == "interest-exploration" for axis in cfg["axes"].values()))
+
+    @unittest.skipUnless(shutil.which("node"), "需要 Node 验证读者页面筛选逻辑")
+    def test_reader_combines_facets_and_migrates_old_links(self):
+        program = r"""
+const fs = require('node:fs'), vm = require('node:vm'), assert = require('node:assert/strict');
+const source = fs.readFileSync(process.argv[1], 'utf8').replace(/\ninit\(\);\s*$/, '');
+const api = vm.runInNewContext(source + '\n;({ setData: value => data=value, matchesFacets, readView, getView:()=>({topic,subtopics,collection}) })', { URL, URLSearchParams, location:{search:''} });
+const data = JSON.parse(fs.readFileSync(0,'utf8')); api.setData(data);
+const selected = ['interp-q-knowledge','interp-q-behavior'];
+assert.equal(data.papers.filter(p=>api.matchesFacets(p,selected)).length,6);
+assert.equal(data.papers.filter(p=>api.matchesFacets(p,[...selected,'interp-m-sae'])).length,3);
+api.readView(new URLSearchParams('topic=rsi-interpretability&subtopic=interp-representations'));
+assert.equal(api.getView().topic,'llm-interpretability');
+api.readView(new URLSearchParams('topic=rsi&subtopic=rsi-agent-programs'));
+assert.equal(api.getView().subtopics[0],'rsi-rec-agent');
+api.readView(new URLSearchParams('topic=interpretability-rsi'));
+assert.equal(api.getView().collection,'interpretability-rsi');
+api.readView(new URLSearchParams('topic=rsi&subtopic=unknown&subtopic=interp-representations'));
+assert.equal(api.getView().subtopics.length,0);
+"""
+        subprocess.run(["node", "-e", program, str(kb.ROOT / "web/app.js")], input=json.dumps({"config": kb.config(), "papers": kb.records()}), text=True, capture_output=True, check=True)
 
     def test_cross_collection_is_scoped_to_its_parent_topic(self):
         cfg, p = self.taxonomy()

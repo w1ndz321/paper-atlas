@@ -4,12 +4,12 @@
 
 - 作者：Adly Templeton, Tom Conerly, Jonathan Marcus, Jack Lindsey, Trenton Bricken, Brian Chen, Adam Pearce, Craig Citro, Emmanuel Ameisen, Andy Jones, Hoagy Cunningham, Nicholas L Turner, Callum McDougall, Monte MacDiarmid, Alex Tamkin, Esin Durmus, Tristan Hume, Francesco Mosconi, C. Daniel Freeman, Theodore R. Sumers, Edward Rees, Joshua Batson, Adam Jermyn, Shan Carter, Chris Olah, Tom Henighan
 - 年份：2024 · 类型：method
-- 主题：RSI 与 LLM 可解释性
+- 主题：LLM 可解释性
 - [原文](https://transformer-circuits.pub/2024/scaling-monosemanticity/index.html) · 收录：2026-11-10 · 更新：2026-11-10
 
-- 子类：内部表征与概念
+- 子类：知识与概念表征 / 内部激活与概念特征 / 稀疏表征分解 / 因果干预与模型编辑
 
-归类依据（知识库分析）：主要研究激活空间中的概念能否由稀疏字典分离，归内部表征；steering 验证部分特征影响，不把整篇改归完整电路研究。
+归类依据（知识库分析）：用稀疏表征分解研究概念特征，并干预检验行为影响；未构成自主改进闭环。
 
 ## 研究问题
 

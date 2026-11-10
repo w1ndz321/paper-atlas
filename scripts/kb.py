@@ -88,6 +88,20 @@ def config(root=ROOT):
     aliases = cfg.get("topic_aliases", {})
     if not isinstance(aliases, dict) or not all(slug_ok(k) and k not in cfg["topics"] and isinstance(v, str) and v in cfg["topics"] for k, v in aliases.items()):
         raise Invalid("主题旧链接必须映射到有效主主题")
+    axes = cfg.get("axes", {})
+    if not isinstance(axes, dict):
+        raise Invalid("分类维度必须是对象")
+    for key, axis in axes.items():
+        if (not slug_ok(key) or not isinstance(axis, dict) or axis.get("topic") not in cfg["topics"]
+                or not all(isinstance(axis.get(x), str) and axis[x].strip() for x in ("label", "question"))):
+            raise Invalid("分类维度必须有有效父主题、名称和查询问题")
+    for category in cfg.get("subtopics", {}).values():
+        if axes and (category.get("axis") not in axes or axes[category["axis"]]["topic"] != category["topic"]):
+            raise Invalid("子类与分类维度的父主题必须一致")
+    sub_aliases = cfg.get("subtopic_aliases", {})
+    if not isinstance(sub_aliases, dict) or not all(slug_ok(k) and k not in cfg.get("subtopics", {})
+            and isinstance(v, str) and (not v or v in cfg.get("subtopics", {})) for k, v in sub_aliases.items()):
+        raise Invalid("子类旧链接必须映射到有效标签或父主题")
     return cfg
 
 
@@ -210,8 +224,10 @@ def prepare(args, root=ROOT):
         "added_at": own["added_at"] if own else str(date.today()), "updated_at": str(date.today()),
         "source": source, "read_scope": "full", "sections": {k: {"text": "", "evidence": []} for k in SECTIONS},
         "evidence": [], "related": [],
-        "review": {"evidence_checked": False, "compression_checked": False, "reviewed_by": "Codex", "prompt_version": "1.1"},
+        "review": {"evidence_checked": False, "compression_checked": False, "reviewed_by": "Codex", "prompt_version": "1.6"},
     }
+    if own and "rsi_evidence" in own:
+        draft["rsi_evidence"] = own["rsi_evidence"]
     write(folder / "draft.json", draft)
     write(queue_path, entry)
     print(f"已提取 {len(pages)} 页。阅读 {folder / 'fulltext.txt'}，按 prompts/ 总结并填写 {folder / 'draft.json'}。")
@@ -249,6 +265,9 @@ def check_record(p, cfg, ids, root=ROOT, source=None):
             for parent in {x["topic"] for x in cfg.get(axis, {}).values()}:
                 if isinstance(topics, list) and parent in topics:
                     need(parent in parents, parent + " 缺少适用子类")
+            for key, dimension in cfg.get("axes", {}).items():
+                if isinstance(topics, list) and dimension["topic"] in topics:
+                    need(any(cfg[axis][x].get("axis") == key for x in values), key + " 缺少维度标签")
         if axis == "collections" and valid:
             for value in values:
                 parent = cfg[axis][value].get("topic")
@@ -256,6 +275,10 @@ def check_record(p, cfg, ids, root=ROOT, source=None):
     if "subtopics" in cfg:
         reason = p.get("classification_reason", "")
         need(isinstance(reason, str) and len(reason.strip()) >= 12, "缺少实质归类依据")
+    if cfg.get("axes") and isinstance(topics, list) and "rsi" in topics:
+        proof = p.get("rsi_evidence", {})
+        need(isinstance(proof, dict) and all(isinstance(proof.get(k), str) and len(proof[k].strip()) >= (4 if k == "status" else 8)
+             for k in ("status", "next_round_role", "fixed_components", "capability_evidence")), "RSI 必须说明递归回流、固定组件与改进能力证据")
     need(isinstance(p.get("tags"), list) and all(isinstance(t, str) and t.strip() for t in p["tags"]), "tags 必须是文字列表")
     need(p.get("read_scope") == "full", "未阅读全文，不能作为完成卡片发布")
     src = p.get("source", {})
@@ -349,6 +372,16 @@ def validate(root=ROOT):
                         or not isinstance(item.get("id"), str)
                         or item.get("id") not in by_id or topic not in by_id[item["id"]].get(axis, [])):
                     errors.append(f"{topic}: 推荐阅读必须指向本主题已收录的论文")
+            questions = guide.get("questions", [])
+            if not isinstance(questions, list):
+                errors.append(f"{topic}: 问题入口必须是列表")
+                questions = []
+            for question in questions:
+                if (not isinstance(question, dict) or not all(isinstance(question.get(k), str) and question[k].strip() for k in ("question", "label"))
+                        or ("axis" in question) == ("view" in question)
+                        or "axis" in question and (question["axis"] not in cfg.get("axes", {}) or cfg["axes"][question["axis"]]["topic"] != topic)
+                        or "view" in question and question["view"] not in ("works", "recent", "year")):
+                    errors.append(f"{topic}: 问题入口必须指向本主题维度或有效视图")
     if errors:
         raise Invalid("\n".join(errors))
     return papers
@@ -365,6 +398,10 @@ def markdown(p, cfg):
         out.extend(["- 交叉入口：" + " / ".join(cfg["collections"][x]["label"] for x in p["collections"]), ""])
     if p.get("classification_reason"):
         out.extend(["归类依据（知识库分析）：" + p["classification_reason"], ""])
+    if p.get("rsi_evidence"):
+        out.extend(["## 递归闭环与证据边界（知识库分析）", ""])
+        for key, label in (("status", "证据状态"), ("next_round_role", "下一轮职责"), ("fixed_components", "固定组件"), ("capability_evidence", "改进能力证据")):
+            out.extend([f"- {label}：{p['rsi_evidence'][key]}", ""])
     for key, label in SECTIONS.items():
         s = p["sections"][key]
         out.extend(["## " + label, "", s["text"], "", "证据：" + ", ".join(s["evidence"]) if s["evidence"] else "研究关联分析；未作为论文结论。", ""])
@@ -447,7 +484,7 @@ def build(output, root=ROOT):
     inbox = [read(p) for p in sorted((root / "inbox").glob("*.json"))]
     public_config = {k: cfg[k] for k in ("name", "research_topic", "description", "topics", "repository_url")}
     public_config["topic_guides"] = cfg.get("topic_guides", {})
-    for key in ("subtopics", "collections", "classification_rules", "topic_aliases", "topic_descriptions"):
+    for key in ("subtopics", "collections", "classification_rules", "topic_aliases", "topic_descriptions", "axes", "subtopic_aliases"):
         public_config[key] = cfg.get(key, [] if key == "classification_rules" else {})
     write(output / "data.json", {"config": public_config, "papers": sorted(papers, key=lambda p: (p["added_at"], p["id"]), reverse=True), "sections": SECTIONS, "pending_count": len(inbox)})
     # Only website assets and reviewed cards are published; extraction caches/drafts never enter dist.

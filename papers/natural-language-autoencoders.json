@@ -28,7 +28,7 @@
   "year": 2026,
   "paper_type": "method",
   "topics": [
-    "rsi-interpretability"
+    "llm-interpretability"
   ],
   "tags": [
     "Anthropic",
@@ -186,7 +186,10 @@
     "interpretability-rsi"
   ],
   "subtopics": [
-    "interp-representations"
+    "interp-q-knowledge",
+    "interp-q-behavior",
+    "interp-representations",
+    "interp-m-probe"
   ],
-  "classification_reason": "核心方法解释指定层与 token 的激活内容，归内部表征；用于审计 Agent 的实验证据使其进入交叉入口，不据此宣称已实现自身改进。"
+  "classification_reason": "从激活生成自然语言解释并以重构和审计检验，作为内部状态读取与模型调查的桥接工具。"
 }

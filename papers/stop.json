@@ -12,7 +12,7 @@
   "year": 2023,
   "paper_type": "method",
   "topics": [
-    "rsi-interpretability"
+    "rsi"
   ],
   "tags": [
     "Microsoft Research",
@@ -142,7 +142,16 @@
   },
   "collections": [],
   "subtopics": [
-    "rsi-improvement-programs"
+    "rsi-task-code",
+    "rsi-cap-code",
+    "rsi-cap-improvement",
+    "rsi-rec-improver"
   ],
-  "classification_reason": "直接修改的是生成改进方案的优化器，并用其产生的下游解的元效用选择版本，归改进程序；底座参数固定。"
+  "classification_reason": "改进后的优化器被用于后续优化器改进，以其下游优化效用评价版本；有递归实验，但小规模任务上的收益不证明无界自加速。",
+  "rsi_evidence": {
+    "status": "递归优化实验",
+    "next_round_role": "改进后的优化器用于生成下一轮优化器。",
+    "fixed_components": "底座模型、外部效用和资源限制固定。",
+    "capability_evidence": "以优化器的下游优化表现评价递归更新；证据限于论文任务及预算，不证明无界自加速。"
+  }
 }

@@ -4,12 +4,12 @@
 
 - 作者：Yuru Wang, Lejun Cheng, Yuxin Zuo, Sihang Zeng, Bingxiang He, Che Jiang, Junlin Yang, Yuchong Wang, Kaikai Zhao, Weifeng Huang, Kai Tian, Zhenzhao Yuan, Jincheng Zhong, Weizhi Wang, Ning Ding, Bowen Zhou, Kaiyan Zhang
 - 年份：2026 · 类型：benchmark
-- 主题：Agent 评测
+- 主题：AI4S Agent 评测
 - [原文](https://arxiv.org/abs/2606.24530v1) · 收录：2026-11-10 · 更新：2026-11-10
 
-- 子类：任务与环境基准
+- 子类：生物与医学 / 化学与分子科学 / 物理 / 科研编程与任务完成 / 基准有效性与评价可靠性 / 数据分析与建模 / 科研软件与计算
 
-归类依据（知识库分析）：主要贡献是来自真实科研工作的任务与执行环境，以参考结果或专用检查器评价 Agent，归 Agent 评测下的任务与环境基准；不因输出 Python 程序就视为通用编码评测。
+归类依据（知识库分析）：以生物、分子及物理建模任务测科研编码与已发表结果对标；参考方法隐藏，任务是独立求解，不统一归为照论文复现。
 
 ## 研究问题
 

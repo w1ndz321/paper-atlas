@@ -4,12 +4,22 @@
 
 - 作者：Alexander Novikov, Ngân Vũ, Marvin Eisenberger, Emilien Dupont, Po-Sen Huang, Adam Zsolt Wagner, Sergey Shirobokov, Borislav Kozlovskii, Francisco J. R. Ruiz, Abbas Mehrabian, M. Pawan Kumar, Abigail See, Swarat Chaudhuri, George Holland, Alex Davies, Sebastian Nowozin, Pushmeet Kohli, Matej Balog
 - 年份：2025 · 类型：framework
-- 主题：RSI 与 LLM 可解释性
+- 主题：RSI · 递归自我改进
 - [原文](https://arxiv.org/abs/2506.13131v1) · 收录：2026-11-10 · 更新：2026-11-10
 
-- 子类：训练与计算程序
+- 子类：算法与计算基础设施 / 计算与资源效率 / 固定改进器 · 邻近背景
 
-归类依据（知识库分析）：在本库 RSI 视角下，相关贡献是优化调度、训练内核等计算程序并反馈 AI 基础设施；它属于邻近证据，没有在同一循环中自主更新底座权重。
+归类依据（知识库分析）：优化算法与训练计算基础设施，未验证演化后的改进器承担下一轮改进；作为 RSI 邻近背景保留。
+
+## 递归闭环与证据边界（知识库分析）
+
+- 证据状态：邻近背景 · 未验证递归闭环
+
+- 下一轮职责：论文未验证演化后的改进器用于后续自改。
+
+- 固定组件：程序种群、候选生成与验证框架提供外部优化过程。
+
+- 改进能力证据：算法与计算基础设施收益不能直接视为 Agent 后续自改能力增强。
 
 ## 研究问题
 

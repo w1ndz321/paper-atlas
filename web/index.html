@@ -31,6 +31,13 @@
         <span>Paper Atlas</span>
       </a>
       <div class="header-links">
+        <button
+          id="sidebar-toggle"
+          aria-controls="sidebar"
+          aria-expanded="false"
+        >
+          分类
+        </button>
         <button id="header-help">使用说明</button
         ><a
           id="repo-link"
@@ -42,6 +49,10 @@
       </div>
     </header>
     <div class="workspace">
+      <aside id="sidebar" class="sidebar" aria-label="主题与分类目录">
+        <nav id="topics" aria-label="研究主题与分类维度"></nav>
+        <nav id="collections" aria-label="专题与兴趣探索"></nav>
+      </aside>
       <main>
         <section id="library" aria-label="论文列表">
           <form id="search-form" class="search" role="search">
@@ -56,39 +67,36 @@
               autocomplete="off"
             /><kbd>/</kbd>
           </form>
-          <nav id="topics" aria-label="主题分类"></nav>
-          <nav
-            id="collections"
-            class="collections"
-            aria-label="交叉研究入口"
-          ></nav>
-          <nav
-            id="subtopics"
-            class="subtopics"
-            aria-label="主题子类"
-            hidden
-          ></nav>
+          <nav id="breadcrumb" class="breadcrumb" aria-label="当前位置"></nav>
           <section
             id="topic-guide"
             class="topic-guide"
             aria-label="主题导读"
             hidden
           ></section>
-          <div class="toolbar">
-            <div class="result-summary">
-              <span id="active-label">全部论文</span>
-              <span id="total" class="total" aria-live="polite"></span>
-            </div>
-            <div>
-              <label class="sr-only" for="type-filter">文章类型</label
-              ><select id="type-filter">
-                <option value="">全部类型</option></select
-              ><label class="sr-only" for="sort">排序</label
-              ><select id="sort">
-                <option value="added">最近收录</option>
-                <option value="year">发表年份</option>
-                <option value="title">标题排序</option>
-              </select>
+          <div id="list-controls">
+            <div
+              id="selected-filters"
+              class="selected-filters"
+              aria-label="已选筛选"
+              hidden
+            ></div>
+            <div class="toolbar">
+              <div class="result-summary">
+                <span id="active-label">全部论文</span>
+                <span id="total" class="total" aria-live="polite"></span>
+              </div>
+              <div>
+                <label class="sr-only" for="type-filter">文章类型</label
+                ><select id="type-filter">
+                  <option value="">全部类型</option></select
+                ><label class="sr-only" for="sort">排序</label
+                ><select id="sort">
+                  <option value="added">最近收录</option>
+                  <option value="year">发表年份</option>
+                  <option value="title">标题排序</option>
+                </select>
+              </div>
             </div>
           </div>
           <p id="feedback" role="status" class="feedback">正在读取知识库…</p>

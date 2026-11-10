@@ -23,7 +23,7 @@
   "year": 2025,
   "paper_type": "analysis",
   "topics": [
-    "rsi-interpretability"
+    "llm-interpretability"
   ],
   "tags": [
     "Anthropic",
@@ -165,7 +165,9 @@
   },
   "collections": [],
   "subtopics": [
-    "interp-reasoning"
+    "interp-q-faithfulness",
+    "interp-reasoning",
+    "interp-m-behavior"
   ],
-  "classification_reason": "测量文字思维链是否承认实际影响决策的线索，解释对象是外显推理；合成奖励漏洞是其检验环境。"
+  "classification_reason": "用成对提示与线索实验检验思维链忠实性；外显解释可靠性不能替代内部机制证据。"
 }

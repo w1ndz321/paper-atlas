@@ -15,7 +15,7 @@
   "year": 2026,
   "paper_type": "method",
   "topics": [
-    "rsi-interpretability"
+    "llm-interpretability"
   ],
   "tags": [
     "Anthropic Fellows",
@@ -163,7 +163,11 @@
     "interpretability-rsi"
   ],
   "subtopics": [
-    "interp-behavior"
+    "interp-q-introspection",
+    "interp-q-behavior",
+    "interp-behavior",
+    "interp-m-probe",
+    "interp-m-behavior"
   ],
-  "classification_reason": "训练模型报告微调后形成的跨输入行为倾向，归行为倾向与驱动因素。作为训练后审计工具进入交叉入口，报告不等于自主修复。"
+  "classification_reason": "训练行为报告适配器并用留出微调行为检验泛化；审计报告能力没有被用于验证递归改进。"
 }

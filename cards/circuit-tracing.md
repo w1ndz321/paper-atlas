@@ -4,12 +4,12 @@
 
 - 作者：Emmanuel Ameisen, Jack Lindsey, Adam Pearce, Wes Gurnee, Nicholas L. Turner, Brian Chen, Craig Citro, David Abrahams, Shan Carter, Basil Hosmer, Jonathan Marcus, Michael Sklar, Adly Templeton, Trenton Bricken, Callum McDougall, Hoagy Cunningham, Thomas Henighan, Adam Jermyn, Andy Jones, Andrew Persic, Zhenyi Qi, T. Ben Thompson, Sam Zimmerman, Kelley Rivoire, Thomas Conerly, Chris Olah, Joshua Batson
 - 年份：2025 · 类型：method
-- 主题：RSI 与 LLM 可解释性
+- 主题：LLM 可解释性
 - [原文](https://transformer-circuits.pub/2025/attribution-graphs/methods.html) · 收录：2026-11-10 · 更新：2026-11-10
 
-- 子类：计算路径与电路
+- 子类：推理与决策机制 / 内部激活与概念特征 / 组件交互与计算电路 / 稀疏表征分解 / 归因与电路追踪 / 因果干预与模型编辑
 
-归类依据（知识库分析）：主要产出是连接特征与输出的计算路径和归因图，并检验路径的干预预测，归计算路径与电路。
+归类依据（知识库分析）：研究内部特征如何组成计算路径，以跨层转码器、归因图和干预检验机制。
 
 ## 研究问题
 

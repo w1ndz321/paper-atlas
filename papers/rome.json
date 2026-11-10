@@ -12,7 +12,7 @@
   "year": 2022,
   "paper_type": "method",
   "topics": [
-    "rsi-interpretability"
+    "llm-interpretability"
   ],
   "tags": [
     "MIT",
@@ -145,7 +145,9 @@
   },
   "collections": [],
   "subtopics": [
-    "interp-knowledge"
+    "interp-q-knowledge",
+    "interp-knowledge",
+    "interp-m-intervention"
   ],
-  "classification_reason": "核心问题是事实关联在参数中如何存储、回忆与定点编辑；因果追踪是验证手段，归参数知识与事实关联。"
+  "classification_reason": "研究参数中的事实关联，以激活恢复定位和参数编辑验证；属于知识与因果干预脉络，未验证自主递归改进。"
 }

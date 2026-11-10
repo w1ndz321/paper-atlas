@@ -4,12 +4,12 @@
 
 - 作者：Ziru Chen, Shijie Chen, Yuting Ning, Qianheng Zhang, Boshi Wang, Botao Yu, Yifei Li, Zeyi Liao, Chen Wei, Zitong Lu, Vishal Dey, Mingyi Xue, Frazier N. Baker, Benjamin Burns, Daniel Adu-Ampratwum, Xuhui Huang, Xia Ning, Song Gao, Yu Su, Huan Sun
 - 年份：2024 · 类型：benchmark
-- 主题：Agent 评测
+- 主题：AI4S Agent 评测
 - [原文](https://arxiv.org/abs/2410.05080v1) · 收录：2026-11-10 · 更新：2026-11-10
 
-- 子类：任务与环境基准
+- 子类：生物与医学 / 化学与分子科学 / 地球与环境科学 / 神经与认知科学 / 科研编程与任务完成 / 基准有效性与评价可靠性 / 数据分析与建模 / 科研软件与计算
 
-归类依据（知识库分析）：主要贡献是来自真实科研工作的任务与执行环境，以参考结果或专用检查器评价 Agent，归 Agent 评测下的任务与环境基准；不因输出 Python 程序就视为通用编码评测。
+归类依据（知识库分析）：跨四学科的科研程序任务基准，评价端到端交付与任务真实性；不把综合成绩拆称为已独立验证的规划或推理能力。
 
 ## 研究问题
 

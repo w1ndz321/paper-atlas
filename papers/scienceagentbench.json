@@ -188,7 +188,14 @@
   },
   "collections": [],
   "subtopics": [
-    "eval-tasks"
+    "domain-biology",
+    "domain-chemistry",
+    "domain-earth",
+    "domain-neuroscience",
+    "eval-tasks",
+    "eval-validity",
+    "activity-data",
+    "activity-code"
   ],
-  "classification_reason": "主要贡献是来自真实科研工作的任务与执行环境，以参考结果或专用检查器评价 Agent，归 Agent 评测下的任务与环境基准；不因输出 Python 程序就视为通用编码评测。"
+  "classification_reason": "跨四学科的科研程序任务基准，评价端到端交付与任务真实性；不把综合成绩拆称为已独立验证的规划或推理能力。"
 }

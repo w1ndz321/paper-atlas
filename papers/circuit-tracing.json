@@ -35,7 +35,7 @@
   "year": 2025,
   "paper_type": "method",
   "topics": [
-    "rsi-interpretability"
+    "llm-interpretability"
   ],
   "tags": [
     "Anthropic",
@@ -184,7 +184,12 @@
   },
   "collections": [],
   "subtopics": [
-    "interp-circuits"
+    "interp-q-reasoning",
+    "interp-representations",
+    "interp-circuits",
+    "interp-m-sae",
+    "interp-m-attribution",
+    "interp-m-intervention"
   ],
-  "classification_reason": "主要产出是连接特征与输出的计算路径和归因图，并检验路径的干预预测，归计算路径与电路。"
+  "classification_reason": "研究内部特征如何组成计算路径，以跨层转码器、归因图和干预检验机制。"
 }

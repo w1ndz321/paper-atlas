@@ -12,7 +12,7 @@
   "year": 2026,
   "paper_type": "benchmark",
   "topics": [
-    "rsi-interpretability"
+    "llm-interpretability"
   ],
   "tags": [
     "中国科学院自动化研究所",
@@ -161,7 +161,11 @@
     "interpretability-rsi"
   ],
   "subtopics": [
-    "interp-representations"
+    "interp-q-knowledge",
+    "interp-representations",
+    "interp-m-sae",
+    "interp-m-behavior",
+    "interp-m-intervention"
   ],
-  "classification_reason": "测量 Agent 发现并验证概念特征的能力，研究对象仍是内部表征，论文类型独立标为评测基准。自主可解释性实验是其进入交叉入口的依据，尚未接入完整 RSI 闭环。"
+  "classification_reason": "评测 Agent 发现并验证 SAE 特征的能力；属于自动化解释研究与桥接评测，不证明被评测 Agent 已递归改进自身。"
 }

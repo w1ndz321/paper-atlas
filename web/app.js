@@ -1,4 +1,4 @@
-/* Static reader: data.json is compiled from reviewed records, no remote runtime dependencies. */
+/* Static reader: reviewed records, no remote runtime dependencies. */
 "use strict";
 const $ = (id) => document.getElementById(id);
 const typeLabels = {
@@ -12,10 +12,12 @@ const typeLabels = {
 };
 let data;
 const params = new URLSearchParams(location.search);
-let topic = params.get("topic") || "";
-let subtopic = params.get("subtopic") || "";
-let collection = params.get("collection") || "";
+let topic = "";
+let subtopics = [];
+let collection = "";
+let guideOpen = false;
 let savedScroll = 0;
+const expandedAxes = new Set();
 const node = (tag, className, text) => {
   const el = document.createElement(tag);
   if (className) el.className = className;
@@ -37,8 +39,9 @@ function updateQuery(push = false, hash = location.hash) {
   const query = new URLSearchParams();
   if ($("search").value) query.set("q", $("search").value);
   if (topic) query.set("topic", topic);
-  if (subtopic) query.set("subtopic", subtopic);
+  for (const id of subtopics) query.append("subtopic", id);
   if (collection) query.set("collection", collection);
+  if (guideOpen) query.set("view", "guide");
   if ($("type-filter").value) query.set("type", $("type-filter").value);
   if ($("sort").value !== "added") query.set("sort", $("sort").value);
   history[push ? "pushState" : "replaceState"](
@@ -48,175 +51,306 @@ function updateQuery(push = false, hash = location.hash) {
   );
 }
 function readView(state) {
-  const originalTopic = state.get("topic") || "";
-  const requestedTopic = Object.hasOwn(data.config.topic_aliases, originalTopic)
-    ? data.config.topic_aliases[originalTopic]
-    : originalTopic;
-  // Preserve links shared before the cross-entry was separated from Topics.
+  const original = state.get("topic") || "";
+  const requested = data.config.topic_aliases[original] || original;
+  topic = Object.hasOwn(data.config.topics, requested) ? requested : "";
   collection =
     state.get("collection") ||
-    (Object.hasOwn(data.config.collections, requestedTopic)
-      ? requestedTopic
-      : "");
+    (Object.hasOwn(data.config.collections, original) ? original : "");
   if (!Object.hasOwn(data.config.collections, collection)) collection = "";
-  topic = Object.hasOwn(data.config.topics, requestedTopic)
-    ? requestedTopic
-    : "";
-  subtopic = state.get("subtopic") || "";
-  const category = Object.hasOwn(data.config.subtopics, subtopic)
-    ? data.config.subtopics[subtopic]
-    : undefined;
-  if (category && !topic) topic = category.topic;
-  if (!category || category.topic !== topic) subtopic = "";
-  if (collection) {
-    topic = data.config.collections[collection].topic || "";
-    subtopic = "";
-  }
+  if (collection) topic = data.config.collections[collection].topic || "";
+  const ids = state
+    .getAll("subtopic")
+    .map((id) =>
+      Object.hasOwn(data.config.subtopic_aliases, id)
+        ? data.config.subtopic_aliases[id]
+        : id,
+    )
+    .filter((id) => Object.hasOwn(data.config.subtopics, id));
+  if (ids.length && (!topic || original === "rsi-interpretability"))
+    topic = data.config.subtopics[ids[0]].topic;
+  subtopics = [
+    ...new Set(ids.filter((id) => data.config.subtopics[id].topic === topic)),
+  ];
+  guideOpen =
+    state.get("view") === "guide" &&
+    Object.hasOwn(data.config.topic_guides, topic);
+  for (const id of subtopics) expandedAxes.add(data.config.subtopics[id].axis);
 }
-function selectView(nextTopic = "", nextSubtopic = "", nextCollection = "") {
-  topic = nextTopic;
-  subtopic = nextSubtopic;
-  collection = nextCollection;
-  updateQuery(true, "");
+function closeSidebar() {
+  const wasOpen = $("sidebar").classList.contains("mobile-open");
+  $("sidebar").classList.remove("mobile-open");
+  $("sidebar-toggle").setAttribute("aria-expanded", "false");
+  if (wasOpen) window.scrollTo(0, 0);
+}
+function refreshView(push = true) {
+  updateQuery(push, "");
   renderTopics();
   renderList();
   showRoute();
+}
+function selectView(nextTopic = "", nextSubtopic = "", nextCollection = "") {
+  topic = nextTopic;
+  subtopics = nextSubtopic ? [nextSubtopic] : [];
+  collection = nextCollection;
+  guideOpen = false;
+  if (collection) topic = data.config.collections[collection].topic || "";
+  if (nextSubtopic) expandedAxes.add(data.config.subtopics[nextSubtopic].axis);
+  closeSidebar();
+  refreshView();
 }
 function filterButton(label, count, active, action, className = "topic") {
   const btn = node("button", className + (active ? " active" : ""));
   btn.type = "button";
   btn.setAttribute("aria-pressed", String(active));
-  btn.append(node("b", "", label), node("span", "", String(count)));
+  btn.append(node("span", "nav-label", label));
+  if (count !== null) btn.append(node("span", "nav-count", String(count)));
   btn.addEventListener("click", action);
   return btn;
 }
-function renderTopics() {
-  const all = { "": "全部论文", ...data.config.topics };
-  $("topics").replaceChildren();
-  for (const [id, label] of Object.entries(all)) {
-    const count = data.papers.filter(
-      (p) => !id || p.topics.includes(id),
-    ).length;
-    $("topics").append(
-      filterButton(label, count, topic === id, () => selectView(id)),
-    );
+function matchesFacets(paper, selections = subtopics, excludingAxis = "") {
+  const groups = new Map();
+  for (const id of selections) {
+    const axis = data.config.subtopics[id].axis;
+    if (axis === excludingAxis) continue;
+    if (!groups.has(axis)) groups.set(axis, []);
+    groups.get(axis).push(id);
   }
-  const navigation = $("topics");
-  const selected = navigation.querySelector(".active");
-  if (selected && navigation.scrollWidth > navigation.clientWidth) {
-    navigation.scrollLeft +=
-      selected.getBoundingClientRect().left -
-      navigation.getBoundingClientRect().left -
-      (navigation.clientWidth - selected.offsetWidth) / 2;
-  }
-  const entries = $("collections");
-  entries.replaceChildren();
-  const relatedCollections = Object.entries(data.config.collections).filter(
-    ([, entry]) => entry.topic === topic,
+  return [...groups.values()].every((ids) =>
+    ids.some((id) => paper.subtopics.includes(id)),
   );
-  entries.hidden = !relatedCollections.length;
-  if (!entries.hidden)
-    entries.append(node("span", "filter-label", "交叉研究入口"));
-  for (const [id, entry] of relatedCollections) {
-    const count = data.papers.filter((p) => p.collections.includes(id)).length;
-    entries.append(
+}
+function toggleFacet(id) {
+  subtopics = subtopics.includes(id)
+    ? subtopics.filter((x) => x !== id)
+    : [...subtopics, id];
+  guideOpen = false;
+  expandedAxes.add(data.config.subtopics[id].axis);
+  closeSidebar();
+  refreshView();
+}
+function renderTopics() {
+  const nav = $("topics");
+  nav.replaceChildren();
+  nav.append(
+    filterButton("全部论文", data.papers.length, !topic && !collection, () =>
+      selectView(),
+    ),
+  );
+  nav.append(node("p", "nav-section-label", "研究主题"));
+  for (const [id, label] of Object.entries(data.config.topics)) {
+    if (id === "interest-exploration") continue;
+    const count = data.papers.filter((p) => p.topics.includes(id)).length;
+    const branch = node("div", "topic-branch");
+    branch.append(
+      filterButton(label, count, topic === id && !collection, () =>
+        selectView(id),
+      ),
+    );
+    if (id === topic && !collection) {
+      const guideButton = filterButton(
+        "从问题开始 ↗",
+        null,
+        guideOpen,
+        () => {
+          guideOpen = !guideOpen;
+          closeSidebar();
+          refreshView();
+        },
+        "guide-entry",
+      );
+      branch.append(guideButton);
+      const axes = Object.entries(data.config.axes).filter(
+        ([, axis]) => axis.topic === id,
+      );
+      if (!axes.some(([key]) => expandedAxes.has(key)) && axes.length)
+        expandedAxes.add(axes[0][0]);
+      for (const [axisId, axis] of axes) {
+        const group = node("details", "facet-group");
+        group.dataset.axis = axisId;
+        group.open = expandedAxes.has(axisId);
+        const summary = node("summary", "", axis.label);
+        const selectedCount = subtopics.filter(
+          (s) => data.config.subtopics[s].axis === axisId,
+        ).length;
+        if (selectedCount)
+          summary.append(
+            node("span", "dimension-count", selectedCount + " 项"),
+          );
+        group.append(summary);
+        group.addEventListener("toggle", () => {
+          if (group.open) expandedAxes.add(axisId);
+          else expandedAxes.delete(axisId);
+        });
+        for (const [sid, child] of Object.entries(data.config.subtopics).filter(
+          ([, s]) => s.axis === axisId,
+        )) {
+          const count = data.papers.filter(
+            (p) =>
+              p.topics.includes(topic) &&
+              (!collection || p.collections.includes(collection)) &&
+              matchesFacets(p, subtopics, axisId) &&
+              p.subtopics.includes(sid),
+          ).length;
+          group.append(
+            filterButton(
+              child.label,
+              count,
+              subtopics.includes(sid),
+              () => toggleFacet(sid),
+              "subtopic",
+            ),
+          );
+        }
+        branch.append(group);
+      }
+    }
+    nav.append(branch);
+  }
+  const collections = $("collections");
+  collections.replaceChildren(node("p", "nav-section-label", "专题"));
+  for (const [id, entry] of Object.entries(data.config.collections)) {
+    collections.append(
       filterButton(
         entry.label,
-        count,
+        data.papers.filter((p) => p.collections.includes(id)).length,
         collection === id,
-        () => selectView(topic, "", id),
+        () => selectView(entry.topic || "", "", id),
         "collection",
       ),
     );
   }
-  const children = Object.entries(data.config.subtopics).filter(
-    ([, s]) => !collection && s.topic === topic,
+  const interest = "interest-exploration";
+  collections.append(
+    filterButton(
+      data.config.topics[interest],
+      data.papers.filter((p) => p.topics.includes(interest)).length,
+      topic === interest,
+      () => selectView(interest),
+    ),
   );
-  const secondary = $("subtopics");
-  secondary.replaceChildren();
-  secondary.hidden = !children.length;
-  if (children.length) {
-    secondary.append(node("span", "filter-label", "子类 · 按研究对象"));
-    const count = data.papers.filter((p) => p.topics.includes(topic)).length;
-    secondary.append(
+  if (topic === interest)
+    collections.append(
       filterButton(
-        "全部子类",
-        count,
-        !subtopic,
-        () => selectView(topic),
-        "subtopic",
+        "从问题开始 ↗",
+        null,
+        guideOpen,
+        () => {
+          guideOpen = !guideOpen;
+          closeSidebar();
+          refreshView();
+        },
+        "guide-entry",
       ),
     );
-    const groups = [...new Set(children.map(([, child]) => child.group || ""))];
-    for (const group of groups) {
-      const groupRow = node("div", "subtopic-group");
-      if (group) groupRow.append(node("span", "filter-label", group));
-      for (const [id, child] of children.filter(
-        ([, child]) => (child.group || "") === group,
-      )) {
-        const count = data.papers.filter((p) =>
-          p.subtopics.includes(id),
-        ).length;
-        groupRow.append(
-          filterButton(
-            child.label,
-            count,
-            subtopic === id,
-            () => selectView(topic, id),
-            "subtopic",
-          ),
-        );
-      }
-      secondary.append(groupRow);
-    }
+  renderGuide();
+  const crumbs = $("breadcrumb");
+  crumbs.replaceChildren();
+  const home = node("button", "", "全部论文");
+  home.onclick = () => selectView();
+  crumbs.append(home);
+  if (topic)
+    crumbs.append(
+      node("span", "", "›"),
+      node("span", "", data.config.topics[topic]),
+    );
+  if (collection)
+    crumbs.append(
+      node("span", "", "›"),
+      node("span", "", data.config.collections[collection].label),
+    );
+  if (guideOpen)
+    crumbs.append(node("span", "", "›"), node("span", "", "从问题开始"));
+  const filters = $("selected-filters");
+  filters.replaceChildren();
+  for (const id of subtopics) {
+    const category = data.config.subtopics[id];
+    const btn = node("button", "selected-filter", category.label + " ×");
+    btn.setAttribute("aria-label", "移除筛选：" + category.label);
+    btn.onclick = () => toggleFacet(id);
+    filters.append(btn);
   }
-  const parentGuide = data.config.topic_guides?.[topic];
-  const category = data.config.subtopics[subtopic];
-  const guide = collection
-    ? data.config.collections[collection]
-    : category
-      ? {
-          summary: category.definition,
-          points: [],
-          reading_order: (parentGuide?.reading_order || []).filter((item) =>
-            data.papers
-              .find((p) => p.id === item.id)
-              ?.subtopics.includes(subtopic),
-          ),
-        }
-      : parentGuide;
+  if (subtopics.length) {
+    const clear = node("button", "clear-filters", "清除筛选");
+    clear.onclick = () => {
+      subtopics = [];
+      refreshView();
+    };
+    filters.append(clear);
+  }
+  filters.hidden = !subtopics.length;
+}
+function renderGuide() {
   const panel = $("topic-guide");
   panel.replaceChildren();
-  panel.hidden = !guide;
-  if (guide) {
-    panel.append(
-      node(
-        "p",
-        "eyebrow",
-        category
-          ? "分类边界 · " + category.label
-          : collection
-            ? "交叉导读 · 知识库分析"
-            : "主题导读 · 知识库分析",
-      ),
-    );
-    panel.append(node("p", "guide-summary", guide.summary));
-    const points = node("ul", "guide-points");
-    for (const point of guide.points) points.append(node("li", "", point));
-    if (guide.points.length) panel.append(points);
-    if (guide.reading_order.length) {
-      const reading = node("div", "guide-reading");
-      reading.append(node("span", "", "建议阅读"));
-      for (const [i, item] of guide.reading_order.entries()) {
-        if (i) reading.append(node("span", "guide-arrow", "→"));
-        reading.append(
-          link(item.label, "#paper/" + encodeURIComponent(item.id)),
-        );
-      }
-      panel.append(reading);
+  panel.hidden = !guideOpen && !collection;
+  const guide = collection
+    ? data.config.collections[collection]
+    : data.config.topic_guides[topic];
+  if (!guide || panel.hidden) return;
+  const details = node("details", "guide-details");
+  details.open = guideOpen;
+  details.append(
+    node(
+      "summary",
+      "",
+      collection ? "专题导览与证据边界" : "带着问题，选择入口",
+    ),
+  );
+  details.append(node("p", "guide-summary", guide.summary));
+  if (guide.questions?.length) {
+    const table = node("table", "question-table");
+    const head = node("thead");
+    const hrow = node("tr");
+    for (const label of ["如果你想问的是……", "从这里开始"])
+      hrow.append(node("th", "", label));
+    head.append(hrow);
+    table.append(head);
+    const body = node("tbody");
+    for (const question of guide.questions) {
+      const row = node("tr");
+      const cell = node("td");
+      const action = node("button", "question-entry", question.label + " →");
+      action.onclick = () => {
+        if (question.axis) {
+          expandedAxes.add(question.axis);
+          renderTopics();
+          const target = $("topics").querySelector(
+            `[data-axis="${question.axis}"] summary`,
+          );
+          $("sidebar").classList.add("mobile-open");
+          $("sidebar-toggle").setAttribute("aria-expanded", "true");
+          target?.focus();
+          target?.scrollIntoView({ block: "nearest" });
+        } else {
+          guideOpen = false;
+          subtopics = [];
+          $("search").value = "";
+          $("type-filter").value = "";
+          $("sort").value = question.view === "year" ? "year" : "added";
+          refreshView();
+        }
+      };
+      cell.append(action);
+      row.append(node("td", "", question.question), cell);
+      body.append(row);
     }
+    table.append(body);
+    details.append(table);
   }
+  const points = node("ul", "guide-points");
+  for (const point of guide.points) points.append(node("li", "", point));
+  details.append(points);
+  if (guide.reading_order.length) {
+    const reading = node("div", "guide-reading");
+    reading.append(node("span", "", "建议阅读"));
+    for (const item of guide.reading_order)
+      reading.append(link(item.label, "#paper/" + item.id));
+    details.append(reading);
+  }
+  panel.append(details);
 }
+
 function renderList() {
   const terms = $("search")
     .value.trim()
@@ -227,7 +361,7 @@ function renderList() {
   const filtered = data.papers.filter(
     (p) =>
       (!topic || p.topics.includes(topic)) &&
-      (!subtopic || p.subtopics.includes(subtopic)) &&
+      matchesFacets(p) &&
       (!collection || p.collections.includes(collection)) &&
       (!type || p.paper_type === type) &&
       terms.every((t) => p.searchText.includes(t)),
@@ -244,18 +378,17 @@ function renderList() {
   $("total").textContent = filtered.length + " / " + data.papers.length + " 篇";
   $("active-label").textContent =
     data.config.collections[collection]?.label ||
-    data.config.subtopics[subtopic]?.label ||
     data.config.topics[topic] ||
     "全部论文";
   $("feedback").textContent = filtered.length
     ? ""
-    : data.papers.length
-      ? topic && !data.papers.some((p) => p.topics.includes(topic))
-        ? "这个 Topic 还没有论文。在 Codex 中提供论文并要求收录即可。"
-        : subtopic && !data.papers.some((p) => p.subtopics.includes(subtopic))
-        ? "该子类尚未收录论文。0 篇表示当前馆藏，不代表该方向没有研究。"
-        : "没有找到匹配的论文。试试其他关键词或分类。"
-      : "知识库已就绪。在 Codex 中提交第一篇论文即可开始。";
+    : topic === "interest-exploration" &&
+        !data.papers.some((p) => p.topics.includes(topic))
+      ? "这里还没有论文。在 Codex 中提供方向之外感兴趣的文章，并要求收录即可。"
+      : "没有匹配的论文。可以移除筛选或修改关键词；0 篇仅表示当前馆藏。";
+  $("list-controls").hidden = guideOpen;
+  $("papers").hidden = guideOpen;
+  $("feedback").hidden = guideOpen;
   for (const [i, p] of filtered.entries()) {
     const row = link("", "#paper/" + encodeURIComponent(p.id), "paper-row");
     row.style.animationDelay = Math.min(i * 35, 210) + "ms";
@@ -267,13 +400,27 @@ function renderList() {
       node("span", "", "·"),
       node("span", "", p.evidence.length + " 处原文证据"),
     );
+    if (p.rsi_evidence)
+      meta.append(node("span", "rsi-status", p.rsi_evidence.status));
     if (p.origin === "example")
       meta.append(node("span", "example-label", "初始化示例"));
     const bottom = node("div", "paper-bottom");
     const tags = node("div", "paper-tags");
     for (const t of p.topics)
       tags.append(node("span", "", data.config.topics[t]));
-    for (const s of p.subtopics)
+    const previewTags = [];
+    const seenAxes = new Set();
+    for (const s of [
+      ...subtopics.filter((id) => p.subtopics.includes(id)),
+      ...p.subtopics,
+    ]) {
+      const category = data.config.subtopics[s];
+      if (!seenAxes.has(category.axis)) {
+        seenAxes.add(category.axis);
+        previewTags.push(s);
+      }
+    }
+    for (const s of previewTags.slice(0, 3))
       tags.append(node("span", "", data.config.subtopics[s].label));
     const time = node("time", "", p.added_at + " 收录");
     time.dateTime = p.added_at;
@@ -362,6 +509,23 @@ function showRoute() {
   );
   head.append(actions);
   reader.append(head);
+  if (paper.rsi_evidence) {
+    const proof = node("section", "rsi-proof");
+    proof.append(node("h3", "", "递归闭环与证据边界"));
+    const list = node("dl");
+    for (const [key, label] of [
+      ["status", "证据状态"],
+      ["next_round_role", "下一轮职责"],
+      ["fixed_components", "固定组件"],
+      ["capability_evidence", "改进能力证据"],
+    ])
+      list.append(
+        node("dt", "", label),
+        node("dd", "", paper.rsi_evidence[key]),
+      );
+    proof.append(list);
+    reader.append(proof);
+  }
   if (paper.classification_reason) {
     const classification = node("aside", "paper-classification");
     classification.setAttribute("aria-label", "论文归类依据");
@@ -376,7 +540,13 @@ function showRoute() {
         (s) => data.config.subtopics[s].topic === t,
       )) {
         path.append(
-          node("span", "", " › "),
+          node(
+            "span",
+            "",
+            " · " +
+              data.config.axes[data.config.subtopics[s].axis].label +
+              "：",
+          ),
           link(
             data.config.subtopics[s].label,
             "?topic=" +
@@ -522,6 +692,16 @@ async function init() {
       : "added";
     $("repo-link").href = data.config.repository_url;
     $("readme-link").href = data.config.repository_url + "/blob/main/README.md";
+    $("sidebar-toggle").onclick = () => {
+      const open = $("sidebar").classList.toggle("mobile-open");
+      $("sidebar-toggle").setAttribute("aria-expanded", String(open));
+    };
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        closeSidebar();
+        $("sidebar-toggle").focus();
+      }
+    });
     $("search-form").onsubmit = (event) => event.preventDefault();
     $("search").oninput = renderList;
     $("type-filter").onchange = renderList;

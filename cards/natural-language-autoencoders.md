@@ -4,14 +4,14 @@
 
 - 作者：Kit Fraser-Taliente, Subhash Kantamneni, Euan Ong, Dan Mossing, Christina Lu, Paul C. Bogdan, Emmanuel Ameisen, James Chen, Dzmitry Kishylau, Adam Pearce, Julius Tarng, Alex Wu, Jeff Wu, Yang Zhang, Daniel M. Ziegler, Evan Hubinger, Joshua Batson, Jack Lindsey, Samuel Zimmerman, Samuel Marks
 - 年份：2026 · 类型：method
-- 主题：RSI 与 LLM 可解释性
+- 主题：LLM 可解释性
 - [原文](https://transformer-circuits.pub/2026/nla/index.html) · 收录：2026-11-10 · 更新：2026-11-10
 
-- 子类：内部表征与概念
+- 子类：知识与概念表征 / 行为诊断与审计 / 内部激活与概念特征 / 探针与状态解码
 
 - 交叉入口：可解释性 × RSI
 
-归类依据（知识库分析）：核心方法解释指定层与 token 的激活内容，归内部表征；用于审计 Agent 的实验证据使其进入交叉入口，不据此宣称已实现自身改进。
+归类依据（知识库分析）：从激活生成自然语言解释并以重构和审计检验，作为内部状态读取与模型调查的桥接工具。
 
 ## 研究问题
 

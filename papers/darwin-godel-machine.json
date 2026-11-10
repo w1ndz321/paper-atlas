@@ -13,7 +13,7 @@
   "year": 2025,
   "paper_type": "framework",
   "topics": [
-    "rsi-interpretability"
+    "rsi"
   ],
   "tags": [
     "Sakana AI",
@@ -147,7 +147,15 @@
   },
   "collections": [],
   "subtopics": [
-    "rsi-agent-programs"
+    "rsi-task-code",
+    "rsi-cap-code",
+    "rsi-rec-agent"
   ],
-  "classification_reason": "直接演化的是编码 Agent 的工具和执行工作流，选择信号是编码任务表现；开放档案与父代选择固定，按执行程序归类。"
+  "classification_reason": "演化后的编码 Agent 实际参与后续自身代码修改，形成结构回流；任务成绩与后续改进能力仍须分开评价，固定指令生成与档案选择不被隐去。",
+  "rsi_evidence": {
+    "status": "结构闭环 · 改进增益未定",
+    "next_round_role": "演化后的父 Agent 在后续迭代修改自身程序。",
+    "fixed_components": "底座模型、指令生成部分、档案维护和父代采样固定。",
+    "capability_evidence": "编码任务分数是任务能力证据；不能直接等同于固定预算下改进效率独立增强。"
+  }
 }

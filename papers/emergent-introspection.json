@@ -9,7 +9,7 @@
   "year": 2025,
   "paper_type": "analysis",
   "topics": [
-    "rsi-interpretability"
+    "llm-interpretability"
   ],
   "tags": [
     "Anthropic",
@@ -153,7 +153,11 @@
     "interpretability-rsi"
   ],
   "subtopics": [
-    "interp-representations"
+    "interp-q-introspection",
+    "interp-representations",
+    "interp-behavior",
+    "interp-m-intervention",
+    "interp-m-behavior"
   ],
-  "classification_reason": "研究模型能否识别和报告被注入的即时内部概念状态，归内部表征。作为状态读取的桥接基础进入交叉入口，未验证 RSI 闭环。"
+  "classification_reason": "以概念注入与行为对照检验状态报告能力；识别自身状态不等于能够修复或递归改进。"
 }

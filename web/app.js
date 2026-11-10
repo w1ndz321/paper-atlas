@@ -391,6 +391,10 @@ function renderList() {
   $("feedback").hidden = guideOpen;
   for (const [i, p] of filtered.entries()) {
     const row = link("", "#paper/" + encodeURIComponent(p.id), "paper-row");
+    // Stable decorative tones keep a paper's appearance when filters change.
+    const tone =
+      [...p.id].reduce((sum, char) => sum + char.charCodeAt(0), 0) % 4;
+    row.dataset.tone = ["lavender", "cream", "aqua", "periwinkle"][tone];
     row.style.animationDelay = Math.min(i * 35, 210) + "ms";
     const meta = node("div", "paper-meta");
     meta.append(

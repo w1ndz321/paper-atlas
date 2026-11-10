@@ -331,6 +331,16 @@ main {
   flex-basis: 100%;
   margin-bottom: 3px;
 }
+.subtopic-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  width: 100%;
+}
+.subtopic-group > .filter-label {
+  margin-top: 12px;
+}
 .subtopic {
   display: inline-flex;
   align-items: center;

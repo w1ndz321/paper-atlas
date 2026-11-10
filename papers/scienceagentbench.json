@@ -187,6 +187,8 @@
     "evidence_verified_sha256": "5b4b8be139d6f88d53acaf89b18938d0c1749fc20f5d50db6989324772d993bc"
   },
   "collections": [],
-  "subtopics": [],
-  "classification_reason": "任务来自科学数据工作流，保留在 Agent 评测背景；输出 Python 程序并不构成 RSI 或 LLM 内部解释贡献，不强行赋研究子类。"
+  "subtopics": [
+    "eval-tasks"
+  ],
+  "classification_reason": "主要贡献是来自真实科研工作的任务与执行环境，以参考结果或专用检查器评价 Agent，归 Agent 评测下的任务与环境基准；不因输出 Python 程序就视为通用编码评测。"
 }

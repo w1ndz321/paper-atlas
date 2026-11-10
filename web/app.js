@@ -48,7 +48,10 @@ function updateQuery(push = false, hash = location.hash) {
   );
 }
 function readView(state) {
-  const requestedTopic = state.get("topic") || "";
+  const originalTopic = state.get("topic") || "";
+  const requestedTopic = Object.hasOwn(data.config.topic_aliases, originalTopic)
+    ? data.config.topic_aliases[originalTopic]
+    : originalTopic;
   // Preserve links shared before the cross-entry was separated from Topics.
   collection =
     state.get("collection") ||
@@ -65,7 +68,10 @@ function readView(state) {
     : undefined;
   if (category && !topic) topic = category.topic;
   if (!category || category.topic !== topic) subtopic = "";
-  if (collection) topic = subtopic = "";
+  if (collection) {
+    topic = data.config.collections[collection].topic || "";
+    subtopic = "";
+  }
 }
 function selectView(nextTopic = "", nextSubtopic = "", nextCollection = "") {
   topic = nextTopic;
@@ -85,6 +91,11 @@ function filterButton(label, count, active, action, className = "topic") {
   return btn;
 }
 function renderTopics() {
+  $("research-topic").textContent =
+    data.config.topics[topic] || data.config.research_topic;
+  $("description").textContent =
+    data.config.topic_descriptions[topic] || data.config.description;
+  $("view-label").textContent = topic ? "Topic · 论文知识库" : "Paper Atlas";
   const all = { "": "全部论文", ...data.config.topics };
   $("topics").replaceChildren();
   for (const [id, label] of Object.entries(all)) {
@@ -93,9 +104,7 @@ function renderTopics() {
     ).length;
     if (id && count === 0) continue;
     $("topics").append(
-      filterButton(label, count, !collection && topic === id, () =>
-        selectView(id),
-      ),
+      filterButton(label, count, topic === id, () => selectView(id)),
     );
   }
   const navigation = $("topics");
@@ -108,35 +117,32 @@ function renderTopics() {
   }
   const entries = $("collections");
   entries.replaceChildren();
-  entries.hidden = !Object.keys(data.config.collections).length;
+  const relatedCollections = Object.entries(data.config.collections).filter(
+    ([, entry]) => entry.topic === topic,
+  );
+  entries.hidden = !relatedCollections.length;
   if (!entries.hidden)
     entries.append(node("span", "filter-label", "交叉研究入口"));
-  for (const [id, entry] of Object.entries(data.config.collections)) {
+  for (const [id, entry] of relatedCollections) {
     const count = data.papers.filter((p) => p.collections.includes(id)).length;
     entries.append(
       filterButton(
         entry.label,
         count,
         collection === id,
-        () => selectView("", "", id),
+        () => selectView(topic, "", id),
         "collection",
       ),
     );
   }
   const children = Object.entries(data.config.subtopics).filter(
-    ([, s]) => s.topic === topic,
+    ([, s]) => !collection && s.topic === topic,
   );
   const secondary = $("subtopics");
   secondary.replaceChildren();
   secondary.hidden = !children.length;
   if (children.length) {
-    secondary.append(
-      node(
-        "span",
-        "filter-label",
-        topic === "rsi" ? "按改进对象" : "按解释对象",
-      ),
-    );
+    secondary.append(node("span", "filter-label", "子类 · 按研究对象"));
     const count = data.papers.filter((p) => p.topics.includes(topic)).length;
     secondary.append(
       filterButton(
@@ -147,17 +153,27 @@ function renderTopics() {
         "subtopic",
       ),
     );
-    for (const [id, child] of children) {
-      const count = data.papers.filter((p) => p.subtopics.includes(id)).length;
-      secondary.append(
-        filterButton(
-          child.label,
-          count,
-          subtopic === id,
-          () => selectView(topic, id),
-          "subtopic",
-        ),
-      );
+    const groups = [...new Set(children.map(([, child]) => child.group || ""))];
+    for (const group of groups) {
+      const groupRow = node("div", "subtopic-group");
+      if (group) groupRow.append(node("span", "filter-label", group));
+      for (const [id, child] of children.filter(
+        ([, child]) => (child.group || "") === group,
+      )) {
+        const count = data.papers.filter((p) =>
+          p.subtopics.includes(id),
+        ).length;
+        groupRow.append(
+          filterButton(
+            child.label,
+            count,
+            subtopic === id,
+            () => selectView(topic, id),
+            "subtopic",
+          ),
+        );
+      }
+      secondary.append(groupRow);
     }
   }
   const parentGuide = data.config.topic_guides?.[topic];
@@ -288,7 +304,9 @@ function showRoute() {
   if (!location.hash.startsWith("#paper/")) {
     $("reader").hidden = true;
     $("library").hidden = false;
-    document.title = "Paper Atlas · 已读论文库";
+    document.title =
+      "Paper Atlas · " +
+      (data.config.topics[topic] || data.config.research_topic);
     return;
   }
   let id;

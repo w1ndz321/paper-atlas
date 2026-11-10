@@ -4,7 +4,7 @@
 
 - 作者：Kit Fraser-Taliente, Subhash Kantamneni, Euan Ong, Dan Mossing, Christina Lu, Paul C. Bogdan, Emmanuel Ameisen, James Chen, Dzmitry Kishylau, Adam Pearce, Julius Tarng, Alex Wu, Jeff Wu, Yang Zhang, Daniel M. Ziegler, Evan Hubinger, Joshua Batson, Jack Lindsey, Samuel Zimmerman, Samuel Marks
 - 年份：2026 · 类型：method
-- 主题：LLM 可解释性
+- 主题：RSI 与 LLM 可解释性
 - [原文](https://transformer-circuits.pub/2026/nla/index.html) · 收录：2026-11-10 · 更新：2026-11-10
 
 - 子类：内部表征与概念

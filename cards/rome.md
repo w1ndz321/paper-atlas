@@ -4,7 +4,7 @@
 
 - 作者：Kevin Meng, David Bau, Alex Andonian, Yonatan Belinkov
 - 年份：2022 · 类型：method
-- 主题：LLM 可解释性
+- 主题：RSI 与 LLM 可解释性
 - [原文](https://arxiv.org/abs/2202.05262v5) · 收录：2026-11-10 · 更新：2026-11-10
 
 - 子类：参数知识与事实关联

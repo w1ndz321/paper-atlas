@@ -83,6 +83,11 @@ def config(root=ROOT):
                 raise Invalid("子类必须指定有效父主题与分类边界")
             if axis == "collections" and key in cfg["topics"]:
                 raise Invalid("交叉入口不能同时作为主主题")
+            if axis == "collections" and item.get("topic") is not None and item["topic"] not in cfg["topics"]:
+                raise Invalid("交叉入口必须属于有效主主题")
+    aliases = cfg.get("topic_aliases", {})
+    if not isinstance(aliases, dict) or not all(slug_ok(k) and k not in cfg["topics"] and isinstance(v, str) and v in cfg["topics"] for k, v in aliases.items()):
+        raise Invalid("主题旧链接必须映射到有效主主题")
     return cfg
 
 
@@ -244,6 +249,10 @@ def check_record(p, cfg, ids, root=ROOT, source=None):
             for parent in {x["topic"] for x in cfg.get(axis, {}).values()}:
                 if isinstance(topics, list) and parent in topics:
                     need(parent in parents, parent + " 缺少适用子类")
+        if axis == "collections" and valid:
+            for value in values:
+                parent = cfg[axis][value].get("topic")
+                need(parent is None or isinstance(topics, list) and parent in topics, "交叉入口与父主题不一致")
     if "subtopics" in cfg:
         reason = p.get("classification_reason", "")
         need(isinstance(reason, str) and len(reason.strip()) >= 12, "缺少实质归类依据")
@@ -432,7 +441,7 @@ def build(output, root=ROOT):
     inbox = [read(p) for p in sorted((root / "inbox").glob("*.json"))]
     public_config = {k: cfg[k] for k in ("name", "research_topic", "description", "topics", "repository_url")}
     public_config["topic_guides"] = cfg.get("topic_guides", {})
-    for key in ("subtopics", "collections", "classification_rules"):
+    for key in ("subtopics", "collections", "classification_rules", "topic_aliases", "topic_descriptions"):
         public_config[key] = cfg.get(key, [] if key == "classification_rules" else {})
     write(output / "data.json", {"config": public_config, "papers": sorted(papers, key=lambda p: (p["added_at"], p["id"]), reverse=True), "sections": SECTIONS, "pending_count": len(inbox)})
     # Only website assets and reviewed cards are published; extraction caches/drafts never enter dist.

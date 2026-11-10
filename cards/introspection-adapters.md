@@ -4,7 +4,7 @@
 
 - 作者：Keshav Shenoy, Li Yang, Abhay Sheshadri, Sören Mindermann, Jack Lindsey, Sam Marks, Rowan Wang
 - 年份：2026 · 类型：method
-- 主题：LLM 可解释性
+- 主题：RSI 与 LLM 可解释性
 - [原文](https://arxiv.org/abs/2604.16812v2) · 收录：2026-11-10 · 更新：2026-11-10
 
 - 子类：行为倾向与驱动因素

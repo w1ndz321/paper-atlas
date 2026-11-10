@@ -4,7 +4,7 @@
 
 - 作者：Jenny Zhang, Shengran Hu, Cong Lu, Robert Lange, Jeff Clune
 - 年份：2025 · 类型：framework
-- 主题：RSI · 自我改进
+- 主题：RSI 与 LLM 可解释性
 - [原文](https://arxiv.org/abs/2505.22954v3) · 收录：2026-11-10 · 更新：2026-11-10
 
 - 子类：Agent 执行程序

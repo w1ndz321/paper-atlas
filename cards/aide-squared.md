@@ -4,7 +4,7 @@
 
 - 作者：Dhruv Srikanth, Bingchen Zhao, Dixing Xu, Yuxiang Wu, Zhengyao Jiang
 - 年份：2026 · 类型：framework
-- 主题：RSI · 自我改进
+- 主题：RSI 与 LLM 可解释性
 - [原文](https://arxiv.org/abs/2609.26457v1) · 收录：2026-11-10 · 更新：2026-11-10
 
 - 子类：改进程序

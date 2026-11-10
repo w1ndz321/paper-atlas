@@ -177,6 +177,8 @@
     "evidence_verified_sha256": "42cee1201662593f1244ffeef66a70076d12e294d61356f3f25f737f100b26f2"
   },
   "collections": [],
-  "subtopics": [],
-  "classification_reason": "研究评分指标和有限采样下的不确定性，保留在 Agent 评测背景；不因使用统计方法就归入内部表征或 RSI 子类。"
+  "subtopics": [
+    "eval-metrics"
+  ],
+  "classification_reason": "主要贡献是根据分类计数估计表现与不确定性，并研究有限采样下的模型比较，归 Agent 评测下的评分指标与估计；不是新的任务环境。"
 }

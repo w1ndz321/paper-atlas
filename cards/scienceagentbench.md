@@ -4,10 +4,12 @@
 
 - 作者：Ziru Chen, Shijie Chen, Yuting Ning, Qianheng Zhang, Boshi Wang, Botao Yu, Yifei Li, Zeyi Liao, Chen Wei, Zitong Lu, Vishal Dey, Mingyi Xue, Frazier N. Baker, Benjamin Burns, Daniel Adu-Ampratwum, Xuhui Huang, Xia Ning, Song Gao, Yu Su, Huan Sun
 - 年份：2024 · 类型：benchmark
-- 主题：Agent 评测 · 背景
+- 主题：Agent 评测
 - [原文](https://arxiv.org/abs/2410.05080v1) · 收录：2026-11-10 · 更新：2026-11-10
 
-归类依据（知识库分析）：任务来自科学数据工作流，保留在 Agent 评测背景；输出 Python 程序并不构成 RSI 或 LLM 内部解释贡献，不强行赋研究子类。
+- 子类：任务与环境基准
+
+归类依据（知识库分析）：主要贡献是来自真实科研工作的任务与执行环境，以参考结果或专用检查器评价 Agent，归 Agent 评测下的任务与环境基准；不因输出 Python 程序就视为通用编码评测。
 
 ## 研究问题
 

@@ -4,10 +4,12 @@
 
 - 作者：Mohsen Hariri, Amirhossein Samandar, Michael Hinczewski, Vipin Chaudhary
 - 年份：2025 · 类型：method
-- 主题：Agent 评测 · 背景
+- 主题：Agent 评测
 - [原文](https://arxiv.org/abs/2510.04265v1) · 收录：2026-11-10 · 更新：2026-11-10
 
-归类依据（知识库分析）：研究评分指标和有限采样下的不确定性，保留在 Agent 评测背景；不因使用统计方法就归入内部表征或 RSI 子类。
+- 子类：评分指标与估计
+
+归类依据（知识库分析）：主要贡献是根据分类计数估计表现与不确定性，并研究有限采样下的模型比较，归 Agent 评测下的评分指标与估计；不是新的任务环境。
 
 ## 研究问题
 

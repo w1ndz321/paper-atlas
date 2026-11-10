@@ -188,6 +188,8 @@
     "evidence_verified_sha256": "3d7f1d168d55aa1d2e1edbd768192254d00719fed9a01b8308da4db411ec09bd"
   },
   "collections": [],
-  "subtopics": [],
-  "classification_reason": "测量科研任务相对发表结果的完成能力，保留在 Agent 评测背景；没有直接研究自身改进或内部解释对象，不强行赋研究子类。"
+  "subtopics": [
+    "eval-tasks"
+  ],
+  "classification_reason": "主要贡献是来自真实科研工作的任务与执行环境，以参考结果或专用检查器评价 Agent，归 Agent 评测下的任务与环境基准；不因输出 Python 程序就视为通用编码评测。"
 }

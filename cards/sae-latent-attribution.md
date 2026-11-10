@@ -4,7 +4,7 @@
 
 - 作者：Tom Dupre la Tour, Dan Mossing
 - 年份：2025 · 类型：analysis
-- 主题：LLM 可解释性
+- 主题：RSI 与 LLM 可解释性
 - [原文](https://alignment.openai.com/sae-latent-attribution/) · 收录：2026-11-10 · 更新：2026-11-10
 
 - 子类：行为倾向与驱动因素

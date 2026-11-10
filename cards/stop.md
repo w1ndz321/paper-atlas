@@ -4,7 +4,7 @@
 
 - 作者：Eric Zelikman, Eliana Lorch, Lester Mackey, Adam Tauman Kalai
 - 年份：2023 · 类型：method
-- 主题：RSI · 自我改进
+- 主题：RSI 与 LLM 可解释性
 - [原文](https://arxiv.org/abs/2310.02304v3) · 收录：2026-11-10 · 更新：2026-11-10
 
 - 子类：改进程序

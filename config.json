@@ -1,77 +1,26 @@
 {
   "name": "Paper Atlas",
-  "research_topic": "RSI 与 LLM 可解释性",
-  "description": "追踪自我改进系统，理解模型内部机制，连接两条研究脉络。",
+  "research_topic": "论文知识库",
+  "description": "按研究主题整理已读论文，查阅方法、结果与原文证据。",
   "repository_url": "https://github.com/w1ndz321/paper-atlas",
-  "scope": "收录递归自我改进、自我改进 Agent、LLM 可解释性及其交叉研究，保留 Agent 评测作为背景。优先原论文与机构完整技术报告，区分有界改进、改进过程的改进与开放式 RSI。",
+  "scope": "按两个研究 Topic 收录论文：Agent 评测；RSI 与 LLM 可解释性。各 Topic 内依研究对象组织子类，交叉研究作为第二个 Topic 内的独立入口。优先原论文与机构完整技术报告。",
   "research_questions": [
+    "Agent 基准的任务、环境、成功条件与评分指标分别是什么，评价结论是否可靠？",
     "改进对象是答案、提示词、记忆、Agent 程序、权重，还是改进机制本身？哪些组件仍由人固定？",
     "改进由谁提出、用什么信号选择，是否验证预算公平、跨任务迁移及多轮稳定性？",
     "可解释性方法观察或干预什么内部对象，解释是否经过独立的因果或行为检验？",
     "解释或内省是否真正进入改进或审计闭环？哪些连接已有实验，哪些仅是知识库分析？"
   ],
   "topics": {
-    "rsi": "RSI · 自我改进",
-    "llm-interpretability": "LLM 可解释性",
-    "agent-benchmarks": "Agent 评测 · 背景"
+    "agent-benchmarks": "Agent 评测",
+    "rsi-interpretability": "RSI 与 LLM 可解释性"
   },
   "topic_guides": {
-    "rsi": {
-      "summary": "这条线关注系统到底改进了什么，以及改进后的系统是否更善于继续改进。先看冻结底座上的程序优化，再看 Agent 源码演化与研究效率。",
-      "points": [
-        "按改进对象查看五个子类。当前收录执行程序、改进程序及计算程序；0 篇表示尚未收录，不表示该方向没有研究。",
-        "证据升级：任务分数提高 → 留出任务迁移 → 固定预算下研究效率提高 → 后续自改能力提高。各层不能互相替代。",
-        "近期边界：AIDE²报告多轮研究效率改善，但其 ignition test 仍不足以证明改进后的 Agent 更善于驱动下一轮改进。"
-      ],
-      "reading_order": [
-        {
-          "id": "stop",
-          "label": "STOP"
-        },
-        {
-          "id": "darwin-godel-machine",
-          "label": "DGM"
-        },
-        {
-          "id": "alphaevolve",
-          "label": "AlphaEvolve"
-        },
-        {
-          "id": "aide-squared",
-          "label": "AIDE² · 2026"
-        }
-      ]
-    },
-    "llm-interpretability": {
-      "summary": "从内部表示中读出信息、解释计算机制、主动改变行为，是三个不同目标。这批代表作串起因果定位、稀疏特征、电路追踪与解释忠实性。",
-      "points": [
-        "按解释对象分为参数知识、内部表征、计算电路、外显推理与行为倾向；SAE、因果追踪、内省等是方法，不与研究对象混排。",
-        "每篇卡片说明为什么归入该类。使用同一种工具的论文可能回答不同问题，因此不必放进同一子类。",
-        "类型筛选独立区分方法、基准和分析研究；相关性、干预效果与机制忠实性也分别核查。"
-      ],
-      "reading_order": [
-        {
-          "id": "rome",
-          "label": "ROME"
-        },
-        {
-          "id": "scaling-monosemanticity",
-          "label": "稀疏特征"
-        },
-        {
-          "id": "circuit-tracing",
-          "label": "电路追踪"
-        },
-        {
-          "id": "cot-faithfulness",
-          "label": "CoT 忠实性"
-        }
-      ]
-    },
     "agent-benchmarks": {
-      "summary": "保留最初收录的三篇背景文献，作为任务环境、科学能力测量和评价协议的参考。",
+      "summary": "研究 Agent 如何被测试、评分和比较。子类按论文直接研究的评价对象区分。",
       "points": [
-        "这些论文测量 Agent 表现，不单独构成 RSI 或模型内部机制解释的证据。"
+        "任务与环境基准关注测什么、在什么环境测；评分指标与估计关注如何把运行结果转换为可比较的结论。",
+        "新研究对象出现时补充子类，论文类型、学科领域与所用工具另行标注。"
       ],
       "reading_order": [
         {
@@ -87,12 +36,42 @@
           "label": "Don't Pass@k"
         }
       ]
+    },
+    "rsi-interpretability": {
+      "summary": "在一个研究 Topic 内串联自我改进、LLM 可解释性及两者的连接。下方按研究对象细分，RSI 与可解释性分组展示。",
+      "points": [
+        "RSI 子类看系统直接改进什么；可解释性子类看论文直接解释什么，不按工具名、机构或年份混排。",
+        "交叉研究入口收集内省、审计、干预与自动化研发的实际连接；进入该入口不代表已证明完整 RSI 闭环。",
+        "子类可随文献积累完善。每次调整会说明边界并同步重分已有文章，不强行把新工作塞入旧类别。"
+      ],
+      "reading_order": [
+        {
+          "id": "darwin-godel-machine",
+          "label": "DGM · 自改"
+        },
+        {
+          "id": "aide-squared",
+          "label": "AIDE² · 改进效率"
+        },
+        {
+          "id": "scaling-monosemanticity",
+          "label": "SAE · 特征"
+        },
+        {
+          "id": "circuit-tracing",
+          "label": "电路追踪"
+        },
+        {
+          "id": "saescientist-bench",
+          "label": "SAEScientist · 交叉"
+        }
+      ]
     }
   },
   "collections": {
     "interpretability-rsi": {
       "label": "可解释性 × RSI",
-      "summary": "交叉 Topic 收集可解释性进入自动化研发的已有连接：状态读取、训练后审计、行为调试，以及 Agent 自主做可解释性实验。桥接工具与真正的自改闭环分别看待。",
+      "summary": "在本 Topic 内单独查看解释工具与自我改进研发的实际连接：状态读取、训练后审计、行为调试，以及 Agent 自主做可解释性实验。",
       "points": [
         "已有实证：SAE 归因帮助定位并干预异常行为，NLA 帮助 Agent 调查隐藏动因，IA 帮助报告微调后的行为。",
         "更直接的评测：SAEScientist-Bench 测 Agent 设计对照探针和验证特征的能力；它发现概念区分与可靠生成干预之间仍有明显差距。",
@@ -115,67 +94,98 @@
           "id": "sae-latent-attribution",
           "label": "SAE 行为调试"
         }
-      ]
+      ],
+      "topic": "rsi-interpretability"
     }
   },
   "classification_rules": [
     "统一按论文直接研究或改变的对象分类；论文类型、应用领域、所用方法不充当同级子类。该体系是本知识库的工作分类，不代表学界唯一标准。",
     "RSI 依据被接受更新的对象及其功能归类；可解释性依据核心问题要解释的对象归类，不能因为使用 SAE 或 LLM 就增加类别。",
-    "子类使用受控清单，一篇论文可有多个有独立贡献支撑的子类；每个所属主 Topic 至少对应一个子类。背景文献不强行归入研究子类。",
+    "子类按统一研究对象归类，一篇论文可有多个有独立贡献支撑的子类；每个所属主 Topic 至少对应一个子类。分组用于区分 Topic 内的研究线索，不作为第三个主 Topic。",
     "改进程序与 Agent 执行程序的边界：只有以生成、搜索或研究过程的后续改进效率为直接选择目标，才归改进程序；仅用任务完成率代理自改能力的工作归 Agent 执行程序。",
     "交叉入口独立维护，不由同时出现 RSI 和可解释性关键词自动生成。需实际研究内部诊断、审计、干预或自主可解释性实验与模型开发之间的连接，并在归类依据说明证据层次。",
-    "类别定义先于论文归类；新增、拆分或合并子类须修订本配置与受影响论文。依据方法、结果和边界判断，不从标题直接贴标签。"
+    "子类可以预设，也可以随文献演化：先核对现有边界；确有新的研究对象或原分类不再贴合时，可新增、拆分、合并或重命名，并同步修订配置、既有归属和说明。名称变化尽量保留稳定 id；结构迁移保留旧链接。不能只因标题、年份或工具不同就新建类别。"
   ],
   "subtopics": {
+    "eval-tasks": {
+      "topic": "agent-benchmarks",
+      "label": "任务与环境基准",
+      "group": "评价对象",
+      "definition": "主要贡献是可运行的 Agent 任务、数据集或交互环境，研究测量哪些能力以及任务成功条件。论文恰好报告 benchmark 结果，不等于贡献了一个基准。"
+    },
+    "eval-metrics": {
+      "topic": "agent-benchmarks",
+      "label": "评分指标与估计",
+      "group": "评价对象",
+      "definition": "主要研究如何把重复运行结果转换为分数、不确定性或模型比较。仅沿用既有指标报告任务成绩，不归此类。"
+    },
     "rsi-parameters": {
-      "topic": "rsi",
+      "topic": "rsi-interpretability",
       "label": "模型参数",
-      "definition": "改进对象是基础模型或策略模型的持久参数，例如通过自生成数据、自博弈或反馈训练更新权重。仅在调用冻结模型的外部程序上做搜索，不归此类。"
+      "definition": "改进对象是基础模型或策略模型的持久参数，例如通过自生成数据、自博弈或反馈训练更新权重。仅在调用冻结模型的外部程序上做搜索，不归此类。",
+      "group": "RSI · 改进对象"
     },
     "rsi-context": {
-      "topic": "rsi",
+      "topic": "rsi-interpretability",
       "label": "提示、记忆与技能",
-      "definition": "改进对象是保留下来供后续任务复用的提示、记忆或技能内容。只在一次回答中修改措辞不算；若这些变化只是源码自修改的附带组件，优先按论文的主要改进对象归类。"
+      "definition": "改进对象是保留下来供后续任务复用的提示、记忆或技能内容。只在一次回答中修改措辞不算；若这些变化只是源码自修改的附带组件，优先按论文的主要改进对象归类。",
+      "group": "RSI · 改进对象"
     },
     "rsi-agent-programs": {
-      "topic": "rsi",
+      "topic": "rsi-interpretability",
       "label": "Agent 执行程序",
-      "definition": "改进对象是 Agent 完成任务时的工具实现、控制逻辑或工作流，主要按下游任务表现选择版本。把编码成绩作为自改能力代理，不等于直接优化后续改进效率。"
+      "definition": "改进对象是 Agent 完成任务时的工具实现、控制逻辑或工作流，主要按下游任务表现选择版本。把编码成绩作为自改能力代理，不等于直接优化后续改进效率。",
+      "group": "RSI · 改进对象"
     },
     "rsi-improvement-programs": {
-      "topic": "rsi",
+      "topic": "rsi-interpretability",
       "label": "改进程序",
-      "definition": "改进对象是负责提出、搜索或执行改进的优化器与研究程序，直接用其后续优化能力或固定预算研究效率选择版本。与执行程序按直接评价目标区分；是否已证明持续自我加速另看实验。"
+      "definition": "改进对象是负责提出、搜索或执行改进的优化器与研究程序，直接用其后续优化能力或固定预算研究效率选择版本。与执行程序按直接评价目标区分；是否已证明持续自我加速另看实验。",
+      "group": "RSI · 改进对象"
     },
     "rsi-compute-programs": {
-      "topic": "rsi",
+      "topic": "rsi-interpretability",
       "label": "训练与计算程序",
-      "definition": "改进对象是训练内核、编译、调度等支撑 AI 的计算程序。收录训练基础设施反馈等 RSI 邻近证据，但不把外部程序优化或训练加速直接称为完整递归自我改进。"
+      "definition": "改进对象是训练内核、编译、调度等支撑 AI 的计算程序。收录训练基础设施反馈等 RSI 邻近证据，但不把外部程序优化或训练加速直接称为完整递归自我改进。",
+      "group": "RSI · 改进对象"
     },
     "interp-knowledge": {
-      "topic": "llm-interpretability",
+      "topic": "rsi-interpretability",
       "label": "参数知识与事实关联",
-      "definition": "解释对象是参数中存储、调用或可编辑的知识关联，核心问题是某类事实怎样被回忆和改变。仅修改输出文本或显示相关特征，不能视为定位了知识存储。"
+      "definition": "解释对象是参数中存储、调用或可编辑的知识关联，核心问题是某类事实怎样被回忆和改变。仅修改输出文本或显示相关特征，不能视为定位了知识存储。",
+      "group": "可解释性 · 解释对象"
     },
     "interp-representations": {
-      "topic": "llm-interpretability",
+      "topic": "rsi-interpretability",
       "label": "内部表征与概念",
-      "definition": "解释对象是内部激活中编码的概念或即时状态，包括表示分解、状态读取及这些读取能力的评测。重点是表示了什么；不因使用特征工具就自动扩展到行为动因或完整计算电路。"
+      "definition": "解释对象是内部激活中编码的概念或即时状态，包括表示分解、状态读取及这些读取能力的评测。重点是表示了什么；不因使用特征工具就自动扩展到行为动因或完整计算电路。",
+      "group": "可解释性 · 解释对象"
     },
     "interp-circuits": {
-      "topic": "llm-interpretability",
+      "topic": "rsi-interpretability",
       "label": "计算路径与电路",
-      "definition": "解释对象是组件或特征怎样相互作用产生输出，需分析计算路径及其干预预测。只发现某个相关特征、或只读取某时刻状态，不构成完整电路解释。"
+      "definition": "解释对象是组件或特征怎样相互作用产生输出，需分析计算路径及其干预预测。只发现某个相关特征、或只读取某时刻状态，不构成完整电路解释。",
+      "group": "可解释性 · 解释对象"
     },
     "interp-reasoning": {
-      "topic": "llm-interpretability",
+      "topic": "rsi-interpretability",
       "label": "外显推理过程",
-      "definition": "解释对象是模型生成的思维链、理由或推理轨迹，研究它们是否忠实反映决策因素。仅提高答案正确率而不检验解释忠实性，不归此类。"
+      "definition": "解释对象是模型生成的思维链、理由或推理轨迹，研究它们是否忠实反映决策因素。仅提高答案正确率而不检验解释忠实性，不归此类。",
+      "group": "可解释性 · 解释对象"
     },
     "interp-behavior": {
-      "topic": "llm-interpretability",
+      "topic": "rsi-interpretability",
       "label": "行为倾向与驱动因素",
-      "definition": "解释对象是跨输入出现的行为倾向、训练后变化或异常行为的内部驱动因素，研究模型为何如此行动及如何验证。与即时表征读取区分；报告一个倾向不等于发现完整根因。"
+      "definition": "解释对象是跨输入出现的行为倾向、训练后变化或异常行为的内部驱动因素，研究模型为何如此行动及如何验证。与即时表征读取区分；报告一个倾向不等于发现完整根因。",
+      "group": "可解释性 · 解释对象"
     }
+  },
+  "topic_descriptions": {
+    "agent-benchmarks": "理解 Agent 的任务基准、评分方法与评价依据。",
+    "rsi-interpretability": "追踪自我改进、模型解释与两者的交叉研究。"
+  },
+  "topic_aliases": {
+    "rsi": "rsi-interpretability",
+    "llm-interpretability": "rsi-interpretability"
   }
 }

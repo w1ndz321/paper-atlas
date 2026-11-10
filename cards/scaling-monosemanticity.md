@@ -4,7 +4,7 @@
 
 - 作者：Adly Templeton, Tom Conerly, Jonathan Marcus, Jack Lindsey, Trenton Bricken, Brian Chen, Adam Pearce, Craig Citro, Emmanuel Ameisen, Andy Jones, Hoagy Cunningham, Nicholas L Turner, Callum McDougall, Monte MacDiarmid, Alex Tamkin, Esin Durmus, Tristan Hume, Francesco Mosconi, C. Daniel Freeman, Theodore R. Sumers, Edward Rees, Joshua Batson, Adam Jermyn, Shan Carter, Chris Olah, Tom Henighan
 - 年份：2024 · 类型：method
-- 主题：LLM 可解释性
+- 主题：RSI 与 LLM 可解释性
 - [原文](https://transformer-circuits.pub/2024/scaling-monosemanticity/index.html) · 收录：2026-11-10 · 更新：2026-11-10
 
 - 子类：内部表征与概念

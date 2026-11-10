@@ -4,10 +4,12 @@
 
 - 作者：Yuru Wang, Lejun Cheng, Yuxin Zuo, Sihang Zeng, Bingxiang He, Che Jiang, Junlin Yang, Yuchong Wang, Kaikai Zhao, Weifeng Huang, Kai Tian, Zhenzhao Yuan, Jincheng Zhong, Weizhi Wang, Ning Ding, Bowen Zhou, Kaiyan Zhang
 - 年份：2026 · 类型：benchmark
-- 主题：Agent 评测 · 背景
+- 主题：Agent 评测
 - [原文](https://arxiv.org/abs/2606.24530v1) · 收录：2026-11-10 · 更新：2026-11-10
 
-归类依据（知识库分析）：测量科研任务相对发表结果的完成能力，保留在 Agent 评测背景；没有直接研究自身改进或内部解释对象，不强行赋研究子类。
+- 子类：任务与环境基准
+
+归类依据（知识库分析）：主要贡献是来自真实科研工作的任务与执行环境，以参考结果或专用检查器评价 Agent，归 Agent 评测下的任务与环境基准；不因输出 Python 程序就视为通用编码评测。
 
 ## 研究问题
 

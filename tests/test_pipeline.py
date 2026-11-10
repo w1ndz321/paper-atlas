@@ -271,6 +271,32 @@ class PipelineTests(unittest.TestCase):
         for field in ("subtopics", "collections", "classification_reason"):
             self.assertEqual(draft[field], p[field])
 
+    def test_cross_collection_is_scoped_to_its_parent_topic(self):
+        cfg, p = self.taxonomy()
+        cfg["collections"]["cross-view"]["topic"] = "other-topic"
+        self.assertIn("交叉入口与父主题不一致", kb.check_record(p, cfg, {"example"}, self.root))
+        cfg["collections"]["cross-view"]["topic"] = "missing"
+        kb.write(self.root / "config.json", cfg)
+        with self.assertRaisesRegex(kb.Invalid, "有效主主题"):
+            kb.config(self.root)
+
+    def test_topic_aliases_publish_and_must_target_existing_topic(self):
+        cfg, p = self.taxonomy()
+        cfg["topic_aliases"] = {"former-topic": "general-agents"}
+        cfg["subtopics"]["task-program"]["group"] = "研究对象"
+        kb.write(self.root / "config.json", cfg)
+        self.store(p)
+        kb.render_cards(self.root)
+        kb.build(self.root / "dist", self.root)
+        published = kb.read(self.root / "dist/data.json")["config"]
+        self.assertEqual(published["topic_aliases"], cfg["topic_aliases"])
+        self.assertEqual(published["subtopics"]["task-program"]["group"], "研究对象")
+        for invalid in ("missing", []):
+            cfg["topic_aliases"]["former-topic"] = invalid
+            kb.write(self.root / "config.json", cfg)
+            with self.assertRaisesRegex(kb.Invalid, "旧链接"):
+                kb.config(self.root)
+
     def test_build_refuses_source_directory(self):
         with self.assertRaises(kb.Invalid):
             kb.build(self.root, self.root)

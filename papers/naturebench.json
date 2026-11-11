@@ -35,7 +35,7 @@
   ],
   "one_liner": "将 Nature 系列论文转为 90 个容器化科研任务，隐藏源方法，让编码 Agent 独立求解，并以相对已发表 SOTA 的差距评分。",
   "added_at": "2026-11-10",
-  "updated_at": "2026-11-10",
+  "updated_at": "2026-11-11",
   "source": {
     "url": "https://arxiv.org/abs/2606.24530v1",
     "sha256": "3d7f1d168d55aa1d2e1edbd768192254d00719fed9a01b8308da4db411ec09bd",
@@ -197,5 +197,37 @@
     "activity-data",
     "activity-code"
   ],
-  "classification_reason": "以生物、分子及物理建模任务测科研编码与已发表结果对标；参考方法隐藏，任务是独立求解，不统一归为照论文复现。"
+  "classification_reason": "以生物、分子及物理建模任务测科研编码与已发表结果对标；参考方法隐藏，任务是独立求解，不统一归为照论文复现。",
+  "translations": {
+    "en": {
+      "source_sha256": "3d7f1d168d55aa1d2e1edbd768192254d00719fed9a01b8308da4db411ec09bd",
+      "one_liner": "NatureBench turns Nature-family papers into 90 containerized research tasks, hides the original methods and scores coding agents against published results.",
+      "sections": {
+        "problem": "Can a coding agent match or exceed a published result using only the scientific problem, data and delivery requirements? NatureBench asks agents to solve research tasks independently. Version 1 contains 90 tasks in cell omics, proteins, biomedical modeling, physical modeling, molecular design and relational reasoning.",
+        "gap": "Paper-reproduction tasks mainly test implementing a known method. Some engineering benchmarks also lack natural-science settings and stable rerunnable environments. NatureGym packages the scientific problem, environment, scorer and published reference result into one protocol while hiding the source method.",
+        "method": "NatureGym screens papers, verifies data access and builds task packages, with review and repair at each stage. Agents see instructions and input data. References and evaluators stay in a host service that returns scoring feedback after submission. Each instance gets g = dir × (m − m_sota) / |m_sota|, aggregated within a task. Match-SOTA means g ≥ 0 and Surpass-SOTA means g > 0.1.",
+        "trace": "The cancer-gene task in Figure 5 and Appendix C provides a biological-network adjacency matrix, 64-dimensional multi-omics features, training and validation labels, and test masks. The agent submits predictions.npy for test nodes. A hidden evaluator compares AUPRC with the source paper. Claude Opus 4.7’s best aggregate gap in this example is g = 0.17666 after graph modeling, ensembling and training changes. This evaluates a task slice rather than reproducing the entire paper.",
+        "inputs_outputs": "Inputs are instructions, data descriptions and files in an isolated environment. Outputs are executable solutions, predictions or other required submission files. The scoring service holds hidden references, metrics and SOTA anchors. A post-run model review checks fabricated outputs and feedback exploitation. Deliverables include task packages, the environment pipeline and a public leaderboard.",
+        "results": "This card uses arXiv v1, keeping it separate from the changing online leaderboard. Ten model configurations run through Claude Code, Codex CLI or Gemini CLI, with web search disabled and four hours per task. GPUs are assigned as needed. Table 4’s strongest model, Claude Opus 4.7, reaches 17.8% Surpass-SOTA and 47.8% Match-SOTA. Matching a metric does not itself establish a new scientific method.",
+        "contributions": "The paper contributes NatureGym and a cross-disciplinary benchmark anchored to published results. Evaluation combines valid submission, metric achievement and post-run shortcut review. The analysis also examines failures involving method choice and compute use.",
+        "limitations": "Coverage is limited to accessible, automatically scorable research slices that can be packaged into environments. The paper explicitly distinguishes these slices from full-paper reproduction. Public data and iterative scoring feedback create leakage and exploitation risks, constrained through search restrictions and post-run review. Small SOTA denominators can amplify errors and produce heavy-tailed mean gaps, making threshold rates and medians relevant.",
+        "cost": "The time budget is four hours per task, paused during evaluation. Of 90 tasks, 3 are CPU-only, 70 use one RTX 3090/4090 and 17 use one A800. Appendix D reports API costs for valid runs with usage records, including an average $21.65 for Claude Opus 4.7. This excludes total machine costs and is a reported experimental cost.",
+        "relevance": "Library analysis. NatureBench illustrates a pipeline from published research to rerunnable scientific coding tasks, hidden scoring and comparison with paper results. ScienceAgentBench assesses task-specific success, while NatureBench compares with published SOTA. Their difficulty and metrics should be interpreted separately."
+      },
+      "related": {
+        "scienceagentbench": "Both derive programming tasks from published research. ScienceAgentBench checks task-specific success, whereas NatureBench compares performance with published SOTA."
+      },
+      "locators": {
+        "e1": "§1 · Scale and project goals",
+        "e2": "§2.1 · NatureGym workflow",
+        "e3": "§3.4 · Scoring and budget",
+        "e4": "Table 4 · Version-specific main results",
+        "e5": "Fig. 5 · Cancer-gene task submission",
+        "e6": "§5.3 · Task coverage",
+        "e7": "Appendix D, Table 11 · API cost",
+        "e8": "Appendix C, Table 8 · Best case result",
+        "e9": "§4.1 · Hardware allocation"
+      }
+    }
+  }
 }

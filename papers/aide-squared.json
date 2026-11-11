@@ -26,7 +26,7 @@
   ],
   "one_liner": "让研究 Agent 重写其搜索与上下文管理代码，以固定预算下的留出任务表现选代，并单独检验后续自我改进能力。",
   "added_at": "2026-11-10",
-  "updated_at": "2026-11-10",
+  "updated_at": "2026-11-11",
   "source": {
     "url": "https://arxiv.org/abs/2609.26457v1",
     "sha256": "8ba79e0ad1028e43b0a47ee06162c9b3996ec90f7990b7ec35993444e505409b",
@@ -166,5 +166,34 @@
     "next_round_role": "ignition test 将演化后的 AIDE47 用作外层改进器。",
     "fixed_components": "主循环的外层模型、选择规则与任务评估仍固定。",
     "capability_evidence": "每组仅三个种子，端点接近；作者不认定改进器更优或样本效率优势已确立。"
+  },
+  "translations": {
+    "en": {
+      "source_sha256": "8ba79e0ad1028e43b0a47ee06162c9b3996ec90f7990b7ec35993444e505409b",
+      "one_liner": "AIDE² rewrites a research agent’s search and context-management code, selects versions using held-out performance at a fixed budget, and separately tests whether the evolved agent can drive further improvement.",
+      "sections": {
+        "problem": "Can the agent running a research search become more efficient at the same budget? AIDE² makes the research agent’s own code the optimization target, allowing changes to its search strategy, memory and validation workflow. This card covers Weco AI’s September 2026 preprint.",
+        "gap": "A higher task score can come from extra compute or overfitting to the selection tasks. A stronger claim also requires the evolved system to become better at producing further improvements. The paper therefore examines fixed-budget performance, transfer to external tasks and a separate ignition test.",
+        "method": "An inner agent searches over task code, observes public feedback and returns a solution. Hidden-data scores are averaged across tasks to give the agent a private rating. An outer agent rewrites the current version using previous agents and their ratings, retaining the highest-scoring version. The main loop keeps Claude Opus 4.7 as the outer model, Gemini 3 Flash as the inner model, and the outer selection rule fixed.",
+        "trace": "AIDE0 repeatedly edits its best-scoring node and keeps all logs in context. The evolved AIDE85 instead uses bandit selection across strategy arms, periodic branching, short context summaries and failure memory triggered by error rates. These changes redistribute the task budget. They do not update the underlying model’s weights.",
+        "inputs_outputs": "The inputs are AIDE0’s code, the human-developed outer agent AIDEhuman, selection tasks in machine learning, algorithms and agent engineering, and a budget. The outputs are evaluated source-code candidates and their lineage. Each candidate must rerun the inner tasks. Transfer is then tested on ALE, MLE, FML and tasks based on WeatherBench 2.",
+        "results": "The main run lasted 8 days and made 99 rewrite proposals, accepting 7 improvements. Its private rating rose from 0.703 to 0.778. On external tests, AIDE85 versus AIDE0 scored 1790 versus 1536 on ALE, 0.722 versus 0.678 in MLE private percentile, and 19.9% versus 15.0% in FML mean normalized improvement. These are different metrics. ALE used 10 tasks × 10 seeds, MLE 22 × 3, and FML 18 × 3, with equal budgets within each comparison.",
+        "contributions": "The work makes research efficiency a target for selection and distinguishes selection-set gains from transfer. It also observes less reward exploitation on kernel tasks excluded from selection. Its ignition test asks whether the discovered agent can drive subsequent improvement more effectively than the agent that discovered it.",
+        "limitations": "The ignition test has only three 50-step runs per group. Final means of about 0.780 and 0.782 were insufficient, in the authors’ assessment, to distinguish self-improvement efficiency. The evidence therefore does not establish sustained acceleration. Noise at both levels and expensive reevaluation limit statistical power, while growing code complexity makes component contributions hard to isolate.",
+        "cost": "The main self-modification run took 8 days, with no single total dollar cost reported for these settings. External ALE and MLE tests allowed $5 per task, weather tasks $15, and FML mainly used a 100-step constraint. Weather and FML tests used different underlying models, so the external evaluations did not all use Gemini 3 Flash.",
+        "relevance": "Library analysis. This is a recent empirical RSI study worth reading for its method and ignition test. It exposes practical difficulty in explaining evolved agents, but it does not use mechanistic explanations to drive self-modification. It helps separate evidence of better performance from evidence of better understanding."
+      },
+      "related": {
+        "darwin-godel-machine": "DGM uses coding ability as a proxy. AIDE² directly selects research-task optimization efficiency and separately tests whether the discovered agent can drive further improvement.",
+        "stop": "Both use nested meta-optimization. AIDE² emphasizes fixed budgets, hidden scoring and generalization to external benchmarks."
+      },
+      "locators": {
+        "e1": "§2.1 · Two optimization levels",
+        "e2": "§2.2–3.2 · Setup and trajectory",
+        "e3": "§3.5 · Search strategies and memory",
+        "e4": "§3.6 · Limits of the ignition test",
+        "e5": "Appendix A · External benchmark setup"
+      }
+    }
   }
 }

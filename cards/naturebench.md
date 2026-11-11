@@ -5,7 +5,7 @@
 - 作者：Yuru Wang, Lejun Cheng, Yuxin Zuo, Sihang Zeng, Bingxiang He, Che Jiang, Junlin Yang, Yuchong Wang, Kaikai Zhao, Weifeng Huang, Kai Tian, Zhenzhao Yuan, Jincheng Zhong, Weizhi Wang, Ning Ding, Bowen Zhou, Kaiyan Zhang
 - 年份：2026 · 类型：benchmark
 - 主题：AI4S Agent 评测
-- [原文](https://arxiv.org/abs/2606.24530v1) · 收录：2026-11-10 · 更新：2026-11-10
+- [原文](https://arxiv.org/abs/2606.24530v1) · 收录：2026-11-10 · 更新：2026-11-11
 
 - 子类：生物与医学 / 化学与分子科学 / 物理 / 科研编程与任务完成 / 基准有效性与评价可靠性 / 数据分析与建模 / 科研软件与计算
 

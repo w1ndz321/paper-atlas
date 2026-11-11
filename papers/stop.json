@@ -24,7 +24,7 @@
   ],
   "one_liner": "让调用 GPT-4 的代码优化器修改自身，再用下游程序的效用衡量这个“优化器的优化”。",
   "added_at": "2026-11-10",
-  "updated_at": "2026-11-10",
+  "updated_at": "2026-11-11",
   "source": {
     "url": "https://arxiv.org/abs/2310.02304v3",
     "sha256": "f1eb66d65763d84367fd380625cf86d66b5dd8e319c46259e7d0aabba9b608e2",
@@ -153,5 +153,31 @@
     "next_round_role": "改进后的优化器用于生成下一轮优化器。",
     "fixed_components": "底座模型、外部效用和资源限制固定。",
     "capability_evidence": "以优化器的下游优化表现评价递归更新；证据限于论文任务及预算，不证明无界自加速。"
+  },
+  "translations": {
+    "en": {
+      "source_sha256": "f1eb66d65763d84367fd380625cf86d66b5dd8e319c46259e7d0aabba9b608e2",
+      "one_liner": "STOP lets a GPT-4-based code optimizer edit its own program, then evaluates the optimizer using the utility of the downstream programs it produces.",
+      "sections": {
+        "problem": "With a fixed language model, can we discover better prompting, search and evaluation procedures automatically? STOP treats the Python optimizer as editable code. The optimizer can improve task programs or receive its own source as input.",
+        "gap": "Ordinary code optimization improves a task solution, while hand-designed scaffolds fix how improvement happens. STOP makes average downstream utility a meta-objective so the search process can edit itself. That human-defined proxy does not guarantee that better task solving implies better subsequent self-modification.",
+        "method": "A seed optimizer asks the language model for candidates and keeps the program with the best utility. The outer recursion is I_t = I_(t−1)(meta-utility, I_(t−1), LM). Each candidate optimizer runs on downstream tasks, whose mean performance supplies its meta-utility. Utility is supplied both as a callable function and as descriptive text. The model and resource caps are externally fixed.",
+        "trace": "The main experiment is 10-bit noisy parity learning. The optimizer edits a predictor, scored by mean accuracy across 20 independent instances. During self-modification it sees the optimizer and meta-utility structure, without direct access to the specific downstream task code. Final evaluation uses another 50 instances. This separates improving a predictor from improving the procedure that creates predictors.",
+        "inputs_outputs": "Inputs are a seed optimizer, fixed language model, downstream tasks and utility functions, iteration count and call budget. Outputs are an improved optimizer and the downstream solutions it generates. The paper includes formal definitions, finite-resource generalization analysis, search-strategy examples and experiments.",
+        "results": "With gpt-4-0314, mean noisy-parity performance improves over the first one to three rounds across five independent runs, without monotonicity in every trajectory. A selected optimizer outperforms the seed on five new task classes. In Table 1, 3SAT meta-utility rises from 21.2% to 75.1%. Average iterative performance degrades for GPT-3.5 and Mixtral, indicating dependence on base-model ability and implementation reliability.",
+        "contributions": "The work turns an optimizer’s editable source into an executable recursive meta-optimization protocol. Generated strategies include beam search, evolutionary search and temperature adjustment. It also supplies inspectable examples of constraint bypasses and reward exploitation.",
+        "limitations": "The language model’s weights never change, and the authors explicitly avoid claiming full RSI. Utilities must be efficiently evaluable. Noisy scoring can select bad modifications that deteriorate further in later rounds. One array-shape loophole produced an apparent accuracy above 1000%, illustrating why score gains need validation. Transfer across tasks and models is limited.",
+        "cost": "Meta-utility evaluation repeatedly runs downstream optimizers, making discovery more expensive than using the final optimizer. Reproduction needs the specified model version, utility implementation, timeouts and call budgets. Retirement of older closed models can obstruct reruns. The library has not independently repeated the experiments.",
+        "relevance": "Library analysis. STOP is an entry point for distinguishing improvement of answers, execution programs and improvement mechanisms. Its scoring loopholes also show how faulty feedback can contaminate self-improvement. Neural-network interpretability is not used to drive these modifications."
+      },
+      "related": {},
+      "locators": {
+        "e1": "§3 · Meta-utility definition",
+        "e2": "§4 · Self-improvement recursion",
+        "e3": "§5.1–5.2 · Held-out evaluation and transfer",
+        "e4": "§6.3 · Scoring loophole",
+        "e5": "§7 · Fixed base model and compute cost"
+      }
+    }
   }
 }

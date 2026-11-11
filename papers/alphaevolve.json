@@ -37,7 +37,7 @@
   ],
   "one_liner": "结合 Gemini、程序种群和自动验证器演化算法，并用发现的启发式改善 Google 的计算与模型训练基础设施。",
   "added_at": "2026-11-10",
-  "updated_at": "2026-11-10",
+  "updated_at": "2026-11-11",
   "source": {
     "url": "https://arxiv.org/abs/2506.13131v1",
     "sha256": "f092c8cbd65da89951ee6496374da9a54963f9035758c25ac6e4625f506df9ad",
@@ -171,5 +171,33 @@
     "next_round_role": "论文未验证演化后的改进器用于后续自改。",
     "fixed_components": "程序种群、候选生成与验证框架提供外部优化过程。",
     "capability_evidence": "算法与计算基础设施收益不能直接视为 Agent 后续自改能力增强。"
+  },
+  "translations": {
+    "en": {
+      "source_sha256": "f092c8cbd65da89951ee6496374da9a54963f9035758c25ac6e4625f506df9ad",
+      "one_liner": "AlphaEvolve combines Gemini, a population of programs and automated evaluators to evolve algorithms, including heuristics used in Google’s compute and model-training infrastructure.",
+      "sections": {
+        "problem": "How can an LLM use execution feedback to turn algorithm ideas into correct, useful programs? AlphaEvolve targets mathematical, algorithmic and systems problems with machine-checkable scores. People specify the objective and validation criteria, while the system searches for implementations.",
+        "gap": "Earlier approaches such as FunSearch mainly evolved a single short function. More complex discoveries may require edits across functions, richer context and expensive evaluation. AlphaEvolve supports larger code regions, multiple metrics and distributed asynchronous evaluation. Reliable scoring still has to be designed by people.",
+        "method": "The system samples parent programs and examples from a database, then prompts Gemini 2.0 Flash and Pro with code, scores and task context. The models propose code diffs, which are applied and evaluated before returning to the population. A test cascade rejects invalid candidates before expensive checks. MAP-Elites and island-population ideas preserve diversity, and prompts can also evolve.",
+        "trace": "In the Borg scheduling case, a heuristic receives job CPU and memory requirements and available machine capacity, then ranks candidate machines. AlphaEvolve evolves it in a simulator using historical workloads and tests it on unseen workloads. After deployment across the fleet, production measurements showed that it reclaimed an average 0.7% of previously idle compute.",
+        "inputs_outputs": "The system takes an initial program with editable regions, an evaluate function, optional mathematical context and an LLM configuration. It returns improved programs, candidate histories and validation results. A program may itself solve a problem or search for a mathematical construction. The white paper includes tensor decompositions and infrastructure optimizations.",
+        "results": "The paper reports a 4 × 4 complex matrix multiplication algorithm using 48 scalar multiplications, under the stated algebra and counting convention. A tiling heuristic for Gemini matrix-multiplication kernels gave an average 23% speedup, corresponding to a 1% reduction in overall training time. The scheduling case separately reclaimed 0.7% of fleet resources. Ablations support the roles of evolution, context and stronger-model combinations.",
+        "contributions": "The work applies LLM-driven code evolution to verifiable mathematical constructions and production infrastructure. Its connection to RSI includes improving resources and future training processes for its underlying models. It also demonstrates a reusable proposal, execution and selection workflow for discovery.",
+        "limitations": "The approach needs reliable automated evaluators. Scientific steps requiring physical experiments are largely outside its scope. Gemini’s weights are not autonomously updated within the same evolution loop, and the paper describes infrastructure feedback loops on a scale of months. Production gains alone do not establish continually accelerating or open-ended RSI.",
+        "cost": "Costs include model inference, candidate execution, evaluation data and asynchronous scheduling infrastructure. Evaluations range from seconds to accelerator-hours, with no single budget representative of all cases. Published mathematical constructions are inspectable, while Google’s internal workloads and production stack have different reproducibility constraints.",
+        "relevance": "Library analysis. AlphaEvolve provides evidence about algorithm and infrastructure improvement adjacent to RSI. It helps distinguish optimizing supporting systems from recursively optimizing the improvement process itself. Readable code also differs from mechanistic interpretability of a neural network. The paper does not test explanation-driven RSI."
+      },
+      "related": {
+        "darwin-godel-machine": "Both maintain program populations using LLM proposals and empirical evaluation. AlphaEvolve mainly evolves task algorithms, while DGM mainly evolves the agent performing the tasks."
+      },
+      "locators": {
+        "e1": "Fig. 2 / §2.1 · User-defined tasks",
+        "e2": "§2.3–2.4 · Models and validation",
+        "e3": "§3.3.1 · Production scheduling",
+        "e4": "§3.3.2 · Gemini training optimization",
+        "e5": "§6 · Feedback loops and limitations"
+      }
+    }
   }
 }

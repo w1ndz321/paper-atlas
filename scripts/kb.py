@@ -102,6 +102,11 @@ def config(root=ROOT):
     if not isinstance(sub_aliases, dict) or not all(slug_ok(k) and k not in cfg.get("subtopics", {})
             and isinstance(v, str) and (not v or v in cfg.get("subtopics", {})) for k, v in sub_aliases.items()):
         raise Invalid("子类旧链接必须映射到有效标签或父主题")
+    translations = cfg.get("translations", {})
+    if (not isinstance(translations, dict) or not isinstance(translations.get("en", {}), dict)
+            or not all(isinstance(k, str) and isinstance(v, str) and v.strip()
+                       for k, v in translations.get("en", {}).items())):
+        raise Invalid("英文配置翻译必须是非空文字映射")
     return cfg
 
 
@@ -224,7 +229,7 @@ def prepare(args, root=ROOT):
         "added_at": own["added_at"] if own else str(date.today()), "updated_at": str(date.today()),
         "source": source, "read_scope": "full", "sections": {k: {"text": "", "evidence": []} for k in SECTIONS},
         "evidence": [], "related": [],
-        "review": {"evidence_checked": False, "compression_checked": False, "reviewed_by": "Codex", "prompt_version": "1.6"},
+        "review": {"evidence_checked": False, "compression_checked": False, "reviewed_by": "Codex", "prompt_version": "1.7"},
     }
     if own and "rsi_evidence" in own:
         draft["rsi_evidence"] = own["rsi_evidence"]
@@ -331,6 +336,19 @@ def check_record(p, cfg, ids, root=ROOT, source=None):
         need(isinstance(review, dict) and review.get("evidence_verified_sha256") == src.get("sha256"), "缺少 finalize 的来源核验记录")
     for rel in p.get("related", []):
         need(isinstance(rel, dict) and rel.get("id") in ids and rel.get("id") != p.get("id") and bool(rel.get("reason")), "关联论文不存在、自关联或缺少原因")
+    translations = p.get("translations", {})
+    need(isinstance(translations, dict), "翻译必须是对象")
+    english = translations.get("en") if isinstance(translations, dict) else None
+    if english is not None:
+        need(isinstance(english, dict), "英文卡片必须是对象")
+        if isinstance(english, dict):
+            need(english.get("source_sha256") == src.get("sha256"), "英文卡片与来源版本不一致")
+            need(isinstance(english.get("one_liner"), str) and len(english["one_liner"].strip()) >= 12, "英文概述缺失")
+            for key, expected in (("sections", set(SECTIONS)), ("locators", evidence_ids),
+                                  ("related", {r.get("id") for r in p.get("related", []) if isinstance(r, dict)})):
+                values = english.get(key)
+                need(isinstance(values, dict) and set(values) == expected
+                     and all(isinstance(v, str) and v.strip() for v in values.values()), "英文卡片 " + key + " 缺失或引用不一致")
     if source:
         need(source["sha256"] == src.get("sha256"), "草稿与提取来源版本不一致")
     return errors
@@ -473,18 +491,18 @@ def build(output, root=ROOT):
     if output == root.resolve() or output.is_relative_to((root / "papers").resolve()) or root.resolve().is_relative_to(output):
         raise Invalid("构建目录不能覆盖仓库或论文数据。")
     output.mkdir(parents=True, exist_ok=True)
-    for name in ("index.html", "app.js", "style.css"):
+    for name in ("index.html", "locale.js", "app.js", "style.css"):
         shutil.copyfile(root / "web" / name, output / name)
     # A new data schema must not run against an older browser-cached reader.
     index = (output / "index.html").read_text(encoding="utf-8")
-    for name in ("app.js", "style.css"):
+    for name in ("locale.js", "app.js", "style.css"):
         version = hashlib.sha256((output / name).read_bytes()).hexdigest()[:12]
         index = index.replace(f'"{name}"', f'"{name}?v={version}"')
     (output / "index.html").write_text(index, encoding="utf-8")
     inbox = [read(p) for p in sorted((root / "inbox").glob("*.json"))]
     public_config = {k: cfg[k] for k in ("name", "research_topic", "description", "topics", "repository_url")}
     public_config["topic_guides"] = cfg.get("topic_guides", {})
-    for key in ("subtopics", "collections", "classification_rules", "topic_aliases", "topic_descriptions", "axes", "subtopic_aliases"):
+    for key in ("subtopics", "collections", "classification_rules", "topic_aliases", "topic_descriptions", "axes", "subtopic_aliases", "translations"):
         public_config[key] = cfg.get(key, [] if key == "classification_rules" else {})
     write(output / "data.json", {"config": public_config, "papers": sorted(papers, key=lambda p: (p["added_at"], p["id"]), reverse=True), "sections": SECTIONS, "pending_count": len(inbox)})
     # Only website assets and reviewed cards are published; extraction caches/drafts never enter dist.

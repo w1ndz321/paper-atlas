@@ -5,7 +5,7 @@
 - 作者：Dhruv Srikanth, Bingchen Zhao, Dixing Xu, Yuxiang Wu, Zhengyao Jiang
 - 年份：2026 · 类型：framework
 - 主题：RSI · 递归自我改进
-- [原文](https://arxiv.org/abs/2609.26457v1) · 收录：2026-11-10 · 更新：2026-11-10
+- [原文](https://arxiv.org/abs/2609.26457v1) · 收录：2026-11-10 · 更新：2026-11-11
 
 - 子类：机器学习与科研研发 / 研发与搜索 / 后续改进能力 / 改进程序继续改进自己
 

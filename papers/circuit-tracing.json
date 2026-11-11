@@ -47,7 +47,7 @@
   ],
   "one_liner": "以跨层转码器替代 MLP，用提示相关的归因图连接内部特征，再以干预检验图所描述的机制。",
   "added_at": "2026-11-10",
-  "updated_at": "2026-11-10",
+  "updated_at": "2026-11-11",
   "source": {
     "url": "https://transformer-circuits.pub/2025/attribution-graphs/methods.html",
     "sha256": "a70ce88c09533238154875dbb1320fd2d2aebedfd5fc7e782518385b3d597673",
@@ -191,5 +191,35 @@
     "interp-m-attribution",
     "interp-m-intervention"
   ],
-  "classification_reason": "研究内部特征如何组成计算路径，以跨层转码器、归因图和干预检验机制。"
+  "classification_reason": "研究内部特征如何组成计算路径，以跨层转码器、归因图和干预检验机制。",
+  "translations": {
+    "en": {
+      "source_sha256": "a70ce88c09533238154875dbb1320fd2d2aebedfd5fc7e782518385b3d597673",
+      "one_liner": "Cross-layer transcoders replace MLP computations, yielding prompt-specific attribution graphs whose proposed mechanisms can be tested through interventions.",
+      "sections": {
+        "problem": "Once individual interpretable features have been identified, how do their interactions produce an answer? The method experiments mainly use a small 18-layer model, with some examples on Claude 3.5 Haiku. The goal is a testable computational account of an output.",
+        "gap": "Polysemantic neurons and features repeated across layers can make circuits unwieldy. Ordinary SAE reconstruction does not explicitly describe feature-to-feature computation. A replacement network may also match an output through a different mechanism, so drawing a graph and testing its claims are separate steps.",
+        "method": "The authors train cross-layer transcoders, or CLTs. A feature reads the residual stream at one layer and can contribute to MLP outputs at that and later layers. For a given prompt, attention patterns and normalization denominators are fixed and reconstruction-error nodes are retained. Linear attributions between features and outputs produce a graph that is pruned and grouped. Interventions in the original model then test its predictions.",
+        "trace": "The prompt gives the fictitious name National Digital Analytics Group and the first acronym letter N. The graph tracks how Digital, Analytics and Group influence the remaining output DAG through features for emitting letters at particular positions. Suppressing a word-related feature suppresses the corresponding acronym path. Fixed-attention graphs leave the choice of which words to attend to partly unexplained.",
+        "inputs_outputs": "The inputs are a model with accessible activations, CLT training data, a prompt and target output tokens. Outputs include the CLT, local attribution graphs, visualizations and intervention results. Dictionaries range from about 300K to 10M features for the 18-layer model and 300K to 30M for Haiku. The graphs describe particular inputs.",
+        "results": "On the authors’ selected pretraining-style prompt distribution, the largest 18-layer replacement model agrees with the original model’s preferred next token about 50% of the time. Samples are restricted to cases where the original is correct and below 80% confidence. CLTs improve some path-length and graph-completeness measures over layerwise transcoders. Acronym, factual-recall and addition interventions broadly support the illustrated paths. Output agreement does not measure the fraction of mechanism explained.",
+        "contributions": "The work gives a systematic path from sparse features to computational graphs, explicitly retaining error nodes and distinguishing local graphs, global weights and interventions in the real model. Cross-layer representations reduce repeated computation in the explanation. Interactive tools let researchers formulate and test more complex mechanistic hypotheses.",
+        "limitations": "Attention query-key paths are not explained, leaving important computation outside the graph. Reconstruction errors, inhibitory effects of inactive features and feature splitting introduce blind spots. Manual supernode grouping is costly and loses information. Matching outputs does not guarantee matching responses to interventions, and long-range faithfulness remains limited.",
+        "cost": "Training cross-layer dictionaries has substantial upfront cost, which can be spread across many analyses. Graph construction, pruning, manual labeling and intervention tests add work. Layerwise transcoders or neurons can replace parts of the pipeline, with different representation quality and graph complexity.",
+        "relevance": "Library analysis. This is a core reference for moving from features to circuits and intervention tests. It could help inspect which internal computations a proposed improvement changes. The paper does not connect circuit explanations to autonomous RSI or establish them as a general improvement reward."
+      },
+      "related": {
+        "scaling-monosemanticity": "The work moves from identifying features to explaining their interactions. CLTs and ordinary SAEs model different objects and interactions.",
+        "rome": "Both test explanations through internal intervention. ROME focuses on factual localization and single edits, while circuit tracing follows more detailed feature paths."
+      },
+      "locators": {
+        "e1": "Architecture · Cross-layer transcoders",
+        "e2": "The Local Replacement Model · Fixed conditions",
+        "e3": "Attribution Graphs · Acronym example",
+        "e4": "From CLT to Replacement Model · Quantitative evaluation",
+        "e5": "Limitations · Missing attention mechanisms",
+        "e6": "Limitations · Replacement models and original mechanisms"
+      }
+    }
+  }
 }

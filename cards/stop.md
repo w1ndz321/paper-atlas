@@ -5,7 +5,7 @@
 - 作者：Eric Zelikman, Eliana Lorch, Lester Mackey, Adam Tauman Kalai
 - 年份：2023 · 类型：method
 - 主题：RSI · 递归自我改进
-- [原文](https://arxiv.org/abs/2310.02304v3) · 收录：2026-11-10 · 更新：2026-11-10
+- [原文](https://arxiv.org/abs/2310.02304v3) · 收录：2026-11-10 · 更新：2026-11-11
 
 - 子类：代码与软件工程 / 编程与程序优化 / 后续改进能力 / 改进程序继续改进自己
 

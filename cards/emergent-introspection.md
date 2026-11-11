@@ -5,7 +5,7 @@
 - 作者：Jack Lindsey
 - 年份：2025 · 类型：analysis
 - 主题：LLM 可解释性
-- [原文](https://transformer-circuits.pub/2025/introspection/index.html) · 收录：2026-11-10 · 更新：2026-11-10
+- [原文](https://transformer-circuits.pub/2025/introspection/index.html) · 收录：2026-11-10 · 更新：2026-11-11
 
 - 子类：内省与状态感知 / 内部激活与概念特征 / 模型行为与自我报告 / 因果干预与模型编辑 / 行为对照与忠实性测试
 

@@ -5,7 +5,7 @@
 - 作者：Tom Dupre la Tour, Dan Mossing
 - 年份：2025 · 类型：analysis
 - 主题：LLM 可解释性
-- [原文](https://alignment.openai.com/sae-latent-attribution/) · 收录：2026-11-10 · 更新：2026-11-10
+- [原文](https://alignment.openai.com/sae-latent-attribution/) · 收录：2026-11-10 · 更新：2026-11-11
 
 - 子类：行为诊断与审计 / 内部激活与概念特征 / 稀疏表征分解 / 归因与电路追踪 / 因果干预与模型编辑
 

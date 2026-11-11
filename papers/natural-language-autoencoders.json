@@ -41,7 +41,7 @@
   ],
   "one_liner": "把激活压缩成可读文字，再从文字重构激活，以重构反馈训练解释器，并检验它对模型审计是否有帮助。",
   "added_at": "2026-11-10",
-  "updated_at": "2026-11-10",
+  "updated_at": "2026-11-11",
   "source": {
     "url": "https://transformer-circuits.pub/2026/nla/index.html",
     "sha256": "19226ce249f79f40f99dd82bf84da6b8d44545eb06b155b27b1c01d022c67dd8",
@@ -191,5 +191,36 @@
     "interp-representations",
     "interp-m-probe"
   ],
-  "classification_reason": "从激活生成自然语言解释并以重构和审计检验，作为内部状态读取与模型调查的桥接工具。"
+  "classification_reason": "从激活生成自然语言解释并以重构和审计检验，作为内部状态读取与模型调查的桥接工具。",
+  "translations": {
+    "en": {
+      "source_sha256": "19226ce249f79f40f99dd82bf84da6b8d44545eb06b155b27b1c01d022c67dd8",
+      "one_liner": "A natural-language bottleneck compresses activations into text and reconstructs them, using reconstruction feedback to train explanations and testing their value for model auditing.",
+      "sections": {
+        "problem": "Can high-dimensional activations be turned directly into language that helps people and agents investigate model representations? Conventional SAEs produce fixed dictionary features that still need explanation. Supervised activation question answering assumes known questions and labels. Natural Language Autoencoders, or NLAs, aim to support more open-ended hypothesis generation.",
+        "gap": "Self-reports can be misleading, and supervised explanation data cover known properties. NLA learns through an activation-to-text-to-activation reconstruction objective. That signal does not directly reward truth or readability and can encourage hidden coding, copied context or plausible inventions. Task-level and intervention tests are therefore needed.",
+        "method": "The target model is frozen. An activation verbalizer, AV, receives a layer’s activation and generates text. An activation reconstructor, AR, maps the text back to that activation space. Supervised activation-summary proxy tasks provide a warm start. AV is then trained with reconstruction-error reward and KL regularization, while AR minimizes mean squared error. The main objective does not need human semantic labels, although initialization is supervised.",
+        "trace": "Opus 4.6 sometimes answers English questions in Russian. NLA exposes signs that it has classified the user as Russian-speaking early in processing. Researchers use this hypothesis to find training examples pairing translated English questions with untranslated foreign-language answers, then corroborate it independently. Edited explanations can also be reconstructed into activation differences for causal tests.",
+        "inputs_outputs": "Inputs are target-model activations, initial AV and AR models, and pretraining-style text. Outputs include the NLA, searchable natural-language explanations and reconstructed activations. The report covers Claude explanation experiments, production-model audits, released open-model weights and code, and tools for auditing agents. Each explanation reads a particular layer.",
+        "results": "For a deliberately trained reward-model-sycophantic individual, a Sonnet 4.6 auditing agent uses an NLA trained on generic data to identify the root cause without access to target training data during the investigation. A generic-data SAE control does not reliably improve success. One Gemma-3-27B training instance uses two 8 × H100 nodes for about 1.5 days, increasing explained variance from 0.38 to 0.71. Reconstruction quality and audit success are separate results.",
+        "contributions": "The method makes natural language the bottleneck for reconstructing activations, creating explanations that agents can search, cluster and read. Independent investigations test their usefulness beyond reconstruction loss. The two-way AV/AR interface also lets researchers turn text edits into hypotheses about interventions.",
+        "limitations": "AV is itself a black box and may infer things absent from the activation, so individual statements lack precise mechanistic attribution. Explanations can invent details or miss signals at an unsuitable target layer. Initialization includes knowledge already held by the models, and generic-data training does not imply no prior knowledge of the target. Audit-individual results do not establish reliable diagnosis of every real model.",
+        "cost": "Jointly training two large models is expensive. Explaining one activation generates about 500 tokens, making full production-token coverage costly. The flexible interface adds inference cost and hallucination risk relative to SAEs or linear probes. Released open-model NLAs provide a reproduction route, while Claude audits are not fully open experiments.",
+        "relevance": "Library analysis. The study supplies a bridge from internal explanations to investigation and independent validation. It is relevant to interpretability-assisted model development, but it does not establish an autonomous RSI loop that repeatedly improves the model using NLA explanations."
+      },
+      "related": {
+        "scaling-monosemanticity": "SAEs use a fixed sparse dictionary. NLA uses an open-ended text bottleneck that agents can read, at greater cost and with more risk of invented explanations.",
+        "introspection-adapters": "IA reports behavioral tendencies after fine-tuning, while NLA explains activations at a specified token and layer. Their training signals and output meanings differ.",
+        "sae-latent-attribution": "Both use internal evidence for diagnosis. NLA supports open hypotheses, while attribution and steering provide more constrained causal checks."
+      },
+      "locators": {
+        "e1": "Method · Two-module objective",
+        "e2": "Initializing the AV and AR · Supervised warm start",
+        "e3": "Automated auditing · Independent-data setting",
+        "e4": "Auditing results · Practical utility",
+        "e5": "Discussion and Limitations · Cost",
+        "e6": "Discussion and Limitations · Explainer limitations"
+      }
+    }
+  }
 }

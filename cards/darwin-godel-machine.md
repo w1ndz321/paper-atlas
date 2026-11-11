@@ -5,7 +5,7 @@
 - 作者：Jenny Zhang, Shengran Hu, Cong Lu, Robert Lange, Jeff Clune
 - 年份：2025 · 类型：framework
 - 主题：RSI · 递归自我改进
-- [原文](https://arxiv.org/abs/2505.22954v3) · 收录：2026-11-10 · 更新：2026-11-10
+- [原文](https://arxiv.org/abs/2505.22954v3) · 收录：2026-11-10 · 更新：2026-11-11
 
 - 子类：代码与软件工程 / 编程与程序优化 / 演化 Agent 继续自改
 

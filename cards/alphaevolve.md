@@ -5,7 +5,7 @@
 - 作者：Alexander Novikov, Ngân Vũ, Marvin Eisenberger, Emilien Dupont, Po-Sen Huang, Adam Zsolt Wagner, Sergey Shirobokov, Borislav Kozlovskii, Francisco J. R. Ruiz, Abbas Mehrabian, M. Pawan Kumar, Abigail See, Swarat Chaudhuri, George Holland, Alex Davies, Sebastian Nowozin, Pushmeet Kohli, Matej Balog
 - 年份：2025 · 类型：framework
 - 主题：RSI · 递归自我改进
-- [原文](https://arxiv.org/abs/2506.13131v1) · 收录：2026-11-10 · 更新：2026-11-10
+- [原文](https://arxiv.org/abs/2506.13131v1) · 收录：2026-11-10 · 更新：2026-11-11
 
 - 子类：算法与计算基础设施 / 计算与资源效率 / 改进流程保持固定
 

@@ -46,7 +46,7 @@
   ],
   "one_liner": "用稀疏自动编码器从 Claude 3 Sonnet 的中层激活分离概念特征，并检查跨语种响应及行为干预。",
   "added_at": "2026-11-10",
-  "updated_at": "2026-11-10",
+  "updated_at": "2026-11-11",
   "source": {
     "url": "https://transformer-circuits.pub/2024/scaling-monosemanticity/index.html",
     "sha256": "dbef0950973c3767cc2e38edc9499f7e63d4fb0c2768b1d17634ed778b98fef6",
@@ -175,5 +175,33 @@
     "interp-m-sae",
     "interp-m-intervention"
   ],
-  "classification_reason": "用稀疏表征分解研究概念特征，并干预检验行为影响；未构成自主改进闭环。"
+  "classification_reason": "用稀疏表征分解研究概念特征，并干预检验行为影响；未构成自主改进闭环。",
+  "translations": {
+    "en": {
+      "source_sha256": "dbef0950973c3767cc2e38edc9499f7e63d4fb0c2768b1d17634ed778b98fef6",
+      "one_liner": "Sparse autoencoders extract concept features from Claude 3 Sonnet’s middle-layer activations, with tests of cross-language responses and behavioral interventions.",
+      "sections": {
+        "problem": "Individual neurons often respond to unrelated concepts, making them difficult to interpret directly. Can sparse dictionary learning, previously demonstrated in small models, scale to Claude 3 Sonnet and reveal meaningful abstract concepts?",
+        "gap": "The superposition hypothesis suggests that models encode more concepts than their available dimensions, so neuron coordinates need not align with semantic concepts. Small-model results do not guarantee that decomposition works at scale. Low reconstruction loss alone also does not establish a useful explanation.",
+        "method": "A sparse autoencoder maps middle-layer residual-stream activations into a larger set of sparse nonnegative features. Its decoder reconstructs the original activation from the few active features. Training combines reconstruction loss and an L1 sparsity penalty. Scaling experiments allocate dictionary size and training steps, followed by trigger-example inspection, automatic explanations and activation interventions.",
+        "trace": "A Golden Gate Bridge feature responds to related descriptions, multiple languages and image contexts. Amplifying it makes the model discuss bridges in unrelated conversations and even identify itself as the bridge. The intervention demonstrates influence on output, while also showing that strong steering can distort behavior.",
+        "inputs_outputs": "Training uses middle-layer residual activations from the March 2024 fine-tuned Claude 3 Sonnet 3.0 and text resembling part of the pretraining distribution. Outputs include dictionaries of about 1M, 4M and 34M features, activation search and visualizations. This model version is distinct from Sonnet 3.5 and 3.7.",
+        "results": "All three dictionaries average fewer than 300 active features per token and explain at least 65% of activation variance. About 65% of features in the 34M dictionary are dead on the tested samples. The authors observe multilingual, multimodal and abstract/concrete responses and test behavioral influence through selected steering cases. Explained variance does not measure coverage of all model behavior.",
+        "contributions": "The work scales SAE feature discovery to a large production model, studies compute allocation for dictionary learning, and exposes searchable concepts and some safety-relevant features. It provides a basis for feature-level observation and intervention.",
+        "limitations": "The study covers one middle-layer location and leaves many features undiscovered. Cross-layer superposition, feature splitting, L1 shrinkage and compute remain challenges. The training loss is a proxy for interpretability with no accepted ground truth. Finding concepts such as deception or power does not establish corresponding intentions or actions.",
+        "cost": "The work needs large activation datasets, SAE training and feature inspection. Model weights, model size and some plot units are not public, limiting full reproduction. Larger dictionaries also require attention to dead features and data efficiency for rare concepts.",
+        "relevance": "Library analysis. This is a central reference for moving from neurons to features and a foundation for later circuit tracing and SAE-based behavioral debugging. It provides tool background for auditing improvement processes, without testing agents that autonomously improve using feature explanations."
+      },
+      "related": {
+        "rome": "ROME uses activation restoration and parameter edits to test factual associations. This work uses sparse decomposition and steering to test concept features, at a different granularity and intervention target."
+      },
+      "locators": {
+        "e1": "Scaling Dictionary Learning / Sparse Autoencoders",
+        "e2": "Our SAE experiments · Dictionary size and reconstruction",
+        "e3": "Four Examples / Influence on Behavior",
+        "e4": "Limitations · Evaluating explanations",
+        "e5": "Limitations · Undiscovered features"
+      }
+    }
+  }
 }

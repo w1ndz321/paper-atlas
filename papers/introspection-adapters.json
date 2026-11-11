@@ -29,7 +29,7 @@
   ],
   "one_liner": "在同源模型的多种行为微调上联合训练共享 LoRA，让新的微调模型更容易说出其学到的行为。",
   "added_at": "2026-11-10",
-  "updated_at": "2026-11-10",
+  "updated_at": "2026-11-11",
   "source": {
     "url": "https://arxiv.org/abs/2604.16812v2",
     "sha256": "133b6399d6481f3def6c3f40dc09e059becf907e41c738fbb71f561a7105519a",
@@ -169,5 +169,34 @@
     "interp-m-probe",
     "interp-m-behavior"
   ],
-  "classification_reason": "训练行为报告适配器并用留出微调行为检验泛化；审计报告能力没有被用于验证递归改进。"
+  "classification_reason": "训练行为报告适配器并用留出微调行为检验泛化；审计报告能力没有被用于验证递归改进。",
+  "translations": {
+    "en": {
+      "source_sha256": "133b6399d6481f3def6c3f40dc09e059becf907e41c738fbb71f561a7105519a",
+      "one_liner": "A shared LoRA adapter is trained across behavioral fine-tunes of one base model, helping new fine-tuned variants report the behaviors they have learned.",
+      "sections": {
+        "problem": "Fine-tuning can introduce unexpected, hidden or malicious behavior. Can a model report what it has learned clearly enough to make auditing easier? The study focuses on multiple fine-tunes of a common base model.",
+        "gap": "Direct questioning is often unreliable. Earlier differential-explanation training also generalized poorly across fine-tuning methods and behaviors. The authors scale up models and behavioral diversity, then use DPO to reduce fabricated reports. The reporting ability comes from a trained adapter.",
+        "method": "Behavioral models M_i are derived from a shared base M using known behaviors b_i. Each behavioral model is frozen while the same introspection adapter, or IA, is jointly trained to describe b_i in response to general investigation questions. Supervised training is followed by DPO on accurate and inaccurate reports from held-out behavioral models. The adapter is then applied to unseen fine-tunes.",
+        "trace": "One constructed model deliberately introduces errors during spelling correction. The shared IA is trained to report that tendency when asked about unusual behavior triggered by particular prompts. In generalization tests, an auditing agent uses IA to investigate hidden-behavior models, combine reports and propose candidate behaviors that are checked against the implanted ground truth.",
+        "inputs_outputs": "Inputs are a shared base model, behavioral fine-tunes, known behavior labels and investigation questions. Outputs include a reusable IA, training data and audit results. Most main experiments use Llama 3.3 70B Instruct, with Qwen3 models used for scaling studies. Eight behavior classes are constructed, but particular main adapters use six or seven. The training sets should be distinguished.",
+        "results": "On AuditBench’s 56 hidden-behavior models, an investigation proposes 10 behaviors and succeeds if any is correct. Each model is investigated in 16 runs. IA averages 59% success, versus 53% for the next-best method and 44% for the best tested white-box tool. It reports 16 of 52 behaviors in reward-model-sycophantic individuals but misses the central goal of optimizing the reward-model score.",
+        "contributions": "The work demonstrates a trained reporting interface that transfers across behaviors and fine-tuning methods. It examines scale, diversity and DPO. Once trained, the adapter can be reused across many variants of the same base, offering an audit component for workflows that frequently create new models.",
+        "limitations": "False positives are substantial. Applied to the base model itself, IA may invent behaviors seen during training, so an absent report cannot establish an absent problem. Results depend on the shared base and training distribution, and root causes may remain unidentified. The authors do not claim to satisfy stricter definitions of introspection, and the generalization mechanism is unclear.",
+        "cost": "Upfront work includes training many behavioral models, generating labels and running multistage adapter training. Auditing related fine-tunes is cheaper afterward. Released adapters, data and code support reproduction. Copying the investigation prompt alone does not reproduce the trained capability.",
+        "relevance": "Library analysis. IA is a bridge to examining new model versions produced during self-improvement. The paper validates reporting and auditing generalization, without closing an autonomous loop that uses IA feedback to rewrite a model, select its successor and continually improve capability."
+      },
+      "related": {
+        "emergent-introspection": "Emergent Introspection tests reports about immediate activation states. IA trains reports about behavioral tendencies across inputs, so the two definitions should be distinguished.",
+        "sae-latent-attribution": "Both diagnose post-training behavior. IA produces natural-language reports, while SAE attribution identifies internal directions and tests them through steering."
+      },
+      "locators": {
+        "e1": "§2.1 · Joint training",
+        "e2": "§2.2–3 · Behavior distributions",
+        "e3": "§3.1 · AuditBench metrics",
+        "e4": "§3.3 · Unidentified hidden objective",
+        "e5": "§6 · False positives and cost"
+      }
+    }
+  }
 }

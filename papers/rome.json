@@ -23,9 +23,9 @@
     "模型编辑",
     "参数干预"
   ],
-  "one_liner": "用激活污染与恢复定位事实回忆过程，再对中层 MLP 做秩一参数更新，检验该机制能否被定点编辑。",
+  "one_liner": "作者先找出 GPT 回忆事实时起作用的内部位置，再修改那里的权重，测试能否改变一条事实关联，同时尽量保留其他知识。",
   "added_at": "2026-11-10",
-  "updated_at": "2026-11-10",
+  "updated_at": "2026-11-11",
   "source": {
     "url": "https://arxiv.org/abs/2202.05262v5",
     "sha256": "d7c17f896cca512fb258261421b073baa6f4e6e44b6bb7ada5c90185f423054a",
@@ -36,49 +36,49 @@
   "read_scope": "full",
   "sections": {
     "problem": {
-      "text": "GPT 如何存储和调用一个主体的事实关系，能否根据对内部过程的理解直接修改它？本文研究事实关联的回忆，而不是所有知识或一般推理能力。对象是 GPT-2 XL、GPT-J 等自回归模型；首次发表于 NeurIPS 2022，本卡核对 arXiv v5。",
+      "text": "GPT 记住的事实存在哪里，回答问题时又是怎样把它取出来的？作者研究 GPT-2 XL、GPT-J 等自回归模型，尝试先定位这个过程，再直接修改其中一条事实关联。这篇论文发表于 NeurIPS 2022，这里核对的是 arXiv v5。",
       "evidence": [
         "e1",
         "e2"
       ]
     },
     "gap": {
-      "text": "从表示中读出信息并不意味着模型用它产生答案。只测编辑后的原句正确率，也无法区分稳健知识改变与机械复述。论文因此同时使用因果干预定位，以及改写问题、邻近主体和文本生成来检验编辑的泛化与副作用。",
+      "text": "能从模型表示中读出一条信息，还不能说明模型回答时真的用到了它。同样，让模型在原问题上答出新答案，也可能只是记住了这句话。因此作者既检查内部计算怎样影响答案，也检查编辑后的知识能否适用于换一种说法的问题，以及会不会连带改错其他主体的事实。",
       "evidence": [
         "e1",
         "e3"
       ]
     },
     "method": {
-      "text": "先在干净运行中缓存状态，再污染主体嵌入，并逐层恢复指定 token 的激活，测目标答案概率恢复多少。定位到中层 MLP 后，将其输出投影视为关联记忆：由主体估计键 k，优化能诱导新对象的值 v，再以受约束最小二乘的秩一更新写入参数，尽量少扰动其他记忆。",
+      "text": "作者先让模型正常回答，保存各层激活，再给主体的嵌入加入噪声，破坏它对这条事实的回忆。接着逐层恢复原来的激活，观察恢复哪一处能让正确答案回来。定位到中层 MLP 后，ROME 把主体对应的表示当作键 k，优化一个能导向新答案的值 v，再通过受约束的最小二乘求解，对权重做一次秩一更新，让这条关联改变，同时尽量少影响其他记忆。",
       "evidence": [
         "e1",
         "e2"
       ]
     },
     "trace": {
-      "text": "图 1/4 用 Space Needle 举例：正常回答城市 Seattle；污染主体后预测受损；恢复中层主体末 token 状态可恢复预测。之后 ROME 人为把关联改为 Paris，再检查相同关系的不同说法是否跟着变化。这是检验机制的反事实编辑，不是在纠正真实世界事实。",
+      "text": "论文用西雅图的太空针塔举例。正常情况下，模型会把它和 Seattle 联系起来；给主体加入噪声后，这个预测受到破坏，恢复中层主体最后一个 token 的状态又能让答案回来。作者随后用 ROME 把关联人为改成 Paris，再换几种问法，检查新答案是否仍然成立。这里故意写入错误事实，是为了检验模型里的关联能否被定点修改。",
       "evidence": [
         "e1",
         "e2"
       ]
     },
     "inputs_outputs": {
-      "text": "输入为模型权重、主体—关系—目标对象三元组、层与 token 位置、统计协方差；输出为单层权重修改及编辑后的模型。另提供 21,919 条 CounterFact 记录，用效力、改写泛化、邻近主体保真、流畅性和一致性评估，而非一个总正确率替代全部标准。",
+      "text": "做一次编辑，需要模型权重、主体—关系—目标对象三元组、选定的层和 token 位置，以及预先估计的协方差。ROME 输出单层权重的修改和编辑后的模型。作者还提供了含 21,919 条记录的 CounterFact，用来分别检查编辑是否生效、换种问法是否有效、是否误伤邻近主体，以及生成文本的流畅性和一致性。",
       "evidence": [
         "e2",
         "e3"
       ]
     },
     "results": {
-      "text": "CounterFact 在 GPT-2 XL 上测 7,500 条、GPT-J 上测 2,000 条；表 4 的效力/改写/邻近主体分数调和平均分别为 89.2、91.5，优于列出的对照。这个编辑综合指标不是事实知识正确率。人评也发现 ROME 比约束微调更符合插入事实，但流畅性略差，自动流畅性指标未充分反映该损失。",
+      "text": "CounterFact 实验分别在 GPT-2 XL 上测试 7,500 条记录，在 GPT-J 上测试 2,000 条。表 4 中，ROME 的综合分数分别是 89.2 和 91.5，优于表内对照方法。这个分数是编辑生效、改写泛化和邻近主体保真三个指标的调和平均。人类评价也发现，ROME 生成的内容比约束微调更符合新写入的事实，但流畅性稍差，而自动流畅性指标没有充分反映这个损失。",
       "evidence": [
         "e4",
         "e5"
       ]
     },
     "contributions": {
-      "text": "给出激活污染—恢复的因果追踪方法，把中层 MLP 的事实关联假说落实为可检验的参数编辑；CounterFact 同时检查泛化与串扰。主线是“定位内部过程，再通过可预测的行为改变验证解释”。",
+      "text": "这项工作把事实关联的内部定位和参数编辑连了起来。因果追踪先提出中层 MLP 参与事实回忆的假说，ROME 再通过定点修改权重检验它。CounterFact 进一步把“换个问法还能答对”和“其他主体有没有被改错”放到同一套评测中。",
       "evidence": [
         "e1",
         "e2",
@@ -86,20 +86,20 @@
       ]
     },
     "limitations": {
-      "text": "一次只编辑一个事实，不是大规模训练方案。事实关联有方向性，改 A→B 不自动改 B→A；没有研究逻辑、空间、数值知识的完整结构。改成功后仍会生成没有依据的新事实，不能由单次编辑推断全模型可靠。",
+      "text": "ROME 一次编辑一个事实，大规模训练需要另外的方法。事实关联还有方向性，改了 A→B，B→A 不会自动跟着改。论文也没有覆盖逻辑、空间或数值知识的完整结构。即使目标关联改成功，模型仍可能编造缺少依据的新事实，因此一次成功编辑不足以说明整个模型都可靠。",
       "evidence": [
         "e5"
       ]
     },
     "cost": {
-      "text": "需要权重与激活访问、协方差预估和目标值优化。开源代码及模型便于小规模复现；需要匹配层、主体 token 与数据切分，不能照搬成任意模型的一键知识修补。本文没有连续 RSI 运行预算。",
+      "text": "复现需要访问模型权重和激活，预先估计协方差，并优化目标值向量。作者公开了代码，所用模型也可获取，适合从单条事实编辑开始检查。具体实验仍需匹配层位置、主体 token 和数据切分，方法迁移到其他模型时也要重新验证。",
       "evidence": [
         "e2",
         "e5"
       ]
     },
     "relevance": {
-      "text": "知识库分析：可解释性的因果定位与模型编辑脉络。它表明理解内部机制可以产生定点行为干预，但改什么事实、如何验证仍由人指定，未构成自主 RSI，也未检验改进机制本身变好。",
+      "text": "知识库分析：这篇论文属于可解释性的因果定位和模型编辑方向，展示了怎样用可预测的行为改变检验内部机制假说。编辑目标和验证规则由研究者指定，可以作为理解模型干预的基础材料。",
       "evidence": []
     }
   },
@@ -140,7 +140,7 @@
     "evidence_checked": true,
     "compression_checked": true,
     "reviewed_by": "Codex",
-    "prompt_version": "1.2",
+    "prompt_version": "1.7",
     "evidence_verified_sha256": "d7c17f896cca512fb258261421b073baa6f4e6e44b6bb7ada5c90185f423054a"
   },
   "collections": [],
@@ -149,5 +149,31 @@
     "interp-knowledge",
     "interp-m-intervention"
   ],
-  "classification_reason": "研究参数中的事实关联，以激活恢复定位和参数编辑验证；属于知识与因果干预脉络，未验证自主递归改进。"
+  "classification_reason": "研究参数中的事实关联，以激活恢复定位和参数编辑验证；属于知识与因果干预脉络，未验证自主递归改进。",
+  "translations": {
+    "en": {
+      "source_sha256": "d7c17f896cca512fb258261421b073baa6f4e6e44b6bb7ada5c90185f423054a",
+      "one_liner": "The authors locate the internal computations used when GPT recalls a fact, then edit those weights to change one factual association while preserving other knowledge as far as possible.",
+      "sections": {
+        "problem": "Where does GPT store a fact, and how does it retrieve it when answering? The authors study autoregressive models including GPT-2 XL and GPT-J, first locating the recall process and then editing one association. The paper appeared at NeurIPS 2022. This card follows arXiv v5.",
+        "gap": "Reading information from a representation does not establish that the model uses it to answer. An edited model that gives a new answer to the original wording may also just repeat that sentence. The authors therefore test the causal role of internal computations, generalization to reworded questions and unintended changes to facts about other subjects.",
+        "method": "The model first answers normally while its activations are saved. Noise is then added to the subject embeddings to disrupt recall. The authors restore clean activations at different locations and observe which restorations bring the answer back. After localizing middle-layer MLPs, ROME treats the subject representation as a key k and optimizes a value v leading to the desired answer. A constrained least-squares solution gives a rank-one weight update, changing that association while minimizing interference with other memories.",
+        "trace": "The paper uses Seattle’s Space Needle. Normally the model associates it with Seattle. Corrupting the subject damages that prediction, while restoring the middle-layer state at its last token recovers the answer. ROME then deliberately changes the association to Paris. Reworded prompts test whether the new answer generalizes. Writing a false fact here is an experiment on targeted modification of an association.",
+        "inputs_outputs": "An edit needs model weights, a subject–relation–target-object triple, a selected layer and token position, and a preestimated covariance. ROME returns a change to one layer’s weights and the edited model. CounterFact contains 21,919 records for separately testing edit efficacy, paraphrase generalization, preservation of neighboring subjects, and generation fluency and consistency.",
+        "results": "CounterFact experiments test 7,500 records on GPT-2 XL and 2,000 on GPT-J. In Table 4, ROME achieves aggregate scores of 89.2 and 91.5, above the listed baselines. This score is the harmonic mean of edit efficacy, paraphrase generalization and neighborhood preservation. Human raters also find generations more consistent with inserted facts than constrained fine-tuning, but slightly less fluent. The automatic fluency measure does not fully reflect that loss.",
+        "contributions": "The study connects causal localization of factual recall with parameter editing. Causal tracing motivates a hypothesis about middle-layer MLPs, which ROME tests by modifying their weights. CounterFact evaluates both whether a new answer survives rewording and whether other subjects are changed unintentionally.",
+        "limitations": "ROME edits one fact at a time. Large-scale training needs additional methods. Associations are directional, so changing A→B does not automatically change B→A. The paper also leaves the full structure of logical, spatial and numerical knowledge unexplored. Even after a successful edit, the model can invent unsupported facts, limiting what one edit says about overall reliability.",
+        "cost": "Reproduction requires access to weights and activations, covariance estimation and target-value optimization. Public code and available models make single-fact edits accessible to inspection. Experiments still need matching layer positions, subject tokens and data splits, and transfer to other models requires validation.",
+        "relevance": "Library analysis. This paper belongs to causal localization and model editing in interpretability. It illustrates testing an internal-mechanism hypothesis through predictable behavioral changes. Researchers specify the edit target and validation rules, making it a foundation for understanding model interventions."
+      },
+      "related": {},
+      "locators": {
+        "e1": "§2.1 · Causal tracing",
+        "e2": "§3.1 · Rank-one update",
+        "e3": "§3.3 · Editing evaluation",
+        "e4": "Table 4 · Quantitative results",
+        "e5": "§3.7 · Directionality and scope"
+      }
+    }
+  }
 }

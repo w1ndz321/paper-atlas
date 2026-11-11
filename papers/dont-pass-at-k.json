@@ -22,7 +22,7 @@
   ],
   "one_liner": "把多次模型评测结果建模为分类计数，用 Dirichlet 后验报告加权表现与不确定性，并比较有限采样下的模型排名稳定性。",
   "added_at": "2026-11-10",
-  "updated_at": "2026-11-10",
+  "updated_at": "2026-11-11",
   "source": {
     "url": "https://arxiv.org/abs/2510.04265v1",
     "sha256": "42cee1201662593f1244ffeef66a70076d12e294d61356f3f25f737f100b26f2",
@@ -182,5 +182,37 @@
     "eval-metrics",
     "activity-na"
   ],
-  "classification_reason": "研究评分统计与不确定性估计，作为 AI4S 评测的通用背景方法；没有实际科学领域 Agent 或科研活动实验。"
+  "classification_reason": "研究评分统计与不确定性估计，作为 AI4S 评测的通用背景方法；没有实际科学领域 Agent 或科研活动实验。",
+  "translations": {
+    "en": {
+      "source_sha256": "42cee1201662593f1244ffeef66a70076d12e294d61356f3f25f737f100b26f2",
+      "one_liner": "A Dirichlet posterior turns repeated evaluation outcomes into weighted performance estimates and uncertainty, allowing model rankings to be compared under limited sampling.",
+      "sections": {
+        "problem": "With a limited evaluation budget, how can we compare models and tell whether a score gap distinguishes them? This paper studies LLM evaluation metrics and uncertainty reporting. Its experiments use simulations and mathematical-reasoning test sets.",
+        "gap": "Pass@k estimates the chance of at least one success in k attempts. The authors argue that rankings can be unstable with few samples, especially as k approaches the total number of attempts. Mean accuracy alone does not express precision and does not readily cover categorical outcomes such as formatting and partial credit.",
+        "method": "The method stores an M-question by N-run outcome matrix, assigns outcomes to C+1 classes and specifies class weights. Per-question counts update Dirichlet posteriors, from which it computes the posterior mean μ and standard deviation σ of aggregate weighted performance. With a uniform prior, binary scores and equal N, a question’s mean is (correct count+1)/(N+2). In that setting the point-estimate ordering matches mean accuracy. Analytic moments must be distinguished from approximations for intervals and rankings.",
+        "trace": "A biased-coin simulation gives 11 model stand-ins known success probabilities and samples repeated answers to 30 questions. Two example stand-ins have mean true success rates of about 0.608 and 0.6213. After 80 runs, point estimates can order them even when uncertainty prevents a reliable distinction. Simulations have known truth, whereas real-model experiments use a finite-sample reference ranking.",
+        "inputs_outputs": "Inputs are per-question categorical score matrices, category weights and optionally a prior based on previous results. Outputs include weighted performance estimates, standard deviations and uncertainty-aware comparisons. The appendix covers formatting, correctness and efficiency rubrics. A usable scoring signal must already exist. The method does not decide the scientific validity of arbitrary text.",
+        "results": "Version 1 evaluates 11 model configurations on AIME 2024/2025, HMMT 2025 and BrUMO 2025 with 80 runs per configuration per question, comparing with Pass@2/4/8 and other methods. Figure 1 gives average attempts to converge on HMMT and BrUMO of about 69.5 and 48.5 for Pass methods versus 44.2 and 27.1 for Bayes@N. Convergence is defined against a finite-sample reference ranking. Under a uniform prior, Bayes@N and mean accuracy have the same point-estimate ordering.",
+        "contributions": "The paper puts binary, multiclass and weighted-rubric scores into one posterior framework, deriving analytic expressions for the performance mean and variance. It explores uncertainty-aware ranking and historical priors, and tests ranking stability as budgets change in simulations and real test sets.",
+        "limitations": "The method addresses finite-sample uncertainty. It does not correct dataset bias, distribution shifts or faulty scoring rules. Real-model reference rankings use at most 80 trials rather than known infinite-sample truth. Section 2.5 uses a large-question-count Gaussian approximation for posterior shape and z-score comparisons, so exact moments do not imply unconditional small-sample guarantees for intervals or ranks.",
+        "cost": "Posterior moments update analytically from counts, but collecting outcomes still costs inference. Appendix F reports temperature 0.6, top-p 0.95, 80 trials per dataset/model and up to 32,768 output tokens, using a cluster with eight NVIDIA H200 GPUs. No uniform per-model dollar cost is given.",
+        "relevance": "Library analysis. This is background on benchmark scoring and reporting. It helps interpret repetitions, aggregate metrics and ranking uncertainty. The experiments concern mathematical-reasoning models and do not establish validation on complete agent workflows."
+      },
+      "related": {
+        "scienceagentbench": "ScienceAgentBench reports repeated runs and aggregation. This method examines how sampling and metrics affect model comparisons, using different experimental tasks and measurement targets."
+      },
+      "locators": {
+        "e1": "Abstract · Problem and categorical posterior framework",
+        "e2": "§2.2–2.4 · Matrix and weighted metrics",
+        "e3": "Algorithm 1 / §2.5–2.6 · Estimation, approximation and ranking",
+        "e4": "§2.7 · Finite-sample reference ranking",
+        "e5": "Fig. 2 / Table 1 · Known-probability simulation",
+        "e6": "§3 · Mathematical test sets",
+        "e7": "Fig. 1 · Convergence budgets",
+        "e8": "§5 · Scope and limitations",
+        "e9": "Appendix F.3 · Inference configuration"
+      }
+    }
+  }
 }

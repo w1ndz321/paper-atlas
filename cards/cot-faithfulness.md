@@ -5,7 +5,7 @@
 - 作者：Yanda Chen, Joe Benton, Ansh Radhakrishnan, Jonathan Uesato, Carson Denison, John Schulman, Arushi Somani, Peter Hase, Misha Wagner, Fabien Roger, Vlad Mikulik, Samuel R. Bowman, Jan Leike, Jared Kaplan, Ethan Perez
 - 年份：2025 · 类型：analysis
 - 主题：LLM 可解释性
-- [原文](https://arxiv.org/abs/2505.05410v1) · 收录：2026-11-10 · 更新：2026-11-10
+- [原文](https://arxiv.org/abs/2505.05410v1) · 收录：2026-11-10 · 更新：2026-11-11
 
 - 子类：解释忠实性与监测 / 思维链与推理文本 / 行为对照与忠实性测试
 

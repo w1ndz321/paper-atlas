@@ -25,7 +25,7 @@
   ],
   "one_liner": "用冻结底座的编码 Agent 改写自身工具与工作流，并保存多条演化分支作为后续改进的踏脚石。",
   "added_at": "2026-11-10",
-  "updated_at": "2026-11-10",
+  "updated_at": "2026-11-11",
   "source": {
     "url": "https://arxiv.org/abs/2505.22954v3",
     "sha256": "13ff4abe0c7ad4a7dd3b4876d19a8bf940e39e70dabbf06065aa774a6c3457de",
@@ -157,5 +157,33 @@
     "next_round_role": "演化后的父 Agent 在后续迭代修改自身程序。",
     "fixed_components": "底座模型、指令生成部分、档案维护和父代采样固定。",
     "capability_evidence": "编码任务分数是任务能力证据；不能直接等同于固定预算下改进效率独立增强。"
+  },
+  "translations": {
+    "en": {
+      "source_sha256": "13ff4abe0c7ad4a7dd3b4876d19a8bf940e39e70dabbf06065aa774a6c3457de",
+      "one_liner": "DGM lets a coding agent with a frozen base model rewrite its tools and workflow, retaining multiple evolutionary branches as starting points for later improvements.",
+      "sections": {
+        "problem": "Can a coding agent rewrite its implementation and accumulate useful historical versions? DGM treats editing its own repository as a coding task and uses coding benchmarks as a capability proxy. This card follows arXiv v3 and ICLR 2026. The work first appeared in 2025.",
+        "gap": "The theoretical Gödel Machine requires a proof that a modification is beneficial, which is difficult for complex practical systems. Keeping only the latest or best version can also lose promising branches. DGM substitutes empirical evaluation for proof and maintains a diverse archive, without a guarantee of optimality or unlimited progress.",
+        "method": "A parent agent is sampled from the archive using its performance and number of descendants. It analyzes logs, proposes improvements and edits its code. Children enter the archive after compilation and basic code-editing checks, then participate in future selection using coding-task scores. The base model, archive maintenance and parent-sampling process are fixed.",
+        "trace": "The initial editor views or replaces an entire file. Evolved agents add line-based viewing, exact string replacement, context summaries and ranking of multiple candidate patches. The final lineage in Figure 3 passes through two score decreases. Those intermediate versions are retained and later branches build better agents from them.",
+        "inputs_outputs": "The inputs are an initial Python agent, a frozen foundation model, coding tasks, an evaluator and search settings. Outputs include source diffs, an agent archive, lineages and scores. SWE-bench uses the Verified subset. Polyglot reports pass@1 and withholds true test feedback from the task-solving agent, differing from the leaderboard’s pass@2 setting.",
+        "results": "Each main search runs for 80 iterations. Self-modification and SWE evaluation use Claude 3.5 Sonnet (New), while Polyglot evaluation uses o3-mini. On 200 SWE tasks, performance rises from 20.0% to 50.0%. On the 50-task Polyglot search subset it rises from 14.0% to 38.0%. Reevaluation on all 225 tasks gives 14.2% to 30.7%. Ablations without self-modification or an open archive perform worse, and the paper reports cross-model and cross-benchmark transfer.",
+        "contributions": "The system combines source-code self-modification, coding evaluation and an open archive. Its lineages show how weaker intermediate agents can contribute to later discoveries, extending search beyond immediate score improvements. The contribution is an empirical system design rather than a solution to the original Gödel Machine’s proof requirements.",
+        "limitations": "Using coding performance as evidence of self-improvement ability is a substantial assumption. People define the tasks and evaluation, and both the base model and search process remain fixed. The work neither retrains the foundation model nor establishes long-term self-acceleration. Benchmark subsets used for selection must be distinguished from held-out cross-benchmark tests.",
+        "cost": "The main SWE run takes about two weeks and incurs substantial API costs. Reproduction requires matching v3’s model versions, 80-iteration setup, staged task sets, parallelism, tools and isolated execution environment. Public code and lineages support inspection. This library has not independently rerun the experiments.",
+        "relevance": "Library analysis. DGM is a representative study of agent source-code evolution. STOP offers a comparison between one optimizer and a branching archive, while AIDE² contrasts a coding proxy with direct research efficiency. DGM discusses interpretability risks but does not test mechanistic explanations as a driver of RSI."
+      },
+      "related": {
+        "stop": "Both self-modify programs on a frozen base model. DGM retains a branching agent archive, while STOP’s main loop keeps one optimizer per round."
+      },
+      "locators": {
+        "e1": "§3 · Self-modification and archiving",
+        "e2": "§3–4 · Fixed search process and experiments",
+        "e3": "§4.2–4.4 · Staged evaluation and results",
+        "e4": "Fig. 3 · Tool and workflow changes",
+        "e5": "§6 · Compute and proxy-objective limitations"
+      }
+    }
   }
 }

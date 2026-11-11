@@ -5,7 +5,7 @@
 - 作者：Ziru Chen, Shijie Chen, Yuting Ning, Qianheng Zhang, Boshi Wang, Botao Yu, Yifei Li, Zeyi Liao, Chen Wei, Zitong Lu, Vishal Dey, Mingyi Xue, Frazier N. Baker, Benjamin Burns, Daniel Adu-Ampratwum, Xuhui Huang, Xia Ning, Song Gao, Yu Su, Huan Sun
 - 年份：2024 · 类型：benchmark
 - 主题：AI4S Agent 评测
-- [原文](https://arxiv.org/abs/2410.05080v1) · 收录：2026-11-10 · 更新：2026-11-10
+- [原文](https://arxiv.org/abs/2410.05080v1) · 收录：2026-11-10 · 更新：2026-11-11
 
 - 子类：生物与医学 / 化学与分子科学 / 地球与环境科学 / 神经与认知科学 / 科研编程与任务完成 / 基准有效性与评价可靠性 / 数据分析与建模 / 科研软件与计算
 

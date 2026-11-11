@@ -24,7 +24,7 @@ class PipelineTests(unittest.TestCase):
         kb.write(self.root / "config.json", self.cfg)
         for directory in ("papers", "web", "cards", "inbox"):
             (self.root / directory).mkdir()
-        for name in ("index.html", "app.js", "style.css"):
+        for name in ("index.html", "locale.js", "app.js", "style.css"):
             (self.root / "web" / name).write_text("test", encoding="utf-8")
         self.text = "The benchmark measures task success and reports tool execution results. " * 18
         self.digest = hashlib.sha256(self.text.encode()).hexdigest()
@@ -164,7 +164,7 @@ class PipelineTests(unittest.TestCase):
         output = kb.read(dest / "data.json")
         self.assertEqual(output["papers"][0]["id"], "example")
         self.assertNotIn("do-not-publish", (dest / "data.json").read_text())
-        self.assertEqual({p.name for p in dest.iterdir()}, {"index.html", "app.js", "style.css", "data.json", ".nojekyll"})
+        self.assertEqual({p.name for p in dest.iterdir()}, {"index.html", "locale.js", "app.js", "style.css", "data.json", ".nojekyll"})
 
     def test_generated_cards_drift_detected(self):
         self.store(self.paper())
@@ -405,18 +405,78 @@ assert.equal(api.getView().subtopic,'');
         self.assertEqual(kb.read(self.root / "dist/data.json")["papers"], [])
 
     def test_build_changes_asset_urls_when_reader_changes(self):
-        (self.root / "web/index.html").write_text('<link href="style.css"><script src="app.js"></script>')
+        (self.root / "web/index.html").write_text('<link href="style.css"><script src="locale.js"></script><script src="app.js"></script>')
         kb.render_cards(self.root)
         kb.build(self.root / "dist", self.root)
         first = (self.root / "dist/index.html").read_text()
         self.assertIn('app.js?v=', first)
         self.assertIn('style.css?v=', first)
+        self.assertIn('locale.js?v=', first)
         (self.root / "web/app.js").write_text('updated reader')
         kb.build(self.root / "dist", self.root)
         second = (self.root / "dist/index.html").read_text()
         self.assertNotEqual(first, second)
         expected = hashlib.sha256(b'updated reader').hexdigest()[:12]
         self.assertIn('app.js?v=' + expected, second)
+        (self.root / "web/locale.js").write_text('updated translations')
+        kb.build(self.root / "dist", self.root)
+        third = (self.root / "dist/index.html").read_text()
+        self.assertNotEqual(second, third)
+
+    def test_english_card_preserves_source_and_reference_ids(self):
+        p = self.paper()
+        p['translations'] = {'en': {
+            'source_sha256': self.digest,
+            'one_liner': 'This benchmark checks task completion using executable tests.',
+            'sections': {key: 'A complete English explanation of the corresponding section.' for key in kb.SECTIONS},
+            'locators': {e['id']: e['locator'] for e in p['evidence']},
+            'related': {},
+        }}
+        self.store(p)
+        self.assertEqual(1, len(kb.validate(self.root)))
+        for field, value in [('source_sha256', '0' * 64), ('sections', {}), ('locators', {}), ('related', {'missing': 'Wrong reference'})]:
+            with self.subTest(field=field):
+                invalid = copy.deepcopy(p)
+                invalid['translations']['en'][field] = value
+                self.store(invalid)
+                with self.assertRaises(kb.Invalid):
+                    kb.validate(self.root)
+
+    @unittest.skipUnless(shutil.which("node"), "需要 Node 验证中英文切换")
+    def test_localization_handles_both_languages_and_older_records(self):
+        program = r"""
+const fs = require('node:fs'), vm = require('node:vm'), assert = require('node:assert/strict');
+const api = vm.runInNewContext(fs.readFileSync(process.argv[1], 'utf8') + '\n;({localizeData,preferredLanguage})', {URLSearchParams});
+const data = JSON.parse(fs.readFileSync(0,'utf8'));
+const snapshot = JSON.stringify(data);
+const english = api.localizeData(data,'en');
+assert.equal(english.config.topics.rsi,'Recursive self-improvement');
+assert.equal(english.sections.method,'How it works');
+for (const paper of english.papers) {
+  const original = data.papers.find(p=>p.id===paper.id);
+  assert.equal(paper.one_liner,original.translations.en.one_liner);
+  for(const [key,section] of Object.entries(paper.sections)) {
+    assert.equal(section.text,original.translations.en.sections[key]);
+    assert.equal(JSON.stringify(section.evidence),JSON.stringify(original.sections[key].evidence));
+  }
+  assert.equal(JSON.stringify(paper.source),JSON.stringify(original.source));
+}
+assert.equal(JSON.stringify(data),snapshot);
+assert.equal(JSON.stringify(api.localizeData(data,'zh')),snapshot);
+const old = JSON.parse(snapshot);
+delete old.papers[0].translations;
+assert.equal(api.localizeData(old,'en').papers[0].one_liner,old.papers[0].one_liner);
+old.papers[1].translations.en.source_sha256='outdated';
+assert.equal(api.localizeData(old,'en').papers[1].one_liner,old.papers[1].one_liner);
+const saved={getItem:()=> 'en'};
+assert.equal(api.preferredLanguage('',saved),'en');
+assert.equal(api.preferredLanguage('?lang=zh',saved),'zh');
+assert.equal(api.preferredLanguage('?lang=en',{getItem:()=> 'zh'}),'en');
+assert.equal(api.preferredLanguage('?lang=bad',{getItem:()=>{throw Error('denied')}}),'zh');
+"""
+        subprocess.run(["node", "-e", program, str(kb.ROOT / "web/locale.js")],
+                       input=json.dumps({"config": kb.config(), "papers": kb.records(), "sections": kb.SECTIONS}),
+                       text=True, capture_output=True, check=True)
 
 
 if __name__ == "__main__":

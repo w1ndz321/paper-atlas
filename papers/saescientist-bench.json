@@ -26,7 +26,7 @@
   ],
   "one_liner": "让 Agent 自行设计对照文本、搜索 SAE 特征，并分开评估特征选择性和生成干预，测量自动化可解释性研究能力。",
   "added_at": "2026-11-10",
-  "updated_at": "2026-11-10",
+  "updated_at": "2026-11-11",
   "source": {
     "url": "https://arxiv.org/abs/2609.09113v2",
     "sha256": "32984f5141b2746ff16d4424783947bcfa002b279bcaeffcd356ef83846b9bd2",
@@ -167,5 +167,35 @@
     "interp-m-behavior",
     "interp-m-intervention"
   ],
-  "classification_reason": "评测 Agent 发现并验证 SAE 特征的能力；属于自动化解释研究与桥接评测，不证明被评测 Agent 已递归改进自身。"
+  "classification_reason": "评测 Agent 发现并验证 SAE 特征的能力；属于自动化解释研究与桥接评测，不证明被评测 Agent 已递归改进自身。",
+  "translations": {
+    "en": {
+      "source_sha256": "32984f5141b2746ff16d4424783947bcfa002b279bcaeffcd356ef83846b9bd2",
+      "one_liner": "Agents design control texts and search SAE features, with separate evaluations of feature selectivity and generation steering to measure autonomous interpretability research.",
+      "sections": {
+        "problem": "Can an agent propose probes, compare internal features and validate interventions like an interpretability researcher? This benchmark treats understanding trained models as a capability for automated AI development. The authors are from CASIA and UCAS. This card follows the September 2026 v2 preprint, described as ongoing work.",
+        "gap": "A feature responding to a concept may not control the corresponding generation. A plausible automatic explanation also does not establish experimental skill. Submitted features are therefore tested on unseen texts, separate generation interventions and random-direction controls.",
+        "method": "For each of 20 specified concepts, an agent selects one feature from Gemma Scope SAEs at layers 9 and 20 of Gemma-2-9B-IT. It writes control texts, searches and tests candidates through a fixed probe interface, then submits an ID among 131,072 directions. Expert features and evaluation data are hidden during discovery. Evaluation measures dictionary rank, positive/negative selectivity and steering.",
+        "trace": "For the cat concept, a candidate responds both to actual cats and unrelated words such as copycat and catalytic. Agent-designed negative controls reveal that it may detect the string cat. The agent then searches for a feature better aligned with the animal concept, testing its hypothesis through counterexamples.",
+        "inputs_outputs": "Inputs specify the concept, model and SAE, hook and dictionary width. Each probe call accepts up to 64 agent-written texts. The agent returns one feature ID and a process trace. Evaluation produces activation matrices, steered responses and scores. Rank is scaled against experts, Activation derives from AUROC, and Steering compares normal behavior with equal-norm random directions. Overall averages the three equally.",
+        "results": "Ten model–harness configurations each perform 20 tasks in three independent investigations. Table 1’s highest Overall is Kimi K3 at 65.82 ± 1.87, versus an expert reference of 85.56. The highest selectivity is 92.91, near the expert’s 98.92. Grok 4.6 has the highest steering score, 31.47, below the expert’s 57.75. The ± values are standard deviations across runs. Scores are not task-success rates, and different models lead different dimensions.",
+        "contributions": "The benchmark decomposes autonomous representation research into testable experimental skills, using hidden references, control probes and causal generation checks. Process analysis finds useful negative examples, but also misread activations, confusion between document format and concept, and features that harm generation quality.",
+        "limitations": "The scope is one model family, two layers and single-feature search for preset concepts. Open hypotheses, multi-feature circuits and training new SAEs are excluded. Evaluation depends on expert references and automated judges, and a high overall score does not guarantee preservation of the original user instruction. Model editing, unlearning and continual alignment are future connections rather than a completed RSI loop.",
+        "cost": "Discovery budgets do not force equal calls, steps or inference costs. Configurations also use Codex or Cursor, making this a comparison of models together with their harnesses. Reproduction needs Gemma weights, Gemma Scope, the probe environment, specified model versions and a generation judge.",
+        "relevance": "Library analysis. This is a direct evaluation of experimental model-understanding skills that could support future improvement loops. It shows how to measure agents doing interpretability research. It does not show that their findings improve their own capabilities or accelerate recursive improvement."
+      },
+      "related": {
+        "scaling-monosemanticity": "SAE feature discovery becomes an agent task, with representation selectivity evaluated separately from actual intervention effects.",
+        "natural-language-autoencoders": "NLA tests whether an explanation tool helps an auditing agent. This benchmark tests agents designing SAE discovery experiments themselves.",
+        "aide-squared": "AIDE² optimizes research efficiency, while this benchmark measures understanding of internal model behavior. Neither supplies a complete linked closed-loop demonstration."
+      },
+      "locators": {
+        "e1": "§3.1–3.2 · Tasks and discovery protocol",
+        "e2": "§3.3 · Three metrics and controls",
+        "e3": "Table 1 / §4 · Three repeated runs",
+        "e4": "§5.2 · Cat-concept negative controls",
+        "e5": "§7 · Single-feature scope and open feedback loop"
+      }
+    }
+  }
 }

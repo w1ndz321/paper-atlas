@@ -38,7 +38,7 @@
   ],
   "one_liner": "从已发表研究提取 102 个科学数据任务，以独立 Python 程序为统一产出，同时检查执行、任务结果、代码相似度和 API 成本。",
   "added_at": "2026-11-10",
-  "updated_at": "2026-11-10",
+  "updated_at": "2026-11-11",
   "source": {
     "url": "https://arxiv.org/abs/2410.05080v1",
     "sha256": "5b4b8be139d6f88d53acaf89b18938d0c1749fc20f5d50db6989324772d993bc",
@@ -197,5 +197,35 @@
     "activity-data",
     "activity-code"
   ],
-  "classification_reason": "跨四学科的科研程序任务基准，评价端到端交付与任务真实性；不把综合成绩拆称为已独立验证的规划或推理能力。"
+  "classification_reason": "跨四学科的科研程序任务基准，评价端到端交付与任务真实性；不把综合成绩拆称为已独立验证的规划或推理能力。",
+  "translations": {
+    "en": {
+      "source_sha256": "5b4b8be139d6f88d53acaf89b18938d0c1749fc20f5d50db6989324772d993bc",
+      "one_liner": "ScienceAgentBench extracts 102 scientific-data tasks from published studies and evaluates standalone Python solutions for execution, task outcomes, code similarity and API cost.",
+      "sections": {
+        "problem": "Can language agents carry out data processing, modeling, analysis and visualization in scientific workflows? The authors argue that these concrete abilities should be measured before making claims about end-to-end research automation. The benchmark draws 102 tasks from 44 peer-reviewed papers across four disciplines.",
+        "gap": "Overall judgments of generated papers make it hard to assess basic scientific-data work. Abstract questions and small code-completion exercises also miss practical requirements. The authors standardize programming tasks from real papers and ask domain experts to check authenticity and validity.",
+        "method": "Each task supplies a natural-language goal, data directory and preview, and optional expert knowledge. The agent writes a standalone Python file. Evaluation first checks execution and saved files, then uses task-specific scripts to verify results. GPT-4o compares images with references. CodeBERTScore, API cost and a five-stage expert rubric supplement these checks.",
+        "trace": "The ClinTox task in Figure 2 and Table 1 asks the agent to load molecular data, train models for drug toxicity and FDA approval status, and save a CSV with molecular SMILES and predicted probabilities. The program and output paths must work, and test-set ROC-AUC must reach at least 0.77. Generating runnable code and meeting the scientific target are distinct checks.",
+        "inputs_outputs": "Inputs are task instructions, research data and optional domain knowledge. Outputs are a standalone Python file and required predictions, tables or images. Fields include bioinformatics, computational chemistry, geographic information science, and psychology/cognitive neuroscience. Annotators and nine domain experts validate data, programs and scoring over multiple rounds.",
+        "results": "This card records arXiv v1. Five models are tested with direct prompting, OpenHands CodeAct and Self-Debug. Each task has three independent runs. The main table selects the best run by priority of SR, VER, CBS and cost. Claude-3.5-Sonnet with Self-Debug achieves 32.4% task success without expert knowledge and 34.3% with it. Appendix D separately reports three-run means and standard deviations, so the main results are not average single-run success rates.",
+        "contributions": "The benchmark turns heterogeneous research tasks into complete-program generation problems with task-specific verification. Expert checks, execution outcomes, cost reporting and a supplementary process rubric help distinguish runnable programs from successful scientific work.",
+        "limitations": "Appendix A limits the benchmark to code generation for scientific-data tasks. Literature review, experimental planning and the full research lifecycle are outside its coverage. It uses Python and favors reference programs completing within ten minutes for evaluation efficiency. Data access and expert availability constrain fields. Code similarity and image judging are imperfect measures.",
+        "cost": "In v1 Table 3 without expert knowledge, Claude-3.5-Sonnet costs $0.057 per task with Self-Debug and $0.958 with OpenHands in API usage. Environments need dependencies configured dynamically. The ten-minute reference-program screening criterion is separate from agent runtime limits and reported prices are specific to the experiments.",
+        "relevance": "Library analysis. The work illustrates how research-derived agent tasks combine expert validation, execution checks and cost reporting. Section 2.3, Table 3 and Appendix D clarify metric definitions, configuration differences and the distinction between selected-best and average results."
+      },
+      "related": {},
+      "locators": {
+        "e1": "Abstract · Task sources and scale",
+        "e2": "Fig. 2 / §2.1 · Task inputs and outputs",
+        "e3": "Table 1 · ClinTox success criteria",
+        "e4": "§2.3 · Execution and outcome metrics",
+        "e5": "§3 · Three runs and main-table selection",
+        "e6": "Table 3 · Self-Debug results",
+        "e7": "Appendix A · Scope and task-duration screening",
+        "e8": "§2.3 · Figure Evaluation",
+        "e9": "§2.2 · Expert Validation"
+      }
+    }
+  }
 }

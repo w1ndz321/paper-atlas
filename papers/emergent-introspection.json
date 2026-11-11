@@ -21,7 +21,7 @@
   ],
   "one_liner": "把已知概念向量注入模型内部，以受控干预检验模型能否识别并报告自身状态，而非只根据输出猜测。",
   "added_at": "2026-11-10",
-  "updated_at": "2026-11-10",
+  "updated_at": "2026-11-11",
   "source": {
     "url": "https://transformer-circuits.pub/2025/introspection/index.html",
     "sha256": "4ee698ebe1f4f9c6d9c76fd981e286acf8ce73d825936bf4195955e5dd7f6dcd",
@@ -159,5 +159,34 @@
     "interp-m-intervention",
     "interp-m-behavior"
   ],
-  "classification_reason": "以概念注入与行为对照检验状态报告能力；识别自身状态不等于能够修复或递归改进。"
+  "classification_reason": "以概念注入与行为对照检验状态报告能力；识别自身状态不等于能够修复或递归改进。",
+  "translations": {
+    "en": {
+      "source_sha256": "4ee698ebe1f4f9c6d9c76fd981e286acf8ce73d825936bf4195955e5dd7f6dcd",
+      "one_liner": "The authors inject known concept vectors into a model and test whether it can identify and report the resulting internal state before inferring it from its own output.",
+      "sections": {
+        "problem": "When a model says what it is thinking, is it reading an internal state or constructing a story from the prompt and surrounding text? Controlled concept injection provides a causal test of reports about the current state. Ordinary reflection prompts alone do not provide that evidence.",
+        "gap": "Conversation alone cannot reliably distinguish accurate reports from learned generic statements or retrospective explanations. The authors specify accuracy, causal dependence, internality and metacognitive representation. In particular, a model should not first emit a word and then infer its earlier state from that output. The final criterion has indirect evidence and has not been directly localized.",
+        "method": "Concept directions are constructed from model activations and injected into the residual stream at chosen layers, token positions and strengths. The tests ask whether a model notices the change before naming the concept. Further experiments distinguish injected states from input text, detect artificially prefilled outputs and test control of concept representations under instructions or incentives. Layers, models and control vectors help characterize failures.",
+        "trace": "A concept is injected into a conversation that contains no corresponding word. Success requires a coherent acknowledgment of an unusual state before identifying the concept. Another experiment separately asks the model to repeat an input sentence and report a previously considered word. Answering both correctly helps rule out simple confusion between text inputs and internal states.",
+        "inputs_outputs": "Inputs include Claude models, concept vectors, prompt templates and injection layers and strengths. Outputs include generated reports, concept-recognition, sentence-repetition and prefill-detection scores, and activation measurements. Systematic comparisons use temperature 1, while most displayed examples use 0. Controls include base models and post-training variants.",
+        "results": "Opus 4 and 4.1 usually outperform the other tested Claude models, though the ordering is not universally monotonic. At the best layer and strength, Opus 4.1 succeeds in about 20% of trials in the main injection-recognition experiment. There are no observed false positives in 100 no-injection controls for the production model. Strong injections can cause fixation, irrelevant answers or gibberish.",
+        "contributions": "The study turns impressions of introspection into controlled intervention experiments. Its criteria distinguish noticing an internal concept from inferring it through one’s own output. Different experiments peak at different layers, suggesting several narrow mechanisms may be involved.",
+        "limitations": "The prompt set is limited and injection creates artificial conditions absent from training. Concept directions may contain other meanings. Claude models differ in many respects, making performance differences hard to attribute, and the proposed mechanisms remain hypotheses. The results do not establish human-like self-awareness, subjective experience or generally reliable introspection.",
+        "cost": "The protocol requires internal activation access, concept sampling and sweeps across layers and strengths. Closed model access limits independent reproduction. The study does not provide an RSI training workflow or self-modification cost.",
+        "relevance": "Library analysis. This work is a possible bridge to studying whether systems can obtain reliable information about themselves. It provides evidence about diagnostic signals, without showing automatic repair or improved subsequent self-improvement. Explanation-driven RSI is not tested."
+      },
+      "related": {
+        "cot-faithfulness": "Both question whether natural-language reports reveal the real factors behind behavior. This study uses concept injection to test causal dependence of state reports.",
+        "circuit-tracing": "Internal interventions validate state reports here, while circuit tracing explains feature-level computation. These forms of evidence can complement each other."
+      },
+      "locators": {
+        "e1": "Defining Introspection · Criteria",
+        "e2": "Self-report of Injected Thoughts · Injection setup",
+        "e3": "Failure Modes · Success-rate limitations",
+        "e4": "Distinguishing Prior Thoughts from Text Inputs",
+        "e5": "Limitations and Future Work · Prompts and artificial interventions"
+      }
+    }
+  }
 }

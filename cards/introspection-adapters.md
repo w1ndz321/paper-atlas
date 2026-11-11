@@ -5,7 +5,7 @@
 - 作者：Keshav Shenoy, Li Yang, Abhay Sheshadri, Sören Mindermann, Jack Lindsey, Sam Marks, Rowan Wang
 - 年份：2026 · 类型：method
 - 主题：LLM 可解释性
-- [原文](https://arxiv.org/abs/2604.16812v2) · 收录：2026-11-10 · 更新：2026-11-10
+- [原文](https://arxiv.org/abs/2604.16812v2) · 收录：2026-11-10 · 更新：2026-11-11
 
 - 子类：内省与状态感知 / 行为诊断与审计 / 模型行为与自我报告 / 探针与状态解码 / 行为对照与忠实性测试
 

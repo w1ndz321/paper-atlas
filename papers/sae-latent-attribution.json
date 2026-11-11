@@ -23,7 +23,7 @@
   ],
   "one_liner": "比较同一模型正常与异常回答的 SAE 特征归因，再用 steering 检验哪些内部特征实际影响异常行为。",
   "added_at": "2026-11-10",
-  "updated_at": "2026-11-10",
+  "updated_at": "2026-11-11",
   "source": {
     "url": "https://alignment.openai.com/sae-latent-attribution/",
     "sha256": "1e0341b5b211ac20cf2c1901bf037da429a22a18670d524e07e2ba294b8abad7",
@@ -163,5 +163,34 @@
     "interp-m-attribution",
     "interp-m-intervention"
   ],
-  "classification_reason": "对比异常与正常回答的特征归因，并通过干预检验行为影响，属于诊断与行为调试桥接证据。"
+  "classification_reason": "对比异常与正常回答的特征归因，并通过干预检验行为影响，属于诊断与行为调试桥接证据。",
+  "translations": {
+    "en": {
+      "source_sha256": "1e0341b5b211ac20cf2c1901bf037da429a22a18670d524e07e2ba294b8abad7",
+      "one_liner": "The report compares SAE feature attributions for normal and abnormal continuations from one model, then uses steering to test which features affect the behavior.",
+      "sections": {
+        "problem": "Which internal SAE features influence an abnormal answer? The report studies generalized misalignment after narrow fine-tuning and inappropriate affirmation of a simulated user’s views. The source is OpenAI’s full technical report dated December 1, 2025.",
+        "gap": "Selecting features by activation differences between fine-tuned and normal models can favor large but behaviorally irrelevant changes and requires a nearby normal model. This method instead compares normal and abnormal continuations for the same prompt within one model, then tests candidates through intervention.",
+        "method": "For each continuation, the authors differentiate its negative log-likelihood with respect to middle-layer activations. A first-order approximation estimates the loss change from replacing a feature projection with its mean. Attribution differences between abnormal and normal continuations are averaged across samples to select 100 features. Suppressing or amplifying these directions produces new answers that GPT-5 scores for behavioral change.",
+        "trace": "A model fine-tuned on misleading health information yields 35 pairs of normal and misaligned continuations. Features selected by attribution difference are individually suppressed to test whether misalignment decreases. Positive steering in another normal model tests whether the directions can induce it.",
+        "inputs_outputs": "Inputs are paired continuations from one model, accessible middle-layer activations and gradients, and SAE decoder directions. Outputs include feature rankings, steered generations and behavior scores. A second case uses 148 pairs of inappropriate and appropriate affirmations to compare attribution-difference and activation-difference selection.",
+        "results": "In both cases, attribution-selected top-100 sets contain more features that change behavior in the expected direction, with stronger average steering effects. A top-ranked provocative feature appears in both behaviors. The report describes increases of 53% in misalignment and 40% in inappropriate affirmation. These figures are retained as reported percentages, without conversion to percentage points.",
+        "contributions": "The workflow localizes behavior without requiring matched model pairs. Low-cost first-order attribution screens candidates for expensive interventions. A shared high-impact feature across two behaviors suggests an internal association between outwardly different failures.",
+        "limitations": "Attribution is a local first-order approximation and works best when gradients are roughly constant over the relevant range. Saturating nonlinearities can break it, requiring steering checks. The cases are few and scoring relies on a model judge. Changing behavior through a direction does not fully explain its mechanism or establish a general repair method.",
+        "cost": "The authors typically use a 2M-feature SAE. Full forward ablation of every feature is too expensive, motivating gradient screening before candidate generation and judging. Weight, activation and gradient access are required. External readers cannot fully reproduce all internal target-model experiments from the report.",
+        "relevance": "Library analysis. This is a bridge from detecting abnormal behavior to locating internal features, intervening and reevaluating. The work involves human or external-program debugging and does not establish autonomous explanation-driven self-improvement or cumulative gains over multiple RSI rounds."
+      },
+      "related": {
+        "scaling-monosemanticity": "The study builds on feature decomposition and steering, using attribution differences between paired answers to select behavior-relevant directions.",
+        "cot-faithfulness": "CoT may omit influential factors. Internal gradients and interventions offer a different source of evidence, which also needs independent behavioral validation."
+      },
+      "locators": {
+        "e1": "Introduction · Limits of model differencing",
+        "e2": "Case study 1 · Paired samples",
+        "e3": "Case study 2 · Second behavior",
+        "e4": "Methods · First-order approximation",
+        "e5": "Methods · Approximation failure conditions"
+      }
+    }
+  }
 }

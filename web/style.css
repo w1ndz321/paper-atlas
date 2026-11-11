@@ -10,10 +10,6 @@
   --link: #9b3b1d;
   --tint: #f9e4d4;
   --navigation: #f5eddf;
-  --lavender: #f1e6fa;
-  --cream: #f4eadc;
-  --aqua: #e3f3f4;
-  --periwinkle: #e6eafa;
   --font:
     "Yuanti SC", "Yuanti TC", "Hiragino Maru Gothic ProN", ui-rounded,
     "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
@@ -117,6 +113,17 @@ select:focus-visible {
 .header-links button:hover,
 .repo:hover {
   color: var(--link);
+}
+#language-toggle {
+  justify-content: center;
+  min-width: 44px;
+  padding: 4px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-weight: 600;
+}
+#language-toggle:hover {
+  background: var(--surface);
 }
 
 .workspace {
@@ -1139,23 +1146,14 @@ dialog .close {
   flex-direction: column;
   padding: 28px;
   border-radius: 22px;
-  border: 1px solid transparent;
+  border: 1px solid var(--line);
   box-shadow: none;
-  background: var(--cream);
+  background: var(--surface);
   animation: none;
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease,
     border-color 0.2s ease;
-}
-.paper-row[data-tone="lavender"] {
-  background: var(--lavender);
-}
-.paper-row[data-tone="aqua"] {
-  background: var(--aqua);
-}
-.paper-row[data-tone="periwinkle"] {
-  background: var(--periwinkle);
 }
 .paper-row:hover {
   transform: translateY(-3px);
@@ -1341,5 +1339,9 @@ dialog .close {
   }
   .masthead {
     padding: 0 14px;
+  }
+  #language-toggle {
+    min-width: 36px;
+    padding: 4px 8px;
   }
 }

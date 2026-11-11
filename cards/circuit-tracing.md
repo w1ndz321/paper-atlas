@@ -5,7 +5,7 @@
 - 作者：Emmanuel Ameisen, Jack Lindsey, Adam Pearce, Wes Gurnee, Nicholas L. Turner, Brian Chen, Craig Citro, David Abrahams, Shan Carter, Basil Hosmer, Jonathan Marcus, Michael Sklar, Adly Templeton, Trenton Bricken, Callum McDougall, Hoagy Cunningham, Thomas Henighan, Adam Jermyn, Andy Jones, Andrew Persic, Zhenyi Qi, T. Ben Thompson, Sam Zimmerman, Kelley Rivoire, Thomas Conerly, Chris Olah, Joshua Batson
 - 年份：2025 · 类型：method
 - 主题：LLM 可解释性
-- [原文](https://transformer-circuits.pub/2025/attribution-graphs/methods.html) · 收录：2026-11-10 · 更新：2026-11-10
+- [原文](https://transformer-circuits.pub/2025/attribution-graphs/methods.html) · 收录：2026-11-10 · 更新：2026-11-11
 
 - 子类：推理与决策机制 / 内部激活与概念特征 / 组件交互与计算电路 / 稀疏表征分解 / 归因与电路追踪 / 因果干预与模型编辑
 

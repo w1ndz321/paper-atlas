@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "id": "attribution-patching",
+  "origin": "user",
+  "title": "Attribution Patching Outperforms Automated Circuit Discovery",
+  "authors": [
+    "Aaquib Syed",
+    "Can Rager",
+    "Arthur Conmy"
+  ],
+  "year": 2023,
+  "paper_type": "method",
+  "topics": [
+    "llm-interpretability"
+  ],
+  "tags": [],
+  "one_liner": "用激活差与梯度一次估计许多连接的重要性，先快速筛出候选电路，再用更昂贵的干预方法核查。",
+  "subtopics": [
+    "interp-q-reasoning",
+    "interp-circuits",
+    "interp-m-attribution"
+  ],
+  "collections": [
+    "interpretability-rsi"
+  ],
+  "classification_reason": "研究特定任务的计算子图，通过激活差与梯度近似边的重要性；电路恢复分数与精确干预效应的忠实性需要分别判断。",
+  "added_at": "2026-11-11",
+  "updated_at": "2026-11-11",
+  "source": {
+    "url": "https://arxiv.org/abs/2310.10348v2",
+    "sha256": "d2bb28ed2f9a93ecf3287885c3fe221cadeddaf526b89a5361a8043a8ee63f04",
+    "format": "pdf",
+    "page_count": 12,
+    "attachment": ""
+  },
+  "read_scope": "full",
+  "sections": {
+    "problem": {
+      "text": "要解释模型如何完成某个任务，需要从大量注意力头和 MLP 连接中找出真正相关的子图。逐条替换激活再运行模型开销很大，作者研究能否用梯度更快找到已有研究识别出的电路。",
+      "evidence": [
+        "e1"
+      ]
+    },
+    "gap": {
+      "text": "ACDC 依靠大量精确激活替换来剪边，扩展到更大的模型时成本较高。便宜的近似是否足够用于候选筛选，还需要和已有电路及真实干预效果分别比较；能找回电路，不代表每条边的效应都估得准。",
+      "evidence": [
+        "e1",
+        "e4"
+      ]
+    },
+    "method": {
+      "text": "准备成对的正常与破坏输入，记录连接在两种输入下的激活。EAP 用“破坏激活减正常激活”与任务指标对正常激活的梯度做内积，作为一阶效应近似；跨样本平均后，按绝对值保留前 k 条边。主要计算需要两次前向和一次反向传播。完整模型处 KL 散度梯度为零，因此作者改用任务特定指标。",
+      "evidence": [
+        "e2"
+      ]
+    },
+    "trace": {
+      "text": "Docstring 任务里，一条来自嵌入的连接在真实连续替换时呈非线性变化，一阶切线明显高估了替换效果。这个例子说明应先用 EAP 缩小搜索范围，再在候选子图中运行 ACDC，而不是把近似分数直接解释为精确因果贡献。",
+      "evidence": [
+        "e4",
+        "e5"
+      ]
+    },
+    "inputs_outputs": {
+      "text": "输入包括可读取内部激活并反向传播的模型、正常和破坏提示对，以及任务指标。输出是每条计算连接的归因分数和按阈值或 k 保留的子图。方法用于解释特定任务，不是为了让剪枝后的模型推理更快。",
+      "evidence": [
+        "e1",
+        "e2"
+      ]
+    },
+    "results": {
+      "text": "在已有人工电路作参照的实验中，IOI 上 EAP 的 AUC 为 0.904，对比 KL-ACDC 的 0.868；Greater-Than 为 0.896，对比 0.849。不过 Docstring 上 EAP 为 0.976，略低于 KL-ACDC 的 0.982，也低于直接激活替换的 0.978。优势是较低筛选开销，并非所有任务逐项最优。",
+      "evidence": [
+        "e3"
+      ]
+    },
+    "contributions": {
+      "text": "论文把归因替换落实到全部计算图连接，提供快速选边算法与三类任务对照。它还展示近似失真的具体连接，并验证先 EAP、再 ACDC 的组合能改善 Docstring 电路恢复。",
+      "evidence": [
+        "e2",
+        "e3",
+        "e5"
+      ]
+    },
+    "limitations": {
+      "text": "Docstring 的近似分数和真实替换分数相关性较弱，R² 为 0.27，嵌入边尤其可能违反局部线性近似。指标选择会改变结果，人工电路也不是完美标答；在尚无人理解的任务上，现有恢复指标本身难以验证解释是否完整。",
+      "evidence": [
+        "e4",
+        "e5"
+      ]
+    },
+    "cost": {
+      "text": "归因计算的传播次数不随逐条待测边增加，但仍要保存激活与梯度，并聚合数据集上的结果。后续 ACDC 复核仍有额外成本。直接逐边激活替换只在较小的 Docstring 模型上运行，因为另两项 GPT-2 Small 任务的开销过高；论文没有给出适用于任意大模型的固定显存或时间保证。",
+      "evidence": [
+        "e2",
+        "e3"
+      ]
+    },
+    "relevance": {
+      "text": "知识库分析：这是自动化模型解释的桥接工具，可帮助筛查模型修改前后的相关计算连接。其归因分数不能单独证明某次更新更可靠，也没有建立解释驱动的 RSI 闭环。",
+      "evidence": []
+    }
+  },
+  "evidence": [
+    {
+      "id": "e1",
+      "page": 2,
+      "locator": "§3 · 电路与干预目标",
+      "quote": "small subgraphs"
+    },
+    {
+      "id": "e2",
+      "page": 3,
+      "locator": "§3.2—3.3 · 一阶近似与选边",
+      "quote": "two forward passes"
+    },
+    {
+      "id": "e3",
+      "page": 4,
+      "locator": "图2 · 三项电路恢复实验",
+      "quote": "AUC = 0.904"
+    },
+    {
+      "id": "e4",
+      "page": 5,
+      "locator": "§5.1 · 近似误差",
+      "quote": "R2 = 0.27"
+    },
+    {
+      "id": "e5",
+      "page": 6,
+      "locator": "§5.2 · 组合方法与评价局限",
+      "quote": "human-found circuits are imperfect"
+    }
+  ],
+  "related": [],
+  "review": {
+    "evidence_checked": true,
+    "compression_checked": true,
+    "reviewed_by": "Codex",
+    "prompt_version": "1.7",
+    "evidence_verified_sha256": "d2bb28ed2f9a93ecf3287885c3fe221cadeddaf526b89a5361a8043a8ee63f04"
+  },
+  "translations": {
+    "en": {
+      "source_sha256": "d2bb28ed2f9a93ecf3287885c3fe221cadeddaf526b89a5361a8043a8ee63f04",
+      "one_liner": "Ranks computational edges using activation differences and gradients, enabling fast circuit screening followed by more expensive intervention checks.",
+      "sections": {
+        "problem": "Identifying task-relevant circuits requires searching many attention-head and MLP connections. Re-running the model after each activation replacement is expensive; the authors investigate a faster gradient-based search.",
+        "gap": "ACDC prunes edges using repeated activation replacements. A cheaper approximation must be tested both against known circuits and against actual intervention effects; good recovery need not imply accurate edge-effect estimates.",
+        "method": "For clean and corrupted input pairs, EAP takes the inner product of the activation difference with the clean task-metric gradient. After averaging over examples, it retains the top-k edges by absolute attribution. This needs two forward passes and one backward pass. The experiments use task-specific metrics because KL divergence has zero gradient at the unperturbed model.",
+        "trace": "On the Docstring task, an embedding-origin edge changes the metric nonlinearly during interpolation, so a first-order estimate overstates its effect. This motivates EAP screening followed by ACDC on the smaller candidate graph.",
+        "inputs_outputs": "Inputs are a model with internal and gradient access, clean/corrupted prompt pairs and a task metric. Outputs are edge scores and thresholded or top-k subgraphs. The goal is task interpretation, not inference acceleration.",
+        "results": "Against known circuits, EAP obtains AUC 0.904 versus KL-ACDC’s 0.868 on IOI and 0.896 versus 0.849 on Greater-Than. On Docstring, its 0.976 is below KL-ACDC’s 0.982 and direct activation patching’s 0.978. Its advantage combines recovery quality with lower screening cost, rather than winning every task.",
+        "contributions": "The paper turns attribution patching into an all-edge screening algorithm, benchmarks three tasks and investigates approximation failures. Combining EAP with later ACDC refinement improves Docstring circuit recovery.",
+        "limitations": "On Docstring, approximate and actual intervention scores have R² 0.27; embedding edges can be particularly nonlinear. Results depend on metric choice and imperfect human circuit references, limiting evaluation on previously unexplained tasks.",
+        "cost": "Propagation count avoids scaling with one intervention per edge, but activation/gradient storage and dataset aggregation still cost resources. ACDC refinement adds further work. Direct edge patching was run only on the smaller Docstring model because it was too expensive for the GPT-2 Small tasks; no universal large-model memory or latency guarantee is supplied.",
+        "relevance": "Library analysis: This is a bridge tool for automated interpretability and screening connections before and after model changes. Attribution scores alone establish neither update reliability nor an explanation-driven RSI loop."
+      },
+      "locators": {
+        "e1": "§3 · Circuit and intervention objectives",
+        "e2": "§3.2–3.3 · First-order approximation and edge selection",
+        "e3": "Figure 2 · Three circuit-recovery experiments",
+        "e4": "§5.1 · Approximation error",
+        "e5": "§5.2 · Combined methods and evaluation limits"
+      },
+      "related": {}
+    }
+  }
+}

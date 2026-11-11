@@ -131,6 +131,30 @@ class PipelineTests(unittest.TestCase):
         with self.assertRaisesRegex(kb.Invalid, "扫描件"):
             kb.extract(buffer.getvalue())
 
+    def test_downloaded_pdf_is_cached_without_publishing_an_attachment(self):
+        binary = b"%PDF-1.4 downloaded test source"
+        with patch.object(kb, "download", return_value=(binary, "application/pdf")), \
+             patch.object(kb, "extract", return_value=("pdf", self.source["pages"])):
+            kb.prepare(argparse.Namespace(id="downloaded", url="https://example.org/paper.pdf", pdf=None, update=False), self.root)
+        self.assertEqual((self.root / "pdfs/downloaded.pdf").read_bytes(), binary)
+        source = kb.read(self.root / ".local/downloaded/source.json")
+        self.assertEqual(source["attachment"], "")
+        self.assertFalse((self.root / "attachments/downloaded.pdf").exists())
+        manifest = kb.read(self.root / "pdfs/manifest.json")
+        self.assertEqual(manifest["downloaded"]["sha256"], source["sha256"])
+        self.assertEqual(kb.records(self.root), [])
+
+    def test_cached_pdf_reuses_official_url_without_network_or_upload(self):
+        binary = b"%PDF-1.4 cached test source"
+        path = self.root / "cached.pdf"
+        path.write_bytes(binary)
+        with patch.object(kb, "download", side_effect=AssertionError("must not download again")), \
+             patch.object(kb, "extract", return_value=("pdf", self.source["pages"])):
+            kb.prepare(argparse.Namespace(id="cached", url="https://example.org/paper.pdf", pdf=None, cached_pdf=path, update=False), self.root)
+        source = kb.read(self.root / ".local/cached/source.json")
+        self.assertEqual(source["url"], "https://example.org/paper.pdf")
+        self.assertEqual(source["attachment"], "")
+
     def test_uploaded_pdf_archived_with_page_evidence(self):
         from pypdf import PdfWriter
         from pypdf.generic import DictionaryObject, NameObject, DecodedStreamObject
@@ -385,6 +409,33 @@ class PipelineTests(unittest.TestCase):
         self.assertFalse(any(axis["topic"] == "interest-exploration" for axis in cfg["axes"].values()))
 
     @unittest.skipUnless(shutil.which("node"), "需要 Node 验证读者页面筛选逻辑")
+    def test_unclassified_entries_remain_reachable_in_every_axis(self):
+        program = r"""
+const fs = require('node:fs'), vm = require('node:vm'), assert = require('node:assert/strict');
+const source = fs.readFileSync(process.argv[1], 'utf8').replace(/\ninit\(\);\s*$/, '');
+const {addPendingCategories} = vm.runInNewContext(source + '\n;({addPendingCategories})', {URLSearchParams, location:{search:''}});
+const cfg = JSON.parse(fs.readFileSync(0,'utf8'));
+const entries = [
+  {id:'reviewed', topics:['rsi'], subtopics:['rsi-task-code','rsi-cap-code','rsi-rec-background']},
+  {id:'reference', topics:['rsi','llm-interpretability'], subtopics:[]},
+  {id:'outside', topics:['interest-exploration'], subtopics:[]},
+];
+addPendingCategories(entries,cfg,'zh');
+assert.equal(entries[0].subtopics.length,3);
+assert.equal(entries[1].subtopics.length,6);
+assert.equal(entries[2].subtopics.length,0);
+for(const [id,axis] of Object.entries(cfg.axes))
+  for(const paper of entries.filter(p=>p.topics.includes(axis.topic)))
+    assert.ok(paper.subtopics.some(tag=>cfg.subtopics[tag].axis===id));
+assert.equal(cfg.subtopics['pending-rsi-task'].label,'待核对分类');
+assert.equal(cfg.subtopics['pending-rsi-task'].pending,true);
+assert.ok(!cfg.subtopics['pending-eval-domain']);
+addPendingCategories(entries,cfg,'zh');
+assert.equal(entries[1].subtopics.length,6);
+"""
+        subprocess.run(["node", "-e", program, str(kb.ROOT / "web/app.js")], input=json.dumps(kb.config()), text=True, capture_output=True, check=True)
+
+    @unittest.skipUnless(shutil.which("node"), "需要 Node 验证读者页面筛选逻辑")
     def test_reader_navigates_one_category_and_migrates_old_links(self):
         program = r"""
 const fs = require('node:fs'), vm = require('node:vm'), assert = require('node:assert/strict');
@@ -399,16 +450,15 @@ api.readView(new URLSearchParams('topic=rsi&q=optimizer'));
 assert.equal(api.getView().guideOpen,false);
 api.readView(new URLSearchParams('topic=interest-exploration'));
 assert.equal(api.getView().guideOpen,false);
-assert.equal(data.papers.filter(p=>api.matchesCategory(p,'interp-q-knowledge')).length,4);
-assert.equal(data.papers.filter(p=>api.matchesCategory(p,'interp-m-sae')).length,4);
+assert.ok(data.papers.filter(p=>api.matchesCategory(p,'interp-q-knowledge')).some(p=>p.id==='rome'));
+assert.ok(data.papers.filter(p=>api.matchesCategory(p,'interp-m-sae')).some(p=>p.id==='scaling-monosemanticity'));
 api.readView(new URLSearchParams('topic=agent-benchmarks&subtopic=domain-physics&subtopic=domain-earth'));
 assert.equal(api.getView().subtopic,'domain-earth');
-assert.equal(data.papers.filter(p=>api.matchesCategory(p)).length,1);
-assert.equal(data.papers.find(p=>api.matchesCategory(p)).id,'scienceagentbench');
+assert.ok(data.papers.filter(p=>api.matchesCategory(p)).some(p=>p.id==='scienceagentbench'));
+assert.ok(!data.papers.filter(p=>api.matchesCategory(p)).some(p=>p.id==='dont-pass-at-k'));
 api.readView(new URLSearchParams('topic=agent-benchmarks&subtopic=eval-metrics'));
 assert.equal(api.getView().subtopic,'eval-metrics');
-assert.equal(data.papers.filter(p=>api.matchesCategory(p)).length,1);
-assert.equal(data.papers.find(p=>api.matchesCategory(p)).id,'dont-pass-at-k');
+assert.ok(data.papers.filter(p=>api.matchesCategory(p)).some(p=>p.id==='dont-pass-at-k'));
 api.readView(new URLSearchParams('topic=rsi-interpretability&subtopic=interp-representations'));
 assert.equal(api.getView().topic,'llm-interpretability');
 assert.equal(api.getView().guideOpen,false);

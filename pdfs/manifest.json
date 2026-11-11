@@ -1,0 +1,418 @@
+{
+  "discoverybench": {
+    "url": "https://arxiv.org/pdf/2407.01725v1",
+    "sha256": "f3968dfa91b28f60e5956ce439e2bd39050148a866f3ef86850ba458fc437a3f",
+    "page_count": 21,
+    "file": "pdfs/discoverybench.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2407.01725v1"
+  },
+  "scienceworld": {
+    "url": "https://arxiv.org/pdf/2203.07540v2",
+    "sha256": "ab64687178194d265b665a7b020cefd4a7087319977ebd469d367e381588efbd",
+    "page_count": 20,
+    "file": "pdfs/scienceworld.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2203.07540v2"
+  },
+  "benchguard": {
+    "url": "https://arxiv.org/pdf/2604.24955v2",
+    "sha256": "9dcc2352832e8a3998341dfc7497972292f00790ae2c14c8b0f7202eb1d52b33",
+    "page_count": 24,
+    "file": "pdfs/benchguard.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2604.24955v2"
+  },
+  "mlagentbench": {
+    "url": "https://arxiv.org/pdf/2310.03302v2",
+    "sha256": "09837c2813668ee6dcb00abdf22b6293a9ad6ef4c135774bc504e233db017702",
+    "page_count": 39,
+    "file": "pdfs/mlagentbench.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2310.03302v2"
+  },
+  "mle-bench": {
+    "url": "https://arxiv.org/pdf/2410.07095v6",
+    "sha256": "1dab9a33edeab25ea359c4d6857d03512ccd47ed5782631031cfe8dcbebe7988",
+    "page_count": 29,
+    "file": "pdfs/mle-bench.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2410.07095v6"
+  },
+  "core-bench": {
+    "url": "https://arxiv.org/pdf/2409.11363v2",
+    "sha256": "1d1fbe8a3cf472fc468495e6a3bcd6b90224ba1eae3dac8d8174f98d666c3d76",
+    "page_count": 30,
+    "file": "pdfs/core-bench.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2409.11363v2"
+  },
+  "lab-bench": {
+    "url": "https://arxiv.org/pdf/2407.10362v3",
+    "sha256": "7c781a703287616d6561e0ce50aed494946c7609a5a1b5985fb7849ce9e884dd",
+    "page_count": 40,
+    "file": "pdfs/lab-bench.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2407.10362v3"
+  },
+  "blade": {
+    "url": "https://arxiv.org/pdf/2408.09667v3",
+    "sha256": "514f561a3c084aa75d104908fed70a913def780668e50d38a94c0569833ba27c",
+    "page_count": 36,
+    "file": "pdfs/blade.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2408.09667v3"
+  },
+  "dsbench": {
+    "url": "https://arxiv.org/pdf/2409.07703v3",
+    "sha256": "650a51d6ac3063592ca352fc0b469f7da1b5233a888f774cfef109ca1024125a",
+    "page_count": 56,
+    "file": "pdfs/dsbench.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2409.07703v3"
+  },
+  "infiagent-dabench": {
+    "url": "https://arxiv.org/pdf/2401.05507v3",
+    "sha256": "7d3cf78696702ab54611a49a1d0299bf29922edb187d3b1fd2e659eac45d2da8",
+    "page_count": 27,
+    "file": "pdfs/infiagent-dabench.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2401.05507v3"
+  },
+  "datascibench": {
+    "url": "https://arxiv.org/pdf/2502.13897v1",
+    "sha256": "f45cd799a6379f74380775ba637799cda27a44d096b2075709f21590cb1bf722",
+    "page_count": 40,
+    "file": "pdfs/datascibench.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2502.13897v1"
+  },
+  "mlr-bench": {
+    "url": "https://arxiv.org/pdf/2505.19955v3",
+    "sha256": "593647fa85625d426c3a4b9745ec299284da802bfdca72414f1eec96aeb1a87d",
+    "page_count": 49,
+    "file": "pdfs/mlr-bench.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2505.19955v3"
+  },
+  "paperbench": {
+    "url": "https://arxiv.org/pdf/2504.01848v3",
+    "sha256": "2f58f1a6581af9d99432422dccf3cf61f5c263377c1e4550e7333c4a22d7184d",
+    "page_count": 30,
+    "file": "pdfs/paperbench.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2504.01848v3"
+  },
+  "scicode": {
+    "url": "https://arxiv.org/pdf/2407.13168v1",
+    "sha256": "29d33f99c87112b3f27eaebe134733d2afcf67bfd3be81df7fa5c9457e252974",
+    "page_count": 25,
+    "file": "pdfs/scicode.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2407.13168v1"
+  },
+  "biocoder": {
+    "url": "https://arxiv.org/pdf/2308.16458v5",
+    "sha256": "c10e1ca00454f617439153c6646eb406ea01ffc3bf14fef420a6968223858b1e",
+    "page_count": 81,
+    "file": "pdfs/biocoder.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2308.16458v5"
+  },
+  "dsgym": {
+    "url": "https://arxiv.org/pdf/2601.16344v1",
+    "sha256": "f7952e98bfbf69cd3900103013fe7b2e8ac4bdc1a5b7af8041009dfa117cfae1",
+    "page_count": 37,
+    "file": "pdfs/dsgym.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2601.16344v1"
+  },
+  "bixbench": {
+    "url": "https://arxiv.org/pdf/2503.00096v3",
+    "sha256": "8f651cc1026b94790dbbdc10afebc25d94a49e90de6ad0e55193879cd1de2b8b",
+    "page_count": 16,
+    "file": "pdfs/bixbench.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2503.00096v3"
+  },
+  "promptbreeder": {
+    "url": "https://arxiv.org/pdf/2309.16797v1",
+    "sha256": "0e5b44b77d345581509bb58b009fa7fef9928bf8c090b2a056e8916f25d974a0",
+    "page_count": 64,
+    "file": "pdfs/promptbreeder.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2309.16797v1"
+  },
+  "hyperagents": {
+    "url": "https://arxiv.org/pdf/2603.19461v2",
+    "sha256": "ad3e7ec49f316e0feb00e9994785b618308e47ea5c3ed53b90cd4642d3af2619",
+    "page_count": 63,
+    "file": "pdfs/hyperagents.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2603.19461v2"
+  },
+  "sica": {
+    "url": "https://arxiv.org/pdf/2504.15228v2",
+    "sha256": "97781b82ed43a330f491a35f772360bc3a9e7b47c5817e8889a0e1fec1115a15",
+    "page_count": 18,
+    "file": "pdfs/sica.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2504.15228v2"
+  },
+  "adas": {
+    "url": "https://arxiv.org/pdf/2408.08435v2",
+    "sha256": "32eb1c1a6888e35fae0f618e33c58698b54d9c49bc063fef91ee591719fca376",
+    "page_count": 34,
+    "file": "pdfs/adas.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2408.08435v2"
+  },
+  "self-refine": {
+    "url": "https://arxiv.org/pdf/2303.17651v2",
+    "sha256": "81e44592314d80218ad108d3490cd0b84ba5962fefd5c84819987afd77a57087",
+    "page_count": 54,
+    "file": "pdfs/self-refine.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2303.17651v2"
+  },
+  "reflexion": {
+    "url": "https://arxiv.org/pdf/2303.11366v4",
+    "sha256": "6059b6f89fea9959bd3dab553fbb97756a3dfb1b15e3cbab2fbf3ab6664333bd",
+    "page_count": 19,
+    "file": "pdfs/reflexion.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2303.11366v4"
+  },
+  "star": {
+    "url": "https://arxiv.org/pdf/2203.14465v2",
+    "sha256": "d22a472fce2631755849988a78d78ad6d80999166eb4bac4f5315c97dfdf6d9a",
+    "page_count": 30,
+    "file": "pdfs/star.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2203.14465v2"
+  },
+  "self-rewarding": {
+    "url": "https://arxiv.org/pdf/2401.10020v3",
+    "sha256": "61bed62389be6445c7a8dc6608641e86a3cc1a4d9b0b19a1f8645fc425997a96",
+    "page_count": 23,
+    "file": "pdfs/self-rewarding.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2401.10020v3"
+  },
+  "seal": {
+    "url": "https://arxiv.org/pdf/2506.10943v2",
+    "sha256": "3abf83bcf05862d5e6e72078dc0e47ebfcf2e72866e9fdfe1dbc3663c72a9dc6",
+    "page_count": 25,
+    "file": "pdfs/seal.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2506.10943v2"
+  },
+  "textgrad": {
+    "url": "https://arxiv.org/pdf/2406.07496v1",
+    "sha256": "9cbfd5c78ad69e2a8363e76d6774f3e6b5e68f46b409d8b560e98276a985b428",
+    "page_count": 41,
+    "file": "pdfs/textgrad.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2406.07496v1"
+  },
+  "gepa": {
+    "url": "https://arxiv.org/pdf/2507.19457v2",
+    "sha256": "ab3a5139bac83f192ad67529368d77b84b0d807e95a8e4fd0daa8d45fd046bec",
+    "page_count": 96,
+    "file": "pdfs/gepa.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2507.19457v2"
+  },
+  "voyager": {
+    "url": "https://arxiv.org/pdf/2305.16291v2",
+    "sha256": "769a4e33ddeeb73870849232eece49afe882c2d146362e33917ccb432ba0efb8",
+    "page_count": 42,
+    "file": "pdfs/voyager.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2305.16291v2"
+  },
+  "absolute-zero": {
+    "url": "https://arxiv.org/pdf/2505.03335v3",
+    "sha256": "6217ccee964c70e42fba116004ae23400c11d2ecc687c37aed062c3689098e18",
+    "page_count": 52,
+    "file": "pdfs/absolute-zero.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2505.03335v3"
+  },
+  "dspy": {
+    "url": "https://arxiv.org/pdf/2310.03714v1",
+    "sha256": "5309836325c3a580b6c176242f49f21ca40e413b0acd514e74b67e16bb1b56bc",
+    "page_count": 32,
+    "file": "pdfs/dspy.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2310.03714v1"
+  },
+  "predict-before-modify": {
+    "url": "https://arxiv.org/pdf/2610.13991v2",
+    "sha256": "57fe3376ad9ba58b9b69d88891eaf18648b7f0ef0f8ae89b3b532643aac98011",
+    "page_count": 24,
+    "file": "pdfs/predict-before-modify.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2610.13991v2"
+  },
+  "toy-superposition": {
+    "url": "https://arxiv.org/pdf/2209.10652",
+    "sha256": "0acd3e05e40c1b703be3aed15c8cdbd5713a1840df9738b495d2bde2e8eb1e3a",
+    "page_count": 62,
+    "file": "pdfs/toy-superposition.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2209.10652"
+  },
+  "acdc": {
+    "url": "https://arxiv.org/pdf/2304.14997v4",
+    "sha256": "821191725252e8a2dc666c68a3e5dd2b684900fb2c80de041d22f17cf2956010",
+    "page_count": 35,
+    "file": "pdfs/acdc.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2304.14997v4"
+  },
+  "attribution-patching": {
+    "url": "https://arxiv.org/pdf/2310.10348v2",
+    "sha256": "d2bb28ed2f9a93ecf3287885c3fe221cadeddaf526b89a5361a8043a8ee63f04",
+    "page_count": 12,
+    "file": "pdfs/attribution-patching.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2310.10348v2"
+  },
+  "representation-engineering": {
+    "url": "https://arxiv.org/pdf/2310.01405v4",
+    "sha256": "5cd54799f795433bd6652231e0d113dead887f21c798148619fc0ce6f0fd589f",
+    "page_count": 56,
+    "file": "pdfs/representation-engineering.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2310.01405v4"
+  },
+  "contrastive-activation-addition": {
+    "url": "https://arxiv.org/pdf/2312.06681v4",
+    "sha256": "1394cef5a24c0c7e5b8bea7d66ad398bae5d4d222cefe060cdc99b50bd66e798",
+    "page_count": 19,
+    "file": "pdfs/contrastive-activation-addition.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2312.06681v4"
+  },
+  "latent-knowledge": {
+    "url": "https://arxiv.org/pdf/2212.03827v2",
+    "sha256": "20062bccb4769416c800ede71f4660f3fe2ad9921a7e1964604cd1048efd3d7a",
+    "page_count": 28,
+    "file": "pdfs/latent-knowledge.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2212.03827v2"
+  },
+  "measuring-cot-faithfulness": {
+    "url": "https://arxiv.org/pdf/2307.13702v1",
+    "sha256": "98bd5d514a25af073c382e87e9b230d81c74f024db5c8b5388769dc8e4dcca2c",
+    "page_count": 14,
+    "file": "pdfs/measuring-cot-faithfulness.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2307.13702v1"
+  },
+  "refusal-direction": {
+    "url": "https://arxiv.org/pdf/2406.11717v3",
+    "sha256": "d0d5ee986084d6c77b0d73a0568e607afcb0c0a124fbbaae5c831c346b2a0780",
+    "page_count": 40,
+    "file": "pdfs/refusal-direction.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2406.11717v3"
+  },
+  "funsearch": {
+    "url": "https://www.nature.com/articles/s41586-023-06924-6.pdf",
+    "sha256": "ed64cc4af49a8010ec0313c166b622e75a1c1d548b71d5a582f934d6ed0df635",
+    "page_count": 14,
+    "file": "pdfs/funsearch.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://www.nature.com/articles/s41586-023-06924-6.pdf"
+  },
+  "dont-pass-at-k": {
+    "url": "https://arxiv.org/pdf/2510.04265v1",
+    "sha256": "42cee1201662593f1244ffeef66a70076d12e294d61356f3f25f737f100b26f2",
+    "page_count": 27,
+    "file": "pdfs/dont-pass-at-k.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2510.04265v1"
+  },
+  "introspection-adapters": {
+    "url": "https://arxiv.org/pdf/2604.16812v2",
+    "sha256": "133b6399d6481f3def6c3f40dc09e059becf907e41c738fbb71f561a7105519a",
+    "page_count": 32,
+    "file": "pdfs/introspection-adapters.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2604.16812v2"
+  },
+  "naturebench": {
+    "url": "https://arxiv.org/pdf/2606.24530v1",
+    "sha256": "3d7f1d168d55aa1d2e1edbd768192254d00719fed9a01b8308da4db411ec09bd",
+    "page_count": 34,
+    "file": "pdfs/naturebench.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2606.24530v1"
+  },
+  "scienceagentbench": {
+    "url": "https://arxiv.org/pdf/2410.05080v1",
+    "sha256": "5b4b8be139d6f88d53acaf89b18938d0c1749fc20f5d50db6989324772d993bc",
+    "page_count": 55,
+    "file": "pdfs/scienceagentbench.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2410.05080v1"
+  },
+  "rome": {
+    "url": "https://arxiv.org/pdf/2202.05262v5",
+    "sha256": "d7c17f896cca512fb258261421b073baa6f4e6e44b6bb7ada5c90185f423054a",
+    "page_count": 35,
+    "file": "pdfs/rome.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2202.05262v5"
+  },
+  "saescientist-bench": {
+    "url": "https://arxiv.org/pdf/2609.09113v2",
+    "sha256": "32984f5141b2746ff16d4424783947bcfa002b279bcaeffcd356ef83846b9bd2",
+    "page_count": 41,
+    "file": "pdfs/saescientist-bench.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2609.09113v2"
+  },
+  "alphaevolve": {
+    "url": "https://arxiv.org/pdf/2506.13131v1",
+    "sha256": "f092c8cbd65da89951ee6496374da9a54963f9035758c25ac6e4625f506df9ad",
+    "page_count": 44,
+    "file": "pdfs/alphaevolve.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2506.13131v1"
+  },
+  "cot-faithfulness": {
+    "url": "https://arxiv.org/pdf/2505.05410v1",
+    "sha256": "546afa672e0c50d50b7c86b7dbacb6f51d200be74f33577012d98cb18eee7600",
+    "page_count": 18,
+    "file": "pdfs/cot-faithfulness.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2505.05410v1"
+  },
+  "aide-squared": {
+    "url": "https://arxiv.org/pdf/2609.26457v1",
+    "sha256": "8ba79e0ad1028e43b0a47ee06162c9b3996ec90f7990b7ec35993444e505409b",
+    "page_count": 28,
+    "file": "pdfs/aide-squared.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2609.26457v1"
+  },
+  "stop": {
+    "url": "https://arxiv.org/pdf/2310.02304v3",
+    "sha256": "f1eb66d65763d84367fd380625cf86d66b5dd8e319c46259e7d0aabba9b608e2",
+    "page_count": 46,
+    "file": "pdfs/stop.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2310.02304v3"
+  },
+  "darwin-godel-machine": {
+    "url": "https://arxiv.org/pdf/2505.22954v3",
+    "sha256": "13ff4abe0c7ad4a7dd3b4876d19a8bf940e39e70dabbf06065aa774a6c3457de",
+    "page_count": 72,
+    "file": "pdfs/darwin-godel-machine.pdf",
+    "downloaded_at": "2026-11-11",
+    "source_url": "https://arxiv.org/abs/2505.22954v3"
+  }
+}

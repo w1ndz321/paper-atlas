@@ -1,0 +1,191 @@
+{
+  "schema_version": 1,
+  "id": "discoverybench",
+  "origin": "user",
+  "title": "DiscoveryBench: Towards Data-Driven Discovery with Large Language Models",
+  "authors": [
+    "Bodhisattwa Prasad Majumder",
+    "Harshit Surana",
+    "Dhruv Agarwal",
+    "Bhavana Dalvi Mishra",
+    "Abhijeetsingh Meena",
+    "Aryan Prakhar",
+    "Tirth Vora",
+    "Tushar Khot",
+    "Ashish Sabharwal",
+    "Peter Clark"
+  ],
+  "year": 2024,
+  "paper_type": "benchmark",
+  "topics": [
+    "agent-benchmarks"
+  ],
+  "tags": [],
+  "one_liner": "让智能体从数据中得出研究结论，再按结论的适用范围、变量和关系逐项评分；不同分析路线可以通向同一假设。",
+  "subtopics": [
+    "domain-biology",
+    "eval-tasks",
+    "eval-process",
+    "activity-data"
+  ],
+  "collections": [],
+  "classification_reason": "任务覆盖社会学、生物学、经济学等六个领域，以数据处理与统计建模形成自然语言发现；按最终假设的语义维度评分，不要求唯一分析路线。生物领域标签只表示其中一部分实际任务。",
+  "added_at": "2026-11-11",
+  "updated_at": "2026-11-11",
+  "source": {
+    "url": "https://arxiv.org/abs/2407.01725v1",
+    "sha256": "f3968dfa91b28f60e5956ce439e2bd39050148a866f3ef86850ba458fc437a3f",
+    "format": "pdf",
+    "page_count": 21,
+    "attachment": ""
+  },
+  "read_scope": "full",
+  "sections": {
+    "problem": {
+      "text": "给定真实数据、变量说明和研究问题，智能体能否自行选分析方法，得出数据支持的发现？作者把目标放在“形成正确研究结论”，而不是生成能运行的代码或复述已知常识。",
+      "evidence": [
+        "e1"
+      ]
+    },
+    "gap": {
+      "text": "AutoML 主要优化预测模型，常见统计问答又往往有预设的数值答案。这两类设置都较难覆盖研究中的语义理解、数据准备和分析选择。DiscoveryBench 允许开放的自然语言答案，但仍将其与一个目标假设比较。",
+      "evidence": [
+        "e1",
+        "e2"
+      ]
+    },
+    "method": {
+      "text": "作者先复现公开论文的分析，整理数据、研究目标、目标假设与参考流程，再合成可控制难度的补充任务。评分器使用 GPT-4-0125-preview，把预测和标答分别拆成子假设；先匹配适用情境，再比较变量 F1 与关系得分。HMS 是情境 F1 乘以匹配子假设中“变量 F1 × 关系得分”的平均值；关系完全一致、较宽泛和不一致分别得 100、50、0 分。",
+      "evidence": [
+        "e1",
+        "e2"
+      ]
+    },
+    "trace": {
+      "text": "图1询问城市土地利用如何影响加泰罗尼亚外来植物入侵。智能体需要把问题里的土地利用对应到 habitat type，筛选城市环境，分析不同引入途径与入侵情况。如果它虽然找对“城市”这一情境，却选错植物类别、甚至把关系方向说反，情境部分可以匹配，变量与关系部分仍会扣分。图中是一条用于说明评分的示例，不是独立的模型总体成绩。",
+      "evidence": [
+        "e5",
+        "e2"
+      ]
+    },
+    "inputs_outputs": {
+      "text": "输入包含一份或多份数据文件、数据及列说明、自然语言研究目标，可额外提供领域知识或工作流提示。输出是说明情境、变量与关系的自然语言假设；分析流程可以辅助评分，但不要求复现唯一程序。真实部分有 264 个任务，训练和测试分别为 25、239 个；另有 903 个合成任务。",
+      "evidence": [
+        "e1",
+        "e2",
+        "e6"
+      ]
+    },
+    "results": {
+      "text": "在真实任务上，图4中的 GPT-4o CodeGen 得到 15.5 HMS，GPT-4-0125-preview CodeGen 为 16.3。给 GPT-4o 的 Reflexion 提供标答导出的 oracle HMS 反馈，并最多尝试三次后，得分为 24.5；因此“约25%”不能描述成普通无标答反馈智能体的成功率。合成任务上 Llama-3-70B 的 oracle Reflexion 为 23.2。较长流程、领域专门方法和复杂数据准备仍明显困难。",
+      "evidence": [
+        "e3"
+      ]
+    },
+    "contributions": {
+      "text": "这项工作把开放发现的答案拆成可比较的语义维度，并同时提供真实研究任务与可控制难度的合成任务。它让评分能够指出是情境、变量还是关系没对上；参考流程用于提供信息，而不是把某一种分析实现直接当作唯一正确路线。",
+      "evidence": [
+        "e1",
+        "e2"
+      ]
+    },
+    "limitations": {
+      "text": "任务仍围绕预先构建的目标假设，作者还要求一个研究目标导向一个目标答案；这不等于已经覆盖真实数据可能支持的所有合理发现。模型评审的可靠性也会影响 HMS。附录明确排除了部分预测、模拟及专门建模任务，不处理超大规模和复杂多模态数据，尚未解决发现是否稳健、是否来自 p-hacking 的问题。",
+      "evidence": [
+        "e4",
+        "e2"
+      ]
+    },
+    "cost": {
+      "text": "真实任务的复现和核验依赖人工与领域知识，个别数据集的复现可达 90 人时。运行智能体需要模型 API、Python 分析环境及数据依赖，评分本身还要调用 GPT-4。oracle Reflexion 增加了最多三次尝试，比较时应把额外生成和评分成本计入；论文没有给出一个可通用于全部任务的精确复现费用。",
+      "evidence": [
+        "e1",
+        "e3"
+      ]
+    },
+    "relevance": {
+      "text": "知识库分析：这是科研智能体评测与开放数据分析的直接相关工作。它容许不同流程通向同一结论，却仍依据参考假设判断答案，适合与 BLADE 的多份专家分析、ScienceAgentBench 的程序结果校验相比较。它不是对所有统计分析选择的独立有效性判定。",
+      "evidence": []
+    }
+  },
+  "evidence": [
+    {
+      "id": "e1",
+      "page": 4,
+      "locator": "§4 · 任务与数据构建",
+      "quote": "six scientific domains"
+    },
+    {
+      "id": "e2",
+      "page": 7,
+      "locator": "§4.3 · HMS 与结果评分",
+      "quote": "outcome-based approach"
+    },
+    {
+      "id": "e3",
+      "page": 8,
+      "locator": "图4 · 模型与反馈条件",
+      "quote": "Reflexion (Oracle)"
+    },
+    {
+      "id": "e4",
+      "page": 13,
+      "locator": "附录B · 任务覆盖与稳健性边界",
+      "quote": "p-hacking remains unaddressed"
+    },
+    {
+      "id": "e5",
+      "page": 2,
+      "locator": "图1 · 加泰罗尼亚植物入侵案例",
+      "quote": "urban habitat type"
+    },
+    {
+      "id": "e6",
+      "page": 15,
+      "locator": "附录F.2 · 真实任务划分",
+      "quote": "239 queries"
+    }
+  ],
+  "related": [
+    {
+      "id": "scienceagentbench",
+      "reason": "两者均由科学研究提取数据任务；DiscoveryBench 主要比较自然语言假设，ScienceAgentBench 检查交付程序与任务结果。"
+    }
+  ],
+  "review": {
+    "evidence_checked": true,
+    "compression_checked": true,
+    "reviewed_by": "Codex",
+    "prompt_version": "1.7",
+    "evidence_verified_sha256": "f3968dfa91b28f60e5956ce439e2bd39050148a866f3ef86850ba458fc437a3f"
+  },
+  "translations": {
+    "en": {
+      "source_sha256": "f3968dfa91b28f60e5956ce439e2bd39050148a866f3ef86850ba458fc437a3f",
+      "one_liner": "Tests data-driven discovery by comparing the context, variables and relationships in an agent’s conclusion, allowing different analytical routes to the same hypothesis.",
+      "sections": {
+        "problem": "Can an agent choose an analysis and derive a supported finding from data, metadata and a research goal? The target is a scientific conclusion, rather than merely runnable code or recalled knowledge.",
+        "gap": "AutoML centers on predictive performance, while many statistical question-answering tasks use fixed numerical targets. These settings underrepresent semantic interpretation, preparation and analytical choices. DiscoveryBench uses open-ended answers but still compares them with a target hypothesis.",
+        "method": "The authors reconstruct analyses from published work and add synthetic tasks with controlled difficulty. GPT-4-0125-preview decomposes answers and references into sub-hypotheses, matches contexts, then compares variables and relationships. HMS multiplies context F1 by the mean product of variable F1 and relationship score over matched sub-hypotheses. Relationship matches receive 100, 50 or 0 for exact, broader or incompatible claims.",
+        "trace": "Figure 1 asks how urban land use affects introduced plants in Catalonia. An agent maps land use to habitat type, selects urban observations and analyzes introduction pathways. An answer may identify the correct context yet name the wrong plant groups or reverse the relationship, losing variable and relationship credit. The figure illustrates scoring rather than an aggregate model result.",
+        "inputs_outputs": "Inputs comprise one or more datasets, dataset and column descriptions, and a research goal, with optional domain or workflow hints. The output is a natural-language hypothesis; a workflow can support evaluation without prescribing one implementation. There are 264 real tasks, split into 25 training and 239 test queries, plus 903 synthetic tasks.",
+        "results": "On real tasks, Figure 4 reports HMS of 15.5 for GPT-4o CodeGen and 16.3 for GPT-4-0125-preview CodeGen. GPT-4o Reflexion reaches 24.5 with reference-derived oracle HMS feedback and at most three trials. Thus “about 25%” is not an ordinary agent’s binary success rate. Llama-3-70B oracle Reflexion scores 23.2 on synthetic tasks. Long workflows and specialized analyses remain difficult.",
+        "contributions": "The work combines real discovery tasks, controlled synthetic tasks and a semantic decomposition of scientific conclusions. The score distinguishes context, variable and relationship mismatches. Reference workflows provide information without making a particular analytical implementation the only acceptable route.",
+        "limitations": "Tasks still center on constructed target hypotheses, with each goal intended to identify one answer; this does not enumerate every defensible discovery. HMS also depends on model judgments. The appendix excludes some forecasting, simulation and specialized modeling tasks, does not cover massive or complex multimodal data, and leaves robustness and p-hacking unresolved.",
+        "cost": "Creating real tasks requires substantial manual replication and domain knowledge, reaching 90 person-hours for some datasets. Reproduction needs model access, Python dependencies, datasets and GPT-4 evaluation calls. Oracle Reflexion adds up to three attempts, so its extra generation and evaluation costs matter. The paper does not provide a universal per-task reproduction cost.",
+        "relevance": "Library analysis: This directly concerns scientific-agent evaluation and open-ended data analysis. It permits multiple workflows leading to a conclusion while retaining a reference hypothesis, complementing BLADE’s expert-analysis references and ScienceAgentBench’s program-output checks. It is not a general validity checker for all statistical choices."
+      },
+      "locators": {
+        "e1": "§4 · Task and dataset construction",
+        "e2": "§4.3 · HMS and outcome evaluation",
+        "e3": "Figure 4 · Models and feedback conditions",
+        "e4": "Appendix B · Coverage and robustness limits",
+        "e5": "Figure 1 · Plant invasion in Catalonia",
+        "e6": "Appendix F.2 · Real-task splits"
+      },
+      "related": {
+        "scienceagentbench": "Both derive data tasks from scientific work, but DiscoveryBench compares natural-language hypotheses while ScienceAgentBench checks programs and task outputs."
+      }
+    }
+  }
+}

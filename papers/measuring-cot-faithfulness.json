@@ -1,0 +1,201 @@
+{
+  "schema_version": 1,
+  "id": "measuring-cot-faithfulness",
+  "origin": "user",
+  "title": "Measuring Faithfulness in Chain-of-Thought Reasoning",
+  "authors": [
+    "Tamera Lanham",
+    "Anna Chen",
+    "Ansh Radhakrishnan",
+    "Benoit Steiner",
+    "Carson Denison",
+    "Danny Hernandez",
+    "Dustin Li",
+    "Esin Durmus",
+    "Evan Hubinger",
+    "Jackson Kernion",
+    "Kamile Lukosiute",
+    "Karina Nguyen",
+    "Newton Cheng",
+    "Nicholas Joseph",
+    "Nicholas Schiefer",
+    "Oliver Rausch",
+    "Robin Larson",
+    "Sam McCandlish",
+    "Sandipan Kundu",
+    "Saurav Kadavath",
+    "Shannon Yang",
+    "Thomas Henighan",
+    "Timothy Maxwell",
+    "Timothy Telleen-Lawton",
+    "Tristan Hume",
+    "Zac Hatfield-Dodds",
+    "Jared Kaplan",
+    "Jan Brauner",
+    "Samuel R. Bowman",
+    "Ethan Perez"
+  ],
+  "year": 2023,
+  "paper_type": "analysis",
+  "topics": [
+    "llm-interpretability"
+  ],
+  "tags": [],
+  "one_liner": "截断或改错模型写出的思维链，检查答案是否随之变化，并区分推理有用、模型依赖推理和解释忠实这几件事。",
+  "subtopics": [
+    "interp-q-faithfulness",
+    "interp-q-reasoning",
+    "interp-reasoning",
+    "interp-m-behavior"
+  ],
+  "collections": [
+    "interpretability-rsi"
+  ],
+  "classification_reason": "通过截断、改错、改写和填充模型已生成的思维链，观察最终答案依赖，不声称直接读取了模型内部真实推理。",
+  "added_at": "2026-11-11",
+  "updated_at": "2026-11-11",
+  "source": {
+    "url": "https://arxiv.org/abs/2307.13702v1",
+    "sha256": "98bd5d514a25af073c382e87e9b230d81c74f024db5c8b5388769dc8e4dcca2c",
+    "format": "pdf",
+    "page_count": 14,
+    "attachment": ""
+  },
+  "read_scope": "full",
+  "sections": {
+    "problem": {
+      "text": "模型先写推理、再输出答案，并不证明答案真的由这些文字得来。作者检查思维链是否只是事后解释，或者是否依赖读者看不懂的措辞信息，而不是把解题准确率提升直接当作解释可信。",
+      "evidence": [
+        "e1",
+        "e3"
+      ]
+    },
+    "gap": {
+      "text": "已有工作能构造不忠实的例子，但还需要比较普通任务、不同模型和不同干预。论文采用多项互补测试，分别排查某类失败；通过其中一项不等于获得完整忠实性证明。",
+      "evidence": [
+        "e1",
+        "e5"
+      ]
+    },
+    "method": {
+      "text": "对同一问题生成思维链，再分别提前截断、在某一步加入错误、换成无信息省略号，或保持含义不变地改写。对前三类干预观察答案如何变化，对改写检查准确率是否保留。截断与加错曲线上方的面积 AOC 越大，表示模型越不容易保持原答案；主实验用经 RLHF 的175B模型，错误句由未做 RLHF 的预训练模型生成。",
+      "evidence": [
+        "e1",
+        "e2",
+        "e3"
+      ]
+    },
+    "trace": {
+      "text": "AQuA 的电视题需要计算30%的人群中的24%，正确值为7.2%。作者把中间24%改成20%，再让模型续写；示例得到6%的推算，最后还选了最接近的错误选项。这个受控改变用于检查模型是否受推理影响，不是说加入错误后答错就证明原推理完整忠实。",
+      "evidence": [
+        "e3"
+      ]
+    },
+    "inputs_outputs": {
+      "text": "输入是八类选择题、逐句拆开的模型推理和用于干预的生成器；还另有可控制难度的加法题。每道题采100条推理，温度0.8、nucleus p=0.95，之后通过答案选项的 token 概率评价。输出是准确率、与原答案相同的比例，以及加错和截断的 AOC。",
+      "evidence": [
+        "e1",
+        "e2",
+        "e3"
+      ]
+    },
+    "results": {
+      "text": "表2中 AQuA 的提前回答 AOC 为0.44，加错 AOC 为0.52，准确率由约28%到43%；ARC Easy 的相应 AOC 仅0.02、0.07，准确率增益约0.77个百分点。HellaSwag 使用 CoT 的准确率反而下降约4.69个百分点，却不属于最不依赖推理的任务。13B模型在八项中的七项比175B更常因CoT改变答案。",
+      "evidence": [
+        "e3",
+        "e4"
+      ]
+    },
+    "contributions": {
+      "text": "论文将思维链可靠性拆成可干预的问题，而非只比较有无 CoT 的成绩。空白填充没有带来同样收益，改写多数保留原有准确率；这些结果削弱了“只靠额外 token 计算”或“特定措辞藏信息”两种解释，并显示任务与模型能力需要一起考虑。",
+      "evidence": [
+        "e2",
+        "e3",
+        "e4"
+      ]
+    },
+    "limitations": {
+      "text": "研究没有独立观察内部真实推理，所以“答案受干预影响”只是证据之一。模型也可能修复错误、忽略不合理干预，或采用论文没覆盖的机制。主要对象是当时的 RLHF 助手，不能将规模趋势直接套到所有现代推理模型，也不能把对措辞隐写未发现证据说成不可能存在隐写。",
+      "evidence": [
+        "e5"
+      ]
+    },
+    "cost": {
+      "text": "每题100条推理，再对多个截断位置、错误位置与改写版本继续生成，代价高于普通一次答题。需要模型采样和答案 token 概率；规模实验为节省计算，使用有无 CoT 的答案改变比例替代完整干预组。论文没有提供可通用到其他 API 的固定费用。",
+      "evidence": [
+        "e2",
+        "e4"
+      ]
+    },
+    "relevance": {
+      "text": "知识库分析：它是使用反思或推理文字诊断智能体时的重要边界材料。文字解释能提升成绩、影响后续答案和忠实反映内部过程是不同主张；本文没有验证解释驱动的 RSI。",
+      "evidence": []
+    }
+  },
+  "evidence": [
+    {
+      "id": "e1",
+      "page": 2,
+      "locator": "§2.1 · 175B 模型与任务",
+      "quote": "175B-parameter"
+    },
+    {
+      "id": "e2",
+      "page": 3,
+      "locator": "§2.1 · 采样与实验流程",
+      "quote": "100 reasoning samples"
+    },
+    {
+      "id": "e3",
+      "page": 5,
+      "locator": "表2 · 依赖程度与准确率",
+      "quote": "Accuracy difference"
+    },
+    {
+      "id": "e4",
+      "page": 7,
+      "locator": "§3.1 · 不同规模模型",
+      "quote": "7/8 tasks"
+    },
+    {
+      "id": "e5",
+      "page": 9,
+      "locator": "§5 · 真实推理不可直接观测",
+      "quote": "we do not have"
+    }
+  ],
+  "related": [],
+  "review": {
+    "evidence_checked": true,
+    "compression_checked": true,
+    "reviewed_by": "Codex",
+    "prompt_version": "1.7",
+    "evidence_verified_sha256": "98bd5d514a25af073c382e87e9b230d81c74f024db5c8b5388769dc8e4dcca2c"
+  },
+  "translations": {
+    "en": {
+      "source_sha256": "98bd5d514a25af073c382e87e9b230d81c74f024db5c8b5388769dc8e4dcca2c",
+      "one_liner": "Intervenes on generated chains of thought to test answer dependence, separating usefulness, reliance and faithful explanation.",
+      "sections": {
+        "problem": "Generating reasoning before an answer does not establish that the answer follows from it. The authors test post-hoc reasoning and possible hidden information in wording, rather than treating accuracy gains as evidence of faithful explanation.",
+        "gap": "Constructed failures motivate broader comparisons across ordinary tasks, models and interventions. Multiple complementary tests rule out particular failure modes; passing one is not a complete certificate of faithfulness.",
+        "method": "The study truncates reasoning, inserts a mistake, substitutes filler periods or paraphrases while preserving meaning. It measures answer changes and retained accuracy. Larger area over the truncation/mistake curves indicates less persistence of the original answer. Main experiments use a 175B RLHF assistant, while a pretrained model generates mistakes.",
+        "trace": "An AQuA example asks for 24% of a 30% population share, or 7.2%. Replacing 24% with 20% leads the continued reasoning to 6% and then a nearby incorrect option. This checks influence of reasoning, not completeness of the original explanation.",
+        "inputs_outputs": "Inputs include eight multiple-choice tasks, sentence-split reasoning and intervention generators, plus controlled addition tasks. Each question receives 100 reasoning samples at temperature 0.8 and nucleus p=0.95; answer-option token probabilities support evaluation. Outputs include accuracy, answer agreement and intervention AOC.",
+        "results": "AQuA has early-answering/mistake AOC of 0.44/0.52 and accuracy rising from roughly 28% to 43%. ARC Easy has 0.02/0.07 and about 0.77-point accuracy gain. HellaSwag loses about 4.69 points with CoT despite not being the least reasoning-dependent task. The 13B model changes answers after CoT more often than 175B on seven of eight tasks.",
+        "contributions": "The work makes reasoning reliability experimentally testable beyond with/without-CoT accuracy. Filler text does not reproduce gains and paraphrases mostly retain accuracy, weakening the extra-compute-only and wording-encoding hypotheses in these settings. Task and model capability jointly matter.",
+        "limitations": "There is no independent ground truth for internal reasoning. Models may repair errors, ignore unnatural interventions or use untested mechanisms. Findings concern the studied RLHF assistants, not all modern reasoning models, and lack of evidence for wording-based encoding is not proof of impossibility.",
+        "cost": "One hundred samples and many continuation interventions make evaluation costly. Model sampling and answer-token probabilities are required. Size comparisons use the simpler with/without-CoT answer-change measure for computational reasons. No universal API cost is provided.",
+        "relevance": "Library analysis: This is boundary evidence for diagnosing agents through verbal reflection or reasoning. Improving scores, influencing answers and faithfully representing internal computation are distinct claims. The paper does not demonstrate explanation-driven RSI."
+      },
+      "locators": {
+        "e1": "§2.1 · 175B model and tasks",
+        "e2": "§2.1 · Sampling and experimental procedure",
+        "e3": "Table 2 · Answer dependence and accuracy",
+        "e4": "§3.1 · Model-size comparisons",
+        "e5": "§5 · Unobserved internal reasoning"
+      },
+      "related": {}
+    }
+  }
+}

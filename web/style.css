@@ -1097,33 +1097,38 @@ dialog .close {
 }
 .topic-branch {
   margin: 8px 0;
+  --nav-accent: var(--ink);
+  --nav-tint: #e8e8ec;
 }
-.topic-branch[data-topic="agent-benchmarks"] {
-  --nav-accent: #45574b;
-  --nav-tint: #e4eae5;
-  --topic-background: #f0f3f1;
+.topic-heading {
+  display: flex;
+  align-items: center;
+  gap: 2px;
 }
-.topic-branch[data-topic="rsi"] {
-  --nav-accent: #465363;
-  --nav-tint: #e4e7ec;
-  --topic-background: #f1f2f4;
-}
-.topic-branch[data-topic="llm-interpretability"] {
-  --nav-accent: #62516a;
-  --nav-tint: #ebe5ee;
-  --topic-background: #f4f1f5;
-}
-.topic-branch > .topic {
-  background: var(--topic-background);
-  color: var(--nav-accent);
+.topic-heading > .topic {
+  background: transparent;
+  color: var(--secondary);
   font-weight: 600;
+  padding-left: 4px;
+  border-radius: 7px;
 }
-.topic-branch > .topic:hover,
-.topic-branch > .topic.active {
+.topic-heading > .topic:hover,
+.topic-heading > .topic.active {
   background: var(--nav-tint);
 }
-.topic-branch > .topic .nav-count {
-  color: var(--nav-accent);
+.topic-disclosure {
+  flex: 0 0 28px;
+  min-height: 44px;
+  border: 0;
+  padding: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--secondary);
+  font-size: 23px;
+  line-height: 1;
+}
+.topic-disclosure:hover {
+  background: var(--navigation);
 }
 .collection {
   color: var(--secondary);
@@ -1140,7 +1145,7 @@ dialog .close {
   display: list-item;
   padding: 12px 8px 10px 4px;
   margin-left: 21px;
-  color: var(--nav-accent);
+  color: var(--secondary);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;

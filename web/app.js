@@ -19,6 +19,7 @@ let collection = "";
 let guideOpen = false;
 let savedScroll = 0;
 const expandedAxes = new Set();
+const expandedTopics = new Set();
 let sidebarCloseTimer;
 const node = (tag, className, text) => {
   const el = document.createElement(tag);
@@ -91,7 +92,10 @@ function readView(state) {
     !state.get("status") &&
     (state.get("view") === "guide" ||
       (!state.has("view") && !state.has("sort")));
-  if (subtopic) expandedAxes.add(data.config.subtopics[subtopic].axis);
+  if (subtopic) {
+    expandedTopics.add(topic);
+    expandedAxes.add(data.config.subtopics[subtopic].axis);
+  }
 }
 function setSidebarOpen(open) {
   clearTimeout(sidebarCloseTimer);
@@ -105,8 +109,11 @@ function closeSidebar() {
 function setupSidebar() {
   const sidebar = $("sidebar");
   const desktop = window.matchMedia("(min-width: 761px)");
-  const toggle = () => setSidebarOpen(!sidebar.classList.contains("is-open"));
-  $("sidebar-peek").onclick = toggle;
+  $("sidebar-peek").onclick = (event) => {
+    // Mouse entry already opens the rail; clicking it should keep it open.
+    const mouseClick = desktop.matches && event.pointerType === "mouse";
+    setSidebarOpen(mouseClick || !sidebar.classList.contains("is-open"));
+  };
   sidebar.addEventListener("pointerenter", (event) => {
     if (desktop.matches && event.pointerType === "mouse") setSidebarOpen(true);
   });
@@ -147,6 +154,7 @@ function selectView(nextTopic = "", nextSubtopic = "", nextCollection = "") {
   $("read-status").value = "";
   if (guideOpen) $("sort").value = "added";
   if (nextSubtopic) expandedAxes.add(data.config.subtopics[nextSubtopic].axis);
+  if (nextTopic && !nextCollection) expandedTopics.add(nextTopic);
   closeSidebar();
   refreshView();
   window.scrollTo(0, 0);
@@ -163,6 +171,19 @@ function navButton(label, count, active, action, className = "topic") {
 function matchesCategory(paper, category = subtopic) {
   return !category || paper.subtopics.includes(category);
 }
+function addPendingCategories(entries, config, currentLanguage) {
+  for (const [axisId, axis] of Object.entries(config.axes)) {
+    const missing = entries.filter((paper) => paper.topics.includes(axis.topic) &&
+      !paper.subtopics.some((id) => config.subtopics[id]?.axis === axisId));
+    if (!missing.length) continue;
+    const id = "pending-" + axisId;
+    config.subtopics[id] = {
+      topic: axis.topic, axis: axisId, pending: true,
+      label: currentLanguage === "en" ? "Awaiting classification" : "待核对分类",
+    };
+    for (const paper of missing) paper.subtopics.push(id);
+  }
+}
 function renderTopics() {
   const nav = $("topics");
   nav.replaceChildren();
@@ -177,17 +198,27 @@ function renderTopics() {
     const count = data.entries.filter((p) => p.topics.includes(id)).length;
     const branch = node("div", "topic-branch");
     branch.dataset.topic = id;
-    branch.append(
-      navButton(label, count, topic === id && !collection, () =>
-        selectView(id),
-      ),
-    );
-    if (id === topic && !collection) {
+    const heading = node("div", "topic-heading");
+    const disclosure = node("button", "topic-disclosure", expandedTopics.has(id) ? "⌄" : "›");
+    disclosure.type = "button";
+    disclosure.setAttribute("aria-label", (expandedTopics.has(id) ? t("收起分类") : t("展开分类")) + " · " + label);
+    disclosure.setAttribute("aria-expanded", String(expandedTopics.has(id)));
+    disclosure.setAttribute("aria-controls", "categories-" + id);
+    disclosure.onclick = () => {
+      if (expandedTopics.has(id)) expandedTopics.delete(id);
+      else expandedTopics.add(id);
+      renderTopics();
+      $("topics").querySelector(`[aria-controls="categories-${id}"]`)?.focus();
+    };
+    heading.append(disclosure, navButton(label, count, topic === id && !collection, () => selectView(id)));
+    branch.append(heading);
+    const children = node("div", "topic-children");
+    children.id = "categories-" + id;
+    children.hidden = !expandedTopics.has(id);
+    if (expandedTopics.has(id)) {
       const axes = Object.entries(data.config.axes).filter(
         ([, axis]) => axis.topic === id,
       );
-      if (!axes.some(([key]) => expandedAxes.has(key)) && axes.length)
-        expandedAxes.add(axes[0][0]);
       for (const [axisId, axis] of axes) {
         const group = node("details", "facet-group");
         group.dataset.axis = axisId;
@@ -203,10 +234,10 @@ function renderTopics() {
         )) {
           const count = data.entries.filter(
             (p) =>
-              p.topics.includes(topic) &&
-              (!collection || p.collections.includes(collection)) &&
+              p.topics.includes(id) &&
               p.subtopics.includes(sid),
           ).length;
+          if (!count) continue;
           group.append(
             navButton(
               child.label,
@@ -217,18 +248,21 @@ function renderTopics() {
             ),
           );
         }
-        branch.append(group);
+        if (group.childElementCount > 1) children.append(group);
       }
     }
+    branch.append(children);
     nav.append(branch);
   }
   const collections = $("collections");
   collections.replaceChildren(node("p", "nav-section-label", t("专题")));
   for (const [id, entry] of Object.entries(data.config.collections)) {
+    const count = data.entries.filter((p) => p.collections.includes(id)).length;
+    if (!count) continue;
     collections.append(
       navButton(
         entry.label,
-        data.entries.filter((p) => p.collections.includes(id)).length,
+        count,
         collection === id,
         () => selectView(entry.topic || "", "", id),
         "collection",
@@ -236,10 +270,11 @@ function renderTopics() {
     );
   }
   const interest = "interest-exploration";
-  collections.append(
+  const interestCount = data.entries.filter((p) => p.topics.includes(interest)).length;
+  if (interestCount) collections.append(
     navButton(
       data.config.topics[interest],
-      data.entries.filter((p) => p.topics.includes(interest)).length,
+      interestCount,
       topic === interest,
       () => selectView(interest),
     ),
@@ -302,6 +337,7 @@ function renderGuide() {
       const action = node("button", "question-entry", question.label + " →");
       action.onclick = () => {
         if (question.axis) {
+          expandedTopics.add(topic);
           expandedAxes.add(question.axis);
           renderTopics();
           const target = $("topics").querySelector(
@@ -377,8 +413,8 @@ function renderList() {
   const cards = filtered.filter((p) => p.entry_kind === "card").length;
   const references = filtered.length - cards;
   $("reading-summary").textContent = language === "en"
-    ? `${cards} full-text ${cards === 1 ? "card" : "cards"} · ${references} reading-list ${references === 1 ? "entry" : "entries"}. Entries link to official sources; facet categories cover full-text cards.`
-    : `${cards} 篇精读卡片 · ${references} 篇文献索引。索引可查看官方原文，细分分类暂只覆盖精读卡片。`;
+    ? `${cards} full-text ${cards === 1 ? "card" : "cards"} · ${references} reading-list ${references === 1 ? "entry" : "entries"}. Unclassified entries appear under “Awaiting classification”.`
+    : `${cards} 篇精读卡片 · ${references} 篇文献索引。尚未确定归类的文章列在“待核对分类”中。`;
   $("clear-search").hidden = !$("search").value;
   $("reset-filters").hidden = !terms.length && !type && !status && !subtopic;
   $("active-label").textContent =
@@ -417,6 +453,7 @@ function renderList() {
       ...p.subtopics,
     ]) {
       const category = data.config.subtopics[s];
+      if (category.pending) continue;
       if (!seenAxes.has(category.axis)) {
         seenAxes.add(category.axis);
         previewTags.push(s);
@@ -654,6 +691,7 @@ function applyLocale(nextLanguage) {
     };
   });
   data.entries = [...data.papers, ...references];
+  addPendingCategories(data.entries, data.config, language);
   if (data.pending_count)
     $("footer").textContent += language === "en"
       ? ` ${data.pending_count} papers are pending. See inbox in the repository.`

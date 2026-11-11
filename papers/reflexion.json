@@ -1,0 +1,208 @@
+{
+  "schema_version": 1,
+  "id": "reflexion",
+  "origin": "user",
+  "title": "Reflexion: Language Agents with Verbal Reinforcement Learning",
+  "authors": [
+    "Noah Shinn",
+    "Federico Cassano",
+    "Edward Berman",
+    "Ashwin Gopinath",
+    "Karthik Narasimhan",
+    "Shunyu Yao"
+  ],
+  "year": 2023,
+  "paper_type": "framework",
+  "topics": [
+    "rsi"
+  ],
+  "tags": [],
+  "one_liner": "把失败经历写成几条给自己的提醒，下次尝试时带上这些记忆；反思有帮助，但也受测试质量和搜索能力限制。",
+  "subtopics": [
+    "rsi-task-code",
+    "rsi-task-math",
+    "rsi-task-tools",
+    "rsi-cap-code",
+    "rsi-rec-background"
+  ],
+  "collections": [],
+  "classification_reason": "使用固定模型与反思流程更新文字记忆，在编码、问答和环境交互中重试；未让演化后的改进器继续修改自身改进规则。",
+  "added_at": "2026-11-11",
+  "updated_at": "2026-11-11",
+  "source": {
+    "url": "https://arxiv.org/abs/2303.11366v4",
+    "sha256": "6059b6f89fea9959bd3dab553fbb97756a3dfb1b15e3cbab2fbf3ab6664333bd",
+    "format": "pdf",
+    "page_count": 19,
+    "attachment": ""
+  },
+  "read_scope": "full",
+  "sections": {
+    "problem": {
+      "text": "智能体做错后，如果只是重新采样，可能继续犯同样的错误。论文希望在不训练模型权重的情况下，把失败反馈变成下一次能用上的经验，并测试这种方法是否适用于操作环境、问答和写代码。",
+      "evidence": [
+        "e1",
+        "e2",
+        "e3"
+      ]
+    },
+    "gap": {
+      "text": "执行器通常只给出成功或失败，模型需要进一步判断该改哪里。保留整段旧轨迹也不一定能提炼出有效经验。作者把执行任务、评价结果和写反思分开，并用消融检查反思文字是否比仅重试或保留经历更有用。",
+      "evidence": [
+        "e1",
+        "e3",
+        "e4"
+      ]
+    },
+    "method": {
+      "text": "Actor 完成一次任务，评价器给出反馈，反思模块结合轨迹、反馈和旧记忆写下经验，再让 Actor 带着记忆重试。记忆通常只保留最近1–3条。ALFWorld 使用环境成功信号及重复动作、步数启发式；问答采用答案精确匹配；编程用自生成测试反馈。三个模块可以调用同一基础模型的不同提示，不意味着训练了三个模型。",
+      "evidence": [
+        "e1",
+        "e2",
+        "e3"
+      ]
+    },
+    "trace": {
+      "text": "附录中的问题问两位作家的共同职业。首次回答把“小说家”和“编剧”都选上，收到错误信号后，模型反思自己把各自的职业误当成交集；下轮回答缩为“小说家”。反馈只告诉它答错了，并没有直接提供正确答案。这个例子展示文字记忆如何影响重试，不证明反思准确复述了内部推理。",
+      "evidence": [
+        "e6"
+      ]
+    },
+    "inputs_outputs": {
+      "text": "输入是任务说明、环境观察或函数签名，以及此前尝试、评价反馈和反思记忆。输出包括动作轨迹、答案或代码，另有给下轮使用的文字经验。编程测试最多采6条有效测试，记忆保留1条；最终成绩用独立于自生成测试的基准检查。",
+      "evidence": [
+        "e1",
+        "e2",
+        "e3"
+      ]
+    },
+    "results": {
+      "text": "在134个 ALFWorld 环境中，启发式反馈版本经过最多12次尝试累计解决130个。GPT-4 编程实验的 HumanEval Python 成绩从80.1%到91.0%，但 MBPP Python 从80.1%降到77.1%；这里的 pass@1 是内部多次修订后提交一个答案，并非只调用一次模型。最难的50道 HumanEval Rust 题上，完整方法为68%，只保留自生成测试为60%，去掉测试为52%。",
+      "evidence": [
+        "e2",
+        "e3",
+        "e4"
+      ]
+    },
+    "contributions": {
+      "text": "论文给出不改权重的经验积累流程，并把反馈质量纳入分析。MBPP 的自生成测试会让约16.3%的“内部测试通过”提交在最终检查中失败，HumanEval 对应约1.4%；因此多写反思并不能弥补错误的成功判定。",
+      "evidence": [
+        "e1",
+        "e4"
+      ]
+    },
+    "limitations": {
+      "text": "收益不普遍：100个 WebShop 任务中，四轮后未见明显改进，作者观察到反思难以带来足够多样的新搜索；较弱的 starchat-beta 在 HumanEval 上也没有提升。记忆窗口有限、自生成测试可能误判，重复做同一道题的提高不能直接等同于对新任务泛化，也不是递归改进能力增强的证据。",
+      "evidence": [
+        "e4",
+        "e5",
+        "e7"
+      ]
+    },
+    "cost": {
+      "text": "不需要梯度训练，但每次失败会增加执行、评价和反思调用。ALFWorld 最多12次尝试，问答在连续三次失败后停止，编程还要生成并执行测试。复现需要对应环境、检索接口或语言执行器；论文没有给出统一的整套实验 API 费用。",
+      "evidence": [
+        "e2",
+        "e3",
+        "e8"
+      ]
+    },
+    "relevance": {
+      "text": "知识库分析：它适合作为“反思能否帮助改进”的基础对照。改变的是任务记忆，改进流程本身固定；与 SICA、DGM 等继续使用演化后 Agent 的工作比较时，应分开讨论记忆带来的任务收益和改进机制的演化。",
+      "evidence": []
+    }
+  },
+  "evidence": [
+    {
+      "id": "e1",
+      "page": 3,
+      "locator": "§3 · Actor、评价器与反思记忆",
+      "quote": "three distinct models"
+    },
+    {
+      "id": "e2",
+      "page": 5,
+      "locator": "§3–4.1 · 记忆窗口与 ALFWorld",
+      "quote": "130 out of 134 tasks"
+    },
+    {
+      "id": "e3",
+      "page": 7,
+      "locator": "§4.3 / 表1 · 编程结果",
+      "quote": "HumanEval (PY)"
+    },
+    {
+      "id": "e4",
+      "page": 8,
+      "locator": "表2–3 · 反馈错误与消融",
+      "quote": "false positive test execution rate"
+    },
+    {
+      "id": "e5",
+      "page": 14,
+      "locator": "附录 B.1 · WebShop 失败边界",
+      "quote": "does not show signs of improvement"
+    },
+    {
+      "id": "e6",
+      "page": 18,
+      "locator": "附录 D.2 · 共同职业例子",
+      "quote": "novelist and screenwriter"
+    },
+    {
+      "id": "e7",
+      "page": 12,
+      "locator": "附录 A · 其他模型",
+      "quote": "starchat-beta"
+    },
+    {
+      "id": "e8",
+      "page": 6,
+      "locator": "§4.2 · 问答停止条件",
+      "quote": "3 consecutive"
+    }
+  ],
+  "related": [],
+  "review": {
+    "evidence_checked": true,
+    "compression_checked": true,
+    "reviewed_by": "Codex",
+    "prompt_version": "1.7",
+    "evidence_verified_sha256": "6059b6f89fea9959bd3dab553fbb97756a3dfb1b15e3cbab2fbf3ab6664333bd"
+  },
+  "translations": {
+    "en": {
+      "source_sha256": "6059b6f89fea9959bd3dab553fbb97756a3dfb1b15e3cbab2fbf3ab6664333bd",
+      "one_liner": "Turns failures into short reminders for the next attempt; benefits depend on reliable feedback and the ability to explore alternatives.",
+      "sections": {
+        "problem": "Simply sampling again can repeat the same error. The paper asks whether agents can use failure feedback across attempts without weight training, in interactive environments, question answering and programming.",
+        "gap": "A success/failure signal does not explain what to change, and retaining an entire trajectory may not isolate a useful lesson. Actor, evaluator and reflection are separated, with ablations against retries and experience memory.",
+        "method": "An actor attempts the task, an evaluator returns feedback, and a reflection module writes a lesson using the trajectory and memory. The actor retries with typically the last one to three lessons. Signals include environment success and action heuristics, exact-match QA grading and self-generated code tests. Modules are roles and need not be separately trained models.",
+        "trace": "An appendix example asks for two writers’ shared profession. The first attempt includes both novelist and screenwriter. After a failure signal and reflection about confusing individual professions with their intersection, the next answer is novelist. The feedback does not reveal the answer; the example illustrates memory-guided retries, not faithful access to internal reasoning.",
+        "inputs_outputs": "Inputs include task instructions, observations or function signatures, previous attempts, feedback and reflections. Outputs are trajectories, answers or code plus textual lessons. Programming uses up to six syntactically valid generated tests and one reflection in memory; benchmark checks assess the final submission separately.",
+        "results": "Across 134 ALFWorld environments, heuristic feedback yields 130 cumulative solved tasks within 12 trials. GPT-4 HumanEval Python rises from 80.1% to 91.0%, while MBPP Python falls from 80.1% to 77.1%. Reported pass@1 evaluates one final submission after internal revisions, not one model call. On 50 hardest HumanEval Rust tasks, full Reflexion scores 68%, tests without reflection 60%, and reflection without tests 52%.",
+        "contributions": "The work introduces a weight-free experience loop and investigates feedback quality. About 16.3% of MBPP Python submissions that pass internal tests fail final evaluation, versus roughly 1.4% for HumanEval. More reflection cannot compensate for an unreliable success signal.",
+        "limitations": "Benefits are not universal. WebShop shows no clear gains after four trials on 100 tasks, with insufficiently diverse exploration. Starchat-beta also shows no HumanEval improvement. Limited memory and unreliable generated tests remain problems. Repeated-task gains do not establish new-task generalization or stronger recursive improvement ability.",
+        "cost": "No gradient training is required, but failed attempts add execution, evaluation and reflection calls. ALFWorld permits up to 12 trials; QA stops after three consecutive failures; programming additionally generates and executes tests. Reproduction requires the relevant environments and execution or retrieval tools. No single total API cost is reported.",
+        "relevance": "Library analysis: Reflexion is a useful baseline for reflection-assisted improvement. It changes task memory within a fixed workflow. Comparisons with SICA or DGM should distinguish memory-driven task gains from evolution of the improvement mechanism."
+      },
+      "locators": {
+        "e1": "§3 · Actor, evaluator and reflection memory",
+        "e2": "§3–4.1 · Memory window and ALFWorld",
+        "e3": "§4.3 / Table 1 · Programming results",
+        "e4": "Tables 2–3 · Feedback errors and ablations",
+        "e5": "Appendix B.1 · WebShop failure case",
+        "e6": "Appendix D.2 · Shared-profession example",
+        "e7": "Appendix A · Additional models",
+        "e8": "§4.2 · Question-answering stopping condition"
+      },
+      "related": {}
+    }
+  },
+  "rsi_evidence": {
+    "status": "固定改进流程下的文字记忆更新",
+    "next_round_role": "下一轮 Actor 读取此前生成的反思文字重新完成同一道任务；生成反思的模块及循环规则本身没有随实验演化。",
+    "fixed_components": "语言模型权重、Actor/Evaluator/反思模块的组织方式、提示模板与记忆窗口由实验者固定。",
+    "capability_evidence": "报告重复尝试后的任务成绩和消融实验，没有独立测量演化后的改进器在新改进任务上的能力或自加速。"
+  }
+}

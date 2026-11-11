@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "id": "sica",
+  "origin": "user",
+  "title": "A Self-Improving Coding Agent",
+  "authors": [
+    "Maxime Robeyns",
+    "Martin Szummer",
+    "Laurence Aitchison"
+  ],
+  "year": 2025,
+  "paper_type": "method",
+  "topics": [
+    "rsi"
+  ],
+  "tags": [],
+  "one_liner": "让表现较好的编码智能体继续修改自身工具和工作流，以任务成绩、时间和费用共同选择下一轮版本。",
+  "subtopics": [
+    "rsi-task-code",
+    "rsi-task-math",
+    "rsi-cap-code",
+    "rsi-rec-agent"
+  ],
+  "collections": [],
+  "classification_reason": "从历史版本中选择效用最高的 Agent 来修改自己的完整 Python 实现，演化版本实际充当下一轮元智能体；主要实验支持特定预算下的任务表现变化，没有独立证明持续自加速。",
+  "added_at": "2026-11-11",
+  "updated_at": "2026-11-11",
+  "source": {
+    "url": "https://arxiv.org/abs/2504.15228v2",
+    "sha256": "97781b82ed43a330f491a35f772360bc3a9e7b47c5817e8889a0e1fec1115a15",
+    "format": "pdf",
+    "page_count": 18,
+    "attachment": ""
+  },
+  "read_scope": "full",
+  "sections": {
+    "problem": {
+      "text": "语言模型要做软件工程，需要代码组织调用、工具和上下文。SICA 研究这些外层程序能否由智能体自己修改，而且让改进后的版本承担后续修改，而不是永远由一个固定元智能体设计别的智能体。",
+      "evidence": [
+        "e1"
+      ]
+    },
+    "gap": {
+      "text": "人工设计框架靠不断试错；ADAS 等方法虽自动搜索智能体设计，元智能体本身仍固定。作者希望合并任务执行者与改进者，但编码成绩变好能否进一步带来更强的改进能力，仍是需要单独验证的问题。",
+      "evidence": [
+        "e1"
+      ]
+    },
+    "method": {
+      "text": "系统保存历史 Agent 及其测试结果。每轮选择效用最高的版本，让它查看档案、提出修改并编辑完整 Python 代码，再测候选并写回档案。效用由成绩、费用和耗时加权，权重分别为 0.5、0.25、0.25；费用项在每题10美元归一化上限截断，时间项以300秒归一化，超时后效用再乘0.5。基础模型不做权重训练。",
+      "evidence": [
+        "e1",
+        "e2"
+      ]
+    },
+    "trace": {
+      "text": "初始智能体只能整文件覆盖，随后写出 diff 和范围编辑工具，减少冗余输出。第9轮加入 AST 符号定位器，以解析 Python 代码快速找到定义。这个改动对导航任务有帮助，也表明改进可能来自工具效率与测试集结构，而非底座模型推理能力增长。",
+      "evidence": [
+        "e4"
+      ]
+    },
+    "inputs_outputs": {
+      "text": "输入是可修改的 Agent 代码、历史档案和固定评测任务。主实验从 SWE-Bench Verified 与 LiveCodeBench 各固定随机抽取50题，还使用文件编辑和符号定位的合成任务。输出是新的 Agent 程序及各任务成绩、费用和时间记录；不是训练后的新语言模型。",
+      "evidence": [
+        "e1",
+        "e3"
+      ]
+    },
+    "results": {
+      "text": "多数模块使用 Claude 3.5 Sonnet v2，推理子智能体使用 o3-mini。表1中 SWE-Bench 子集从初始0.17升到第14轮0.53，第15轮为0.51，过程并非每轮都提高；LiveCodeBench 从0.65到第15轮0.71。另一组 AIME 2024 与 GPQA Diamond 实验提升有限，复杂框架未必胜过已经很强的推理模型。",
+      "evidence": [
+        "e3",
+        "e5"
+      ]
+    },
+    "contributions": {
+      "text": "SICA 提供可以修改完整代码库的自指编码智能体，并展示演化后的同类 Agent 可继续承担下一轮开发。它把性能和资源使用一起纳入版本选择，还公开初始工具、监督器、提示词与修改轨迹，便于研究框架层面的学习。",
+      "evidence": [
+        "e1",
+        "e2"
+      ]
+    },
+    "limitations": {
+      "text": "结果来自较小、反复使用的固定任务集，不能直接外推整个 SWE-Bench 或留出任务。作者指出新想法会受早期建议影响，坏方向可能形成路径依赖；五分钟超时也压低初始成绩，使早期提升较多来自加速编辑。符号任务还存在部分目标指向未安装库的数据质量问题。",
+      "evidence": [
+        "e3",
+        "e5"
+      ]
+    },
+    "cost": {
+      "text": "15轮主实验的模型 API 总费用约7,000美元，包含生成改动和反复评测；不能用表1平均每道测试题的约几美元代替整条改进流程成本。系统还需要代码执行、仓库环境、模型服务和定期运行的监督器，全文中的可观察日志不是对后续系统安全性的充分保证。",
+      "evidence": [
+        "e2",
+        "e3",
+        "e5"
+      ]
+    },
+    "relevance": {
+      "text": "知识库分析：它直接符合演化 Agent 继续自改的结构条件，可与 DGM 的开放档案探索、AIDE² 的独立后续改进检验比较。当前证据更适合支持框架自修改与受限任务提升，不能直接作为无限递归或持续加速的证明。",
+      "evidence": []
+    }
+  },
+  "evidence": [
+    {
+      "id": "e1",
+      "page": 3,
+      "locator": "§3 · 档案选择与自改循环",
+      "quote": "best performing agent"
+    },
+    {
+      "id": "e2",
+      "page": 3,
+      "locator": "公式1—2 · 效用与超时",
+      "quote": "timeout of 300 s"
+    },
+    {
+      "id": "e3",
+      "page": 6,
+      "locator": "表1与§4 · 模型、预算与成绩",
+      "quote": "approximately $7,000"
+    },
+    {
+      "id": "e4",
+      "page": 6,
+      "locator": "§4 · 代码定位改进",
+      "quote": "AST based symbol locator"
+    },
+    {
+      "id": "e5",
+      "page": 8,
+      "locator": "§5.1—5.2 · 路径依赖与静态任务",
+      "quote": "static benchmark set"
+    }
+  ],
+  "related": [
+    {
+      "id": "darwin-godel-machine",
+      "reason": "两者都让演化后的编码 Agent 参与后续自改；SICA 按多目标效用选历史最好版本，DGM 强调开放档案中的探索与踏脚石。"
+    }
+  ],
+  "review": {
+    "evidence_checked": true,
+    "compression_checked": true,
+    "reviewed_by": "Codex",
+    "prompt_version": "1.7",
+    "evidence_verified_sha256": "97781b82ed43a330f491a35f772360bc3a9e7b47c5817e8889a0e1fec1115a15"
+  },
+  "translations": {
+    "en": {
+      "source_sha256": "97781b82ed43a330f491a35f772360bc3a9e7b47c5817e8889a0e1fec1115a15",
+      "one_liner": "Lets high-utility coding agents keep editing their own tools and workflows, selecting subsequent versions using task performance, time and cost.",
+      "sections": {
+        "problem": "Software agents depend on orchestration, tools and context management around a language model. SICA asks whether agents can modify this scaffold and use improved versions for later modifications, rather than retaining a fixed external designer.",
+        "gap": "Manual scaffolds require trial and error, while approaches such as ADAS retain a fixed meta agent. SICA combines task and improvement roles, although improved task scores do not independently establish stronger improvement capability.",
+        "method": "An archive stores agents and evaluation results. Each iteration selects the highest-utility agent to inspect the archive and modify its Python implementation, then evaluates the candidate and archives it. Utility weights performance, cost and time by 0.5, 0.25 and 0.25. Cost and time terms saturate at $10 and 300 seconds; timed-out utility is halved. Model weights remain unchanged.",
+        "trace": "The initial agent overwrites entire files; later versions add diff and range editors. Iteration 9 introduces an AST symbol locator for Python definitions. These changes help navigation and illustrate gains from tools and benchmark structure rather than changes in underlying model reasoning.",
+        "inputs_outputs": "Inputs are editable agent code, an archive and fixed evaluation tasks. The main experiment uses 50 randomly selected fixed SWE-Bench Verified tasks, 50 LiveCodeBench tasks and synthetic editing/navigation tasks. Outputs are revised programs and performance, cost and time records, not newly trained language models.",
+        "results": "Most modules use Claude 3.5 Sonnet v2 and the reasoning subagent uses o3-mini. SWE-Bench subset accuracy rises from 0.17 to 0.53 at iteration 14 and is 0.51 at iteration 15, with nonmonotonic progress. LiveCodeBench moves from 0.65 to 0.71. Separate AIME 2024/GPQA Diamond experiments show limited improvement.",
+        "contributions": "SICA supplies a self-referential coding agent with full-codebase editing and shows that evolved agents can continue the development process. Selection incorporates both performance and resources, with tools, oversight, prompts and modification traces supporting scaffold-level research.",
+        "limitations": "Results use small repeatedly evaluated task sets and do not establish full-benchmark or held-out generalization. Early ideas can create path dependence, and five-minute limits depress initial scores, making editing speed a major source of early gains. The symbol benchmark also includes data-quality problems involving unavailable libraries.",
+        "cost": "The 15-iteration run costs about $7,000 in model APIs, including modification and evaluation. Per-problem evaluation costs in Table 1 are not the total improvement budget. Reproduction also needs execution environments, repositories, models and a periodic overseer; observability is not a sufficient safety guarantee.",
+        "relevance": "Library analysis: This directly exhibits evolved-agent redeployment for self-modification, complementing DGM’s exploration and AIDE²’s separate subsequent-improvement tests. Evidence supports scaffold changes and bounded task gains, not unlimited recursion or sustained acceleration."
+      },
+      "locators": {
+        "e1": "§3 · Archive selection and self-modification",
+        "e2": "Equations 1–2 · Utility and timeout",
+        "e3": "Table 1 and §4 · Models, budgets and results",
+        "e4": "§4 · Code navigation improvement",
+        "e5": "§5.1–5.2 · Path dependence and static tasks"
+      },
+      "related": {
+        "darwin-godel-machine": "Both redeploy evolved coding agents for later modification; SICA selects historical best utility, whereas DGM emphasizes archive exploration and stepping stones."
+      }
+    }
+  },
+  "rsi_evidence": {
+    "status": "演化后的 Agent 参与后续自改",
+    "next_round_role": "每轮从包含已修改版本的档案选择效用最高者，让它检查档案并修改自身 Python 代码，生成下一候选。",
+    "fixed_components": "基础语言模型权重、外部基准集、效用公式和选择循环由实验者固定，不随这条主实验更新。",
+    "capability_evidence": "同一批任务上的实测效用和编码成绩有所提高；没有将改进器在独立留出改进任务上的效率与任务能力分离检验，也没有证明长期自加速。"
+  }
+}

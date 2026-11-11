@@ -1,0 +1,184 @@
+{
+  "schema_version": 1,
+  "id": "bixbench",
+  "origin": "user",
+  "title": "BixBench: a Comprehensive Benchmark for LLM-based Agents in Computational Biology",
+  "authors": [
+    "Ludovico Mitchener",
+    "Jon M Laurent",
+    "Alex Andonian",
+    "Benjamin Tenmann",
+    "Siddharth Narayanan",
+    "Geemi P Wellawatte",
+    "Andrew White",
+    "Lorenzo Sani",
+    "Samuel G Rodriques"
+  ],
+  "year": 2025,
+  "paper_type": "benchmark",
+  "topics": [
+    "agent-benchmarks"
+  ],
+  "tags": [],
+  "one_liner": "给智能体生物数据和空白 Notebook，让它完成多步分析并回答问题，再分别用开放回答和选择题设置评价结果。",
+  "subtopics": [
+    "domain-biology",
+    "eval-tasks",
+    "activity-data",
+    "activity-code"
+  ],
+  "collections": [],
+  "classification_reason": "任务直接基于真实生物信息学数据和分析笔记本，测从探索文件、编写分析到解释结果的端到端能力；不是按是否复现某一份参考程序评分。",
+  "added_at": "2026-11-11",
+  "updated_at": "2026-11-11",
+  "source": {
+    "url": "https://arxiv.org/abs/2503.00096v3",
+    "sha256": "8f651cc1026b94790dbbdc10afebc25d94a49e90de6ad0e55193879cd1de2b8b",
+    "format": "pdf",
+    "page_count": 16,
+    "attachment": ""
+  },
+  "read_scope": "full",
+  "sections": {
+    "problem": {
+      "text": "会写代码或回答生物知识题，并不意味着能独立处理真实生物数据。BixBench 检查智能体能否在信息较少、工具自由的环境里探索数据、选择分析并解释结果。本卡使用 2025 年 10 月 v3，任务规模和成绩与早期摘要版本不同。",
+      "evidence": [
+        "e1"
+      ]
+    },
+    "gap": {
+      "text": "真实分析常需多步计算、专门软件和对问题的解释，固定函数补全或知识选择题覆盖不了这些过程。作者从专家分析轨迹构建任务，主要采用开放回答，避免在分析开始前直接给出候选答案。",
+      "evidence": [
+        "e1",
+        "e2"
+      ]
+    },
+    "method": {
+      "text": "专家先建立包含问题、数据和分析 Notebook 的胶囊，模型生成候选问题，再由专家修改、审核和去重。测试时只给智能体数据、问题和空白 Notebook。基于 Aviary 的智能体可列目录、编辑执行单元格和提交答案；开放回答由 Claude 3.5 Sonnet 对照标答做二元评判。选择题模式在分析结束后另给模型完整 Notebook、回答与选项，不能与开放回答混算。",
+      "evidence": [
+        "e1",
+        "e2"
+      ]
+    },
+    "trace": {
+      "text": "附录示例要求分析不同菌株的差异表达：回答某菌株的差异基因有多少比例也在另一菌株显著，以及 DESeq 分析中多少基因的 dispersion 小于 1e-5。智能体必须找到数据、组织 R 或 Python 分析，最后提交各问题的短答案。题目没有向它公开专家原来的 Notebook，最终是否正确仍由对应标答与评审决定。",
+      "evidence": [
+        "e5",
+        "e2"
+      ]
+    },
+    "inputs_outputs": {
+      "text": "v3 包含 61 个真实分析胶囊、205 道问题。输入文件格式和目录结构不统一；预配置 Docker 环境提供常用 Python、R 和 Bash 工具。输出既有保存的分析 Notebook，也有按问题提交的答案；运行轨迹能供诊断，但开放回答主指标是答案正确率。",
+      "evidence": [
+        "e1",
+        "e2"
+      ]
+    },
+    "results": {
+      "text": "每个胶囊并行运行五次；两种模型和有无图像两种设置共得到 1,220 条轨迹。开放回答中 Claude 3.5 Sonnet 约 21%，GPT-4o 约 15%。选择题允许拒答时接近随机，去掉拒答选项后分数上升，但未显示超越不看分析 Notebook 的纯模型回答基线；五次多数投票也没有带来明显改善。这不能读成“模型凭实际分析已完成四成任务”。",
+      "evidence": [
+        "e2",
+        "e3"
+      ]
+    },
+    "contributions": {
+      "text": "论文提供经过专家整理的生物分析场景、开放回答评价和支持多语言执行的 Notebook 智能体环境。开放回答、拒答、投票与图像消融放在同一任务上比较，帮助识别候选选项和常识猜测对成绩的影响。",
+      "evidence": [
+        "e1",
+        "e2",
+        "e3"
+      ]
+    },
+    "limitations": {
+      "text": "只测了两类当时的模型，没有独立专家在相同设置下完成任务的人类基线。工作流和数据类型覆盖也不完整。开放回答仍由模型对照参考答案判断，因此自由分析空间不等于评分已经容纳所有合理方法或结论；应结合后续对基准材料的独立审计阅读。",
+      "evidence": [
+        "e4",
+        "e2"
+      ]
+    },
+    "cost": {
+      "text": "复现需要数据胶囊、预构建容器、Notebook 执行服务、智能体模型和评审模型。五次采样与图像对照会成倍增加运行次数，单元格修改后重跑完整 Notebook 也可能重复计算。论文没有报告可直接套用到任意胶囊和模型的统一 API 费用或总 GPU 预算。",
+      "evidence": [
+        "e2",
+        "e3"
+      ]
+    },
+    "relevance": {
+      "text": "知识库分析：它直接研究生物数据分析智能体，比孤立的知识问答更贴近工作流。与 BenchGuard 一起阅读，可以区分实际分析能力不足和参考答案、题目或评审规则的问题。",
+      "evidence": []
+    }
+  },
+  "evidence": [
+    {
+      "id": "e1",
+      "page": 2,
+      "locator": "§1.1 · v3 任务规模",
+      "quote": "205 open-answer questions"
+    },
+    {
+      "id": "e2",
+      "page": 5,
+      "locator": "§3.2 · Aviary、工具与评分",
+      "quote": "five times"
+    },
+    {
+      "id": "e3",
+      "page": 6,
+      "locator": "图4与§4.1 · 模型成绩",
+      "quote": "21% accuracy vs. 15%"
+    },
+    {
+      "id": "e4",
+      "page": 8,
+      "locator": "§5.1 · 覆盖与人类基线局限",
+      "quote": "human baseline comparison"
+    },
+    {
+      "id": "e5",
+      "page": 14,
+      "locator": "附录A · 差异表达分析示例",
+      "quote": "dispersion value below 1e-05"
+    }
+  ],
+  "related": [
+    {
+      "id": "benchguard",
+      "reason": "BenchGuard 审计了另行专家修订的 BIXBench Verified-50 子集；该子集的审计指标不等于原始 BixBench 的智能体准确率。"
+    }
+  ],
+  "review": {
+    "evidence_checked": true,
+    "compression_checked": true,
+    "reviewed_by": "Codex",
+    "prompt_version": "1.7",
+    "evidence_verified_sha256": "8f651cc1026b94790dbbdc10afebc25d94a49e90de6ad0e55193879cd1de2b8b"
+  },
+  "translations": {
+    "en": {
+      "source_sha256": "8f651cc1026b94790dbbdc10afebc25d94a49e90de6ad0e55193879cd1de2b8b",
+      "one_liner": "Gives agents biological data and an empty notebook for multi-step analysis, evaluating their answers in distinct open-response and multiple-choice settings.",
+      "sections": {
+        "problem": "Coding and biological recall do not establish competence in real data analysis. BixBench tests exploration, analytical choices and interpretation with minimal prompting. This card uses the October 2025 v3, whose counts and results differ from early abstracts.",
+        "gap": "Real analysis requires multi-step computation, specialized software and interpretation beyond function completion or knowledge questions. The benchmark draws on expert trajectories and primarily uses open responses without exposing candidate answers before analysis.",
+        "method": "Experts create analysis capsules, model-generated questions undergo expert review and deduplication, and evaluation exposes data, questions and an empty notebook. An Aviary scaffold supports directory listing, cell editing/execution and answer submission. Claude 3.5 Sonnet judges open responses against references. Multiple-choice evaluation supplies options only after analysis, together with the notebook and answer.",
+        "trace": "The appendix asks about overlap in differentially expressed genes across strains and the number of genes with DESeq dispersion below 1e-5. An agent must locate data, run R or Python analyses and submit short answers, without seeing the expert notebook. Scoring still depends on reference answers and the evaluator.",
+        "inputs_outputs": "Version 3 contains 61 capsules and 205 questions with heterogeneous files and directories. A preconfigured Docker environment supplies Python, R and Bash tools. Agents produce notebooks and submitted answers; trajectories aid diagnosis, while the main open-response metric is answer accuracy.",
+        "results": "Five runs per capsule across two models and image/no-image conditions yield 1,220 trajectories. Open-response accuracy is about 21% for Claude 3.5 Sonnet and 15% for GPT-4o. MCQ performance is near chance with refusal and rises without refusal, but does not demonstrate superiority to a no-notebook model-recall baseline. Five-run majority voting provides no clear improvement.",
+        "contributions": "The work contributes expert-curated biological analysis scenarios, open-response evaluation and a multilingual notebook-agent environment. Shared-task comparisons of MCQs, refusal, voting and images expose effects from answer options and model recall.",
+        "limitations": "Evaluation covers two contemporary models, lacks a matched independent expert baseline and omits many workflows and data types. Open responses still use model-to-reference judging, so freedom in analysis does not establish acceptance of every valid method or conclusion. Subsequent artifact audits are complementary.",
+        "cost": "Reproduction needs capsules, containers, notebook execution, agent and judge models. Five samples and image ablations multiply runs, while rerunning the notebook after edits can repeat computation. The paper does not supply a universal API price or GPU budget for arbitrary capsules and models.",
+        "relevance": "Library analysis: This directly concerns workflow-level biological data-analysis agents. Reading it with BenchGuard helps distinguish analytical failures from defects in questions, references or judging rules."
+      },
+      "locators": {
+        "e1": "§1.1 · Task counts in v3",
+        "e2": "§3.2 · Aviary, tools and evaluation",
+        "e3": "Figure 4 and §4.1 · Model performance",
+        "e4": "§5.1 · Coverage and human baseline limits",
+        "e5": "Appendix A · Differential-expression example"
+      },
+      "related": {
+        "benchguard": "BenchGuard audits the separately revised BIXBench Verified-50 subset; its audit metrics differ from original BixBench agent accuracy."
+      }
+    }
+  }
+}

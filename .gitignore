@@ -1,5 +1,7 @@
 .venv/
 .local/
+pdfs/*.pdf
+pdfs/*.part
 dist/
 __pycache__/
 *.pyc

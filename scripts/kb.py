@@ -193,8 +193,11 @@ def prepare(args, root=ROOT):
     queue_path = root / "inbox" / (args.id + ".json")
     entry = {"id": args.id, "source_url": args.url or "", "status": "awaiting_summary", "added_at": str(date.today())}
     try:
-        if args.pdf:
-            path = Path(args.pdf)
+        cached_pdf = getattr(args, "cached_pdf", None)
+        if cached_pdf and (args.pdf or not args.url):
+            raise Invalid("--cached-pdf 需要官方 --url，不能同时使用 --pdf。")
+        if args.pdf or cached_pdf:
+            path = Path(args.pdf or cached_pdf)
             if path.stat().st_size > MAX_BYTES:
                 raise Invalid("PDF 超过 40 MB。")
             data, content_type = path.read_bytes(), "application/pdf"
@@ -207,6 +210,17 @@ def prepare(args, root=ROOT):
             if paper["id"] != args.id and paper["source"]["sha256"] == digest:
                 raise Invalid("相同文件已收录为 " + paper["id"])
         kind, pages = extract(data, content_type)
+        if kind == "pdf" and not args.pdf:
+            archive = root / "pdfs" / (args.id + ".pdf")
+            archive.parent.mkdir(exist_ok=True)
+            archive.write_bytes(data)
+            archive_path = root / "pdfs" / "manifest.json"
+            archive_manifest = read(archive_path) if archive_path.exists() else {}
+            archive_url = re.sub(r"^(https?://arxiv\.org)/abs/", r"\1/pdf/", args.url)
+            archive_manifest[args.id] = {"url": archive_url, "source_url": args.url,
+                                         "sha256": digest, "page_count": len(pages),
+                                         "file": "pdfs/" + args.id + ".pdf", "downloaded_at": str(date.today())}
+            write(archive_path, archive_manifest)
     except Exception as exc:
         entry.update(status="needs_source", error=str(exc))
         write(queue_path, entry)
@@ -575,6 +589,7 @@ def main():
     prep.add_argument("--id", required=True)
     prep.add_argument("--url")
     prep.add_argument("--pdf")
+    prep.add_argument("--cached-pdf", help="使用已下载的 PDF，并保留官方 --url；本地副本不作为上传附件发布")
     prep.add_argument("--update", action="store_true")
     fin = sub.add_parser("finalize", help="核验来源后收录 Codex 生成的卡片")
     fin.add_argument("--draft", required=True)

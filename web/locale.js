@@ -2,6 +2,7 @@
 "use strict";
 let language = "zh";
 const englishUI = {
+  "展开分类": "Expand categories", "收起分类": "Collapse categories",
   "清空": "Clear", "重置筛选": "Reset filters", "整理状态": "Reading status", "全部内容": "All content",
   "精读卡片": "Full-text card", "文献索引": "Reading-list entry", "文献索引 · 待精读": "Reading-list entry · Not yet reviewed",
   "查看文献": "View entry", "阅读卡片": "Read card", "为什么放在这里": "Why it is included",

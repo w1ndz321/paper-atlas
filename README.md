@@ -2,4 +2,6 @@
 
 按主题与维度整理的论文知识库，整理方法、结果与贡献。
 
+[打开 Paper Atlas 网站](https://w1ndz321.github.io/paper-atlas/)
+
 在 Codex 打开仓库，提供 PDF 或链接，说“阅读、收录并同步到 GitHub”。网页自动更新。

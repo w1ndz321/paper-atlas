@@ -31,13 +31,6 @@
         <span>Paper Atlas</span>
       </a>
       <div class="header-links">
-        <button
-          id="sidebar-toggle"
-          aria-controls="sidebar"
-          aria-expanded="false"
-        >
-          分类
-        </button>
         <button id="header-help">使用说明</button
         ><a
           id="repo-link"
@@ -50,8 +43,18 @@
     </header>
     <div class="workspace">
       <aside id="sidebar" class="sidebar" aria-label="主题与分类目录">
-        <nav id="topics" aria-label="研究主题与分类维度"></nav>
-        <nav id="collections" aria-label="专题与兴趣探索"></nav>
+        <div id="sidebar-content" class="sidebar-content" inert>
+          <nav id="topics" aria-label="研究主题与分类维度"></nav>
+          <nav id="collections" aria-label="专题与兴趣探索"></nav>
+        </div>
+        <button
+          id="sidebar-peek"
+          class="sidebar-rail"
+          type="button"
+          aria-controls="sidebar-content"
+          aria-expanded="false"
+          aria-label="展开或收起分类目录"
+        ></button>
       </aside>
       <main>
         <section id="library" aria-label="论文列表">

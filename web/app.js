@@ -18,6 +18,7 @@ let collection = "";
 let guideOpen = false;
 let savedScroll = 0;
 const expandedAxes = new Set();
+let sidebarCloseTimer;
 const node = (tag, className, text) => {
   const el = document.createElement(tag);
   if (className) el.className = className;
@@ -86,11 +87,39 @@ function readView(state) {
       (!state.has("view") && !state.has("sort")));
   if (subtopic) expandedAxes.add(data.config.subtopics[subtopic].axis);
 }
+function setSidebarOpen(open) {
+  clearTimeout(sidebarCloseTimer);
+  $("sidebar").classList.toggle("is-open", open);
+  $("sidebar-content").inert = !open;
+  $("sidebar-peek").setAttribute("aria-expanded", String(open));
+}
 function closeSidebar() {
-  const wasOpen = $("sidebar").classList.contains("mobile-open");
-  $("sidebar").classList.remove("mobile-open");
-  $("sidebar-toggle").setAttribute("aria-expanded", "false");
-  if (wasOpen) window.scrollTo(0, 0);
+  setSidebarOpen(false);
+}
+function setupSidebar() {
+  const sidebar = $("sidebar");
+  const desktop = window.matchMedia("(min-width: 761px)");
+  const toggle = () => setSidebarOpen(!sidebar.classList.contains("is-open"));
+  $("sidebar-peek").onclick = toggle;
+  sidebar.addEventListener("pointerenter", (event) => {
+    if (desktop.matches && event.pointerType === "mouse") setSidebarOpen(true);
+  });
+  sidebar.addEventListener("pointerleave", (event) => {
+    if (desktop.matches && event.pointerType === "mouse")
+      sidebarCloseTimer = setTimeout(() => setSidebarOpen(false), 240);
+  });
+  sidebar.addEventListener("focusin", () => {
+    // Keep keyboard navigation visible while moving between directory entries.
+    clearTimeout(sidebarCloseTimer);
+  });
+  sidebar.addEventListener("focusout", (event) => {
+    if (!sidebar.contains(event.relatedTarget) && !sidebar.matches(":hover"))
+      setSidebarOpen(false);
+  });
+  document.addEventListener("pointerdown", (event) => {
+    if (!sidebar.contains(event.target)) setSidebarOpen(false);
+  });
+  desktop.addEventListener("change", closeSidebar);
 }
 function refreshView(push = true) {
   updateQuery(push, "");
@@ -140,6 +169,7 @@ function renderTopics() {
     if (id === "interest-exploration") continue;
     const count = data.papers.filter((p) => p.topics.includes(id)).length;
     const branch = node("div", "topic-branch");
+    branch.dataset.topic = id;
     branch.append(
       navButton(label, count, topic === id && !collection, () =>
         selectView(id),
@@ -270,8 +300,7 @@ function renderGuide() {
           const target = $("topics").querySelector(
             `[data-axis="${question.axis}"] summary`,
           );
-          $("sidebar").classList.add("mobile-open");
-          $("sidebar-toggle").setAttribute("aria-expanded", "true");
+          setSidebarOpen(true);
           target?.focus();
           target?.scrollIntoView({ block: "nearest" });
         } else {
@@ -396,6 +425,20 @@ function renderList() {
   }
   updateQuery();
 }
+function sourceLocation(paper, evidence) {
+  const url = new URL(
+    paper.source.url ||
+      data.config.repository_url + "/raw/refs/heads/main/" + paper.source.attachment,
+  );
+  if (paper.source.format === "pdf") {
+    if (url.hostname === "arxiv.org")
+      url.pathname = url.pathname.replace(/^\/abs\//, "/pdf/");
+    url.hash = "page=" + evidence.page;
+    return {label: `原文第 ${evidence.page} 页 · ${evidence.locator}`, href: url.href};
+  }
+  url.hash = ":~:text=" + encodeURIComponent(evidence.quote);
+  return {label: "原文 · " + evidence.locator, href: url.href};
+}
 function showRoute() {
   document.body.classList.toggle(
     "reading",
@@ -455,20 +498,39 @@ function showRoute() {
   const visibleSections = Object.entries(data.sections).filter(
     ([key]) => key !== "relevance",
   );
-  const toc = node("nav", "toc");
-  toc.setAttribute("aria-label", "卡片目录");
+  const layout = node("div", "reader-layout");
+  const body = node("div", "reader-body");
+  const toc = node("details", "toc");
+  toc.open = window.matchMedia("(min-width: 1100px)").matches;
+  toc.append(node("summary", "", "文章大纲"));
+  const outline = node("nav", "toc-links");
+  outline.setAttribute("aria-label", "文章大纲");
   for (const [key, title] of visibleSections) {
     const a = node("a", "", title);
     a.href = "#paper/" + id + "/" + key;
-    toc.append(a);
+    if (location.hash.split("/")[2] === key) a.setAttribute("aria-current", "location");
+    outline.append(a);
   }
-  reader.append(toc);
+  toc.append(outline);
+  layout.append(toc, body);
+  reader.append(layout);
   for (const [key, title] of visibleSections) {
     const section = node("section", "reader-section");
     section.id = key;
     const heading = node("h3", "", title);
     section.append(heading, node("p", "", paper.sections[key].text));
-    reader.append(section);
+    const locations = node("div", "source-locations");
+    const seen = new Set();
+    for (const evidenceId of paper.sections[key].evidence) {
+      const evidence = paper.evidence.find((item) => item.id === evidenceId);
+      const locationKey = evidence.page + "/" + evidence.locator;
+      if (seen.has(locationKey)) continue;
+      seen.add(locationKey);
+      const location = sourceLocation(paper, evidence);
+      locations.append(link(location.label + " ↗", location.href, "", true));
+    }
+    if (locations.childElementCount) section.append(locations);
+    body.append(section);
   }
   const related = node("section", "reader-section");
   related.append(node("h3", "", "相关论文"));
@@ -485,7 +547,7 @@ function showRoute() {
   }
   if (!relations.length)
     related.append(node("p", "", "暂无明确关联的已收录论文。"));
-  reader.append(
+  body.append(
     related,
     node(
       "p",
@@ -503,6 +565,7 @@ function showRoute() {
   else window.scrollTo(0, 0);
 }
 async function init() {
+  setupSidebar();
   try {
     const response = await fetch("data.json", { cache: "no-cache" });
     if (!response.ok) throw new Error("HTTP " + response.status);
@@ -535,15 +598,15 @@ async function init() {
       : "added";
     $("repo-link").href = data.config.repository_url;
     $("readme-link").href = data.config.repository_url + "/blob/main/README.md";
-    $("sidebar-toggle").onclick = () => {
-      const open = $("sidebar").classList.toggle("mobile-open");
-      $("sidebar-toggle").setAttribute("aria-expanded", String(open));
-    };
     document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape") {
+      if (event.key === "Escape" && $("sidebar").classList.contains("is-open")) {
         closeSidebar();
-        $("sidebar-toggle").focus();
+        $("sidebar-peek").focus();
       }
+    });
+    window.matchMedia("(min-width: 1100px)").addEventListener("change", (event) => {
+      const toc = $("reader").querySelector(".toc");
+      if (toc) toc.open = event.matches;
     });
     $("search-form").onsubmit = (event) => event.preventDefault();
     $("search").oninput = () => {

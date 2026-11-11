@@ -166,6 +166,58 @@ class PipelineTests(unittest.TestCase):
         self.assertNotIn("do-not-publish", (dest / "data.json").read_text())
         self.assertEqual({p.name for p in dest.iterdir()}, {"index.html", "locale.js", "app.js", "style.css", "data.json", ".nojekyll"})
 
+    def reference(self):
+        return {"id": "reading-entry", "title": "A source-checked paper", "authors": ["A. Author"],
+                "year": 2024, "paper_type": "method", "source_url": "https://arxiv.org/abs/2401.00002",
+                "source_basis": "abstract", "verified_at": "2026-01-01", "one_liner": "官方摘要中的研究简介。",
+                "one_liner_en": "An introduction based on the official abstract.", "context": "本主题的方法背景。",
+                "context_en": "Methodological background for this topic."}
+
+    def test_discovery_entries_publish_separately_from_full_text_cards(self):
+        self.store(self.paper())
+        manifest = {"schema_version": 1, "lists": {"general-agents": ["example", "reading-entry"]},
+                    "references": [self.reference()]}
+        kb.write(self.root / "reading_lists.json", manifest)
+        kb.render_cards(self.root)
+        kb.build(self.root / "dist", self.root)
+        data = kb.read(self.root / "dist/data.json")
+        self.assertEqual(len(data["papers"]), 1)
+        self.assertEqual(data["reading_lists"], manifest)
+        self.assertFalse((self.root / "cards/reading-entry.md").exists())
+
+    def test_discovery_entries_reject_broken_or_ambiguous_sources(self):
+        self.store(self.paper())
+        base = {"schema_version": 1, "lists": {"general-agents": ["reading-entry"]},
+                "references": [self.reference()]}
+        for mutate in (
+            lambda m: m["references"][0].update(source_url="javascript:alert(1)"),
+            lambda m: m["references"][0].update(source_url="https://arxiv.org/pdf/2401.00001v2"),
+            lambda m: m["references"][0].update(one_liner_en=""),
+            lambda m: m["references"][0].update(verified_at="2099-01-01"),
+            lambda m: m["lists"]["general-agents"].append("missing-entry"),
+            lambda m: m["lists"]["general-agents"].append("reading-entry"),
+        ):
+            manifest = copy.deepcopy(base)
+            mutate(manifest)
+            kb.write(self.root / "reading_lists.json", manifest)
+            with self.assertRaises(kb.Invalid):
+                kb.validate(self.root)
+
+    def test_full_text_ingestion_preserves_discovery_identity(self):
+        ref = self.reference()
+        ref.update(id="example", source_url="https://arxiv.org/abs/2401.00001v2")
+        self.store(self.paper())
+        kb.write(self.root / "reading_lists.json", {"schema_version": 1,
+                 "lists": {"general-agents": ["example"]}, "references": [ref]})
+        self.assertEqual(len(kb.validate(self.root)), 1)
+
+    def test_repository_seed_lists_have_twenty_distinct_resolvable_entries(self):
+        root = Path(__file__).parents[1]
+        manifest = kb.reading_lists(root, kb.records(root), kb.config(root))
+        self.assertEqual(set(manifest["lists"]), {"agent-benchmarks", "rsi", "llm-interpretability", "interpretability-rsi"})
+        for ids in manifest["lists"].values():
+            self.assertEqual(len(set(ids)), 20)
+
     def test_generated_cards_drift_detected(self):
         self.store(self.paper())
         kb.render_cards(self.root)

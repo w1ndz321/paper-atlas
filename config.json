@@ -210,7 +210,7 @@
       "points": [
         "比较 SAE 特征、自然语言解释和模型自述等方法如何帮助理解模型。",
         "了解这些方法如何用于发现异常行为、检查训练后的变化，以及辅助 Agent 开展研究。",
-        "每篇文章的实验设置、结果和局限都在论文总结中单独说明。"
+        "这里同时保留直接研究与工具背景；方法可能用于检查模型变化，不等于已经实现递归自我改进。"
       ],
       "reading_order": [
         {
@@ -733,7 +733,7 @@
       "查看模型解释、行为分析与 Agent 自主研发相关的论文。": "Explore papers on model explanations, behavioral analysis and autonomous agent research.",
       "比较 SAE 特征、自然语言解释和模型自述等方法如何帮助理解模型。": "Compare how SAE features, natural-language explanations and model self-reports contribute to understanding models.",
       "了解这些方法如何用于发现异常行为、检查训练后的变化，以及辅助 Agent 开展研究。": "Explore their use in diagnosing abnormal behavior, inspecting post-training changes and helping agents conduct research.",
-      "每篇文章的实验设置、结果和局限都在论文总结中单独说明。": "Each paper’s card records its experimental setup, findings and limitations."
+      "这里同时保留直接研究与工具背景；方法可能用于检查模型变化，不等于已经实现递归自我改进。": "This collection includes direct studies and supporting tools. A method that can examine model changes does not by itself establish recursive self-improvement."
     }
   }
 }

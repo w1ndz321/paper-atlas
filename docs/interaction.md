@@ -1,0 +1,24 @@
+# 交互约定
+
+目的：让用户从外观和文字就能判断“这里可以阅读”“这里会改变筛选”“这只是说明”。
+
+| 元素 | 网站中的提示 |
+| --- | --- |
+| 正文链接、建议阅读、原文位置 | 蓝色 `#2874b8` 与常驻下划线；悬停加粗下划线，避免只依赖颜色 |
+| 论文卡片 | 明确写出“阅读卡片 →”或“查看文献 →”；站内跳转用右箭头 |
+| 原文外链 | 标注“阅读原文 ↗”，辅助名称提示会打开新标签页 |
+| 问题导航 | 只显示前三行；有边框的按钮表示展开分类，而非打开文章 |
+| 筛选与排序 | 可见文字标签、原生下拉框、结果数量；提供清空搜索和重置筛选 |
+| 当前分类 | 文字、背景与左侧标记共同表达选中状态，并提供 `aria-current` |
+| 整理状态 | “精读卡片”与“文献索引 · 待精读”以文字区分，可单独筛选 |
+
+文献索引只介绍官方论文页可核对的研究线索，不展示未经全文验证的结果、页码或完整总结。细分维度继续只标注精读卡片；精读升级保留同一篇文章的链接。
+
+正文链接与白底对比度约 4.91:1，与页面灰底约 4.51:1。交互控件保留键盘焦点轮廓；移动端筛选使用两列布局，整理状态独占一行，以免截断。
+
+## 参考
+
+- [Nielsen Norman Group：10 Usability Heuristics](https://www.nngroup.com/articles/ten-usability-heuristics/)：沿用熟悉的控件与措辞，提供及时状态和清晰退出方式，降低记忆负担。
+- [GOV.UK Design System：Links](https://design-system.service.gov.uk/styles/links/)：正文链接默认使用蓝色和下划线，链接文字表达目的。
+- [W3C WCAG 2.2：Use of Color](https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html)：颜色之外提供其他视觉或文字线索。
+- [W3C WCAG 2.2：Contrast (Minimum)](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html)：常规正文与背景的最低对比度为 4.5:1。

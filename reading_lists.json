@@ -1,0 +1,799 @@
+{
+  "schema_version": 1,
+  "lists": {
+    "agent-benchmarks": [
+      "scienceagentbench",
+      "naturebench",
+      "dont-pass-at-k",
+      "discoverybench",
+      "scienceworld",
+      "benchguard",
+      "mlagentbench",
+      "mle-bench",
+      "core-bench",
+      "lab-bench",
+      "blade",
+      "dsbench",
+      "infiagent-dabench",
+      "datascibench",
+      "mlr-bench",
+      "paperbench",
+      "scicode",
+      "biocoder",
+      "dsgym",
+      "bixbench"
+    ],
+    "rsi": [
+      "stop",
+      "darwin-godel-machine",
+      "aide-squared",
+      "alphaevolve",
+      "promptbreeder",
+      "hyperagents",
+      "sica",
+      "adas",
+      "self-refine",
+      "reflexion",
+      "star",
+      "self-rewarding",
+      "seal",
+      "textgrad",
+      "gepa",
+      "voyager",
+      "funsearch",
+      "absolute-zero",
+      "dspy",
+      "predict-before-modify"
+    ],
+    "llm-interpretability": [
+      "rome",
+      "circuit-tracing",
+      "cot-faithfulness",
+      "emergent-introspection",
+      "introspection-adapters",
+      "natural-language-autoencoders",
+      "sae-latent-attribution",
+      "saescientist-bench",
+      "scaling-monosemanticity",
+      "transformer-circuits-framework",
+      "toy-superposition",
+      "towards-monosemanticity",
+      "acdc",
+      "attribution-patching",
+      "representation-engineering",
+      "contrastive-activation-addition",
+      "latent-knowledge",
+      "measuring-cot-faithfulness",
+      "neurons-explained",
+      "refusal-direction"
+    ],
+    "interpretability-rsi": [
+      "emergent-introspection",
+      "introspection-adapters",
+      "natural-language-autoencoders",
+      "sae-latent-attribution",
+      "saescientist-bench",
+      "self-rewarding",
+      "seal",
+      "gepa",
+      "predict-before-modify",
+      "transformer-circuits-framework",
+      "toy-superposition",
+      "towards-monosemanticity",
+      "acdc",
+      "attribution-patching",
+      "representation-engineering",
+      "contrastive-activation-addition",
+      "latent-knowledge",
+      "measuring-cot-faithfulness",
+      "neurons-explained",
+      "refusal-direction"
+    ]
+  },
+  "references": [
+    {
+      "id": "discoverybench",
+      "title": "DiscoveryBench: Towards Data-Driven Discovery with Large Language Models",
+      "authors": [
+        "Bodhisattwa Prasad Majumder et al."
+      ],
+      "year": 2024,
+      "paper_type": "benchmark",
+      "source_url": "https://arxiv.org/abs/2407.01725",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "给出数据、背景和研究目标，让智能体提出并验证假设，而不只是写一段能运行的代码。",
+      "one_liner_en": "Tests whether agents can develop and verify hypotheses from datasets, metadata and a research goal, beyond producing runnable code.",
+      "context": "从数据分析走向科学发现，适合比较研究过程与最终结论分别如何评分。",
+      "context_en": "Useful for comparing evaluations of the discovery process with evaluations of the final claim."
+    },
+    {
+      "id": "scienceworld",
+      "title": "ScienceWorld: Is your Agent Smarter than a 5th Grader?",
+      "authors": [
+        "Ruoyao Wang et al."
+      ],
+      "year": 2022,
+      "paper_type": "benchmark",
+      "source_url": "https://arxiv.org/abs/2203.07540",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "让智能体在文字环境中动手做科学实验，检查它能否把记住的知识用在新情境里。",
+      "one_liner_en": "Places agents in an interactive text world to test whether scientific knowledge transfers to hands-on experiments.",
+      "context": "交互式科学推理的早期基准；任务难度属于基础科学，不等同于真实科研。",
+      "context_en": "An early interactive science benchmark; elementary experiments are distinct from professional research."
+    },
+    {
+      "id": "benchguard",
+      "title": "BenchGuard: Who Guards the Benchmarks? Automated Auditing of LLM Agent Benchmarks",
+      "authors": [
+        "Xinming Tu et al."
+      ],
+      "year": 2026,
+      "paper_type": "framework",
+      "source_url": "https://arxiv.org/abs/2604.24955",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "交叉检查任务说明、数据和评分程序，寻找把合理答案判错、或让任务根本无法完成的基准缺陷。",
+      "one_liner_en": "Cross-checks task specifications, data and scoring programs to find benchmark defects that reject valid solutions or make tasks unsolvable.",
+      "context": "评测基础设施的审计方法，用于区分智能体出错与基准本身出错。",
+      "context_en": "An audit framework for distinguishing agent errors from errors in the benchmark itself."
+    },
+    {
+      "id": "mlagentbench",
+      "title": "MLAgentBench: Evaluating Language Agents on Machine Learning Experimentation",
+      "authors": [
+        "Qian Huang et al."
+      ],
+      "year": 2023,
+      "paper_type": "benchmark",
+      "source_url": "https://arxiv.org/abs/2310.03302",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "给智能体文件和执行环境，让它自己修改模型、运行实验，再根据结果继续改进。",
+      "one_liner_en": "Gives agents files and an execution environment to modify models, run experiments and iterate on the results.",
+      "context": "机器学习实验任务的早期代表，可比较任务成功率与执行轨迹。",
+      "context_en": "An early benchmark of machine learning experimentation, with task outcomes and execution traces."
+    },
+    {
+      "id": "mle-bench",
+      "title": "MLE-bench: Evaluating Machine Learning Agents on Machine Learning Engineering",
+      "authors": [
+        "Jun Shern Chan et al."
+      ],
+      "year": 2024,
+      "paper_type": "benchmark",
+      "source_url": "https://arxiv.org/abs/2410.07095",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "把 Kaggle 比赛变成机器学习工程任务，用公开的人类成绩衡量智能体训练和调试模型的水平。",
+      "one_liner_en": "Turns Kaggle competitions into machine learning engineering tasks, using human competition results as a reference.",
+      "context": "适合研究工程能力、计算预算和训练数据污染对评测结果的影响。",
+      "context_en": "Relevant to engineering ability, resource budgets and evaluation contamination."
+    },
+    {
+      "id": "core-bench",
+      "title": "CORE-Bench: Fostering the Credibility of Published Research Through a Computational Reproducibility Agent Benchmark",
+      "authors": [
+        "Zachary S. Siegel et al."
+      ],
+      "year": 2024,
+      "paper_type": "benchmark",
+      "source_url": "https://arxiv.org/abs/2409.11363",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "给出论文配套的代码和数据，检查智能体能否复现计算结果，并回答与结果相关的问题。",
+      "one_liner_en": "Tests whether agents can reproduce computational results from published code and data and answer questions about them.",
+      "context": "这里的 CORE-Bench 指科研复现基准，并非同名的代码检索基准。",
+      "context_en": "This is the computational reproducibility benchmark, distinct from the similarly named code-retrieval benchmark."
+    },
+    {
+      "id": "lab-bench",
+      "title": "LAB-Bench: Measuring Capabilities of Language Models for Biology Research",
+      "authors": [
+        "Jon M. Laurent et al."
+      ],
+      "year": 2024,
+      "paper_type": "benchmark",
+      "source_url": "https://arxiv.org/abs/2407.10362",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "把生物研究中的查文献、读图、查数据库和处理序列拆成具体能力，用选择题分别测试。",
+      "one_liner_en": "Tests practical biology research skills, including literature reasoning, figure interpretation, database use and sequence manipulation.",
+      "context": "面向科研技能，但题目形式以选择题为主，不能直接等同于自主完成实验。",
+      "context_en": "Measures research-related skills through multiple-choice questions, rather than autonomous experimental work."
+    },
+    {
+      "id": "blade",
+      "title": "BLADE: Benchmarking Language Model Agents for Data-Driven Science",
+      "authors": [
+        "Ken Gu et al."
+      ],
+      "year": 2024,
+      "paper_type": "benchmark",
+      "source_url": "https://arxiv.org/abs/2408.09667",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "同一研究问题允许不同分析路线；BLADE 用专家的多份分析作为参照，比较智能体做出的分析选择。",
+      "one_liner_en": "Compares agents' analytical choices against multiple expert analyses of the same open-ended research questions.",
+      "context": "重点是开放分析和多种合理做法，比单一标准答案更贴近真实分析工作。",
+      "context_en": "Especially relevant to open-ended analysis and the existence of multiple valid approaches."
+    },
+    {
+      "id": "dsbench",
+      "title": "DSBench: How Far Are Data Science Agents to Becoming Data Science Experts?",
+      "authors": [
+        "Liqiang Jing et al."
+      ],
+      "year": 2024,
+      "paper_type": "benchmark",
+      "source_url": "https://arxiv.org/abs/2409.07703",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "让智能体处理长背景、大数据文件和多张表，检验它能否完成更接近实际工作的分析与建模任务。",
+      "one_liner_en": "Tests realistic analysis and modeling tasks involving long contexts, large files and multiple tables.",
+      "context": "适合比较简化问答与真实数据工作流之间的能力差距。",
+      "context_en": "Useful for studying the gap between simplified questions and realistic data workflows."
+    },
+    {
+      "id": "infiagent-dabench",
+      "title": "InfiAgent-DABench: Evaluating Agents on Data Analysis Tasks",
+      "authors": [
+        "Xueyu Hu et al."
+      ],
+      "year": 2024,
+      "paper_type": "benchmark",
+      "source_url": "https://arxiv.org/abs/2401.05507",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "把 CSV 数据分析问题转成便于自动核对的回答格式，测试智能体与执行环境协作的能力。",
+      "one_liner_en": "Evaluates data-analysis agents on CSV tasks using answer formats that support automatic scoring.",
+      "context": "可用来观察开放问题如何转为可评分答案，以及这种转换会限制哪些合理作答。",
+      "context_en": "Shows how open analysis questions are converted into automatically scorable answers."
+    },
+    {
+      "id": "datascibench",
+      "title": "DataSciBench: An LLM Agent Benchmark for Data Science",
+      "authors": [
+        "Dan Zhang et al."
+      ],
+      "year": 2025,
+      "paper_type": "benchmark",
+      "source_url": "https://arxiv.org/abs/2502.13897",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "把数据科学任务拆成任务、评价函数和执行代码，用更具体的规则检查生成程序的产出。",
+      "one_liner_en": "Organizes data-science evaluation around tasks, functions and code, with explicit rules for checking execution outputs.",
+      "context": "重点看标答构建和评价规则，尤其是原本没有简单唯一答案的任务。",
+      "context_en": "Relevant to ground-truth construction and metrics for tasks without a simple unique answer."
+    },
+    {
+      "id": "mlr-bench",
+      "title": "MLR-Bench: Evaluating AI Agents on Open-Ended Machine Learning Research",
+      "authors": [
+        "Hui Chen et al."
+      ],
+      "year": 2025,
+      "paper_type": "benchmark",
+      "source_url": "https://arxiv.org/abs/2505.19955",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "让智能体从研究想法一路做到实验和论文，既评估各阶段，也检查最终研究产物。",
+      "one_liner_en": "Evaluates open-ended machine learning research from idea generation through experiments and paper writing.",
+      "context": "适合关注研究质量、自动评审与实验结果真实性之间的关系。",
+      "context_en": "Useful for studying research quality, automated review and the validity of reported experiments."
+    },
+    {
+      "id": "paperbench",
+      "title": "PaperBench: Evaluating AI's Ability to Replicate AI Research",
+      "authors": [
+        "Giulio Starace et al."
+      ],
+      "year": 2025,
+      "paper_type": "benchmark",
+      "source_url": "https://arxiv.org/abs/2504.01848",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "要求智能体从零复现研究论文，把复现目标拆成细致的评分项，检查理解、实现和实验执行。",
+      "one_liner_en": "Asks agents to reproduce research papers from scratch, with detailed rubrics for understanding, implementation and experiments.",
+      "context": "与 CORE-Bench 互补：这里需要重新实现研究，而不只是运行作者已有的代码。",
+      "context_en": "Complements CORE-Bench by requiring new implementations rather than only executing provided code."
+    },
+    {
+      "id": "scicode",
+      "title": "SciCode: A Research Coding Benchmark Curated by Scientists",
+      "authors": [
+        "Minyang Tian et al."
+      ],
+      "year": 2024,
+      "paper_type": "benchmark",
+      "source_url": "https://arxiv.org/abs/2407.13168",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "由科学家从真实研究问题中提炼编程任务，把科学知识、推理和代码实现放在一起测试。",
+      "one_liner_en": "Uses scientist-curated coding problems to jointly test domain knowledge, reasoning and scientific programming.",
+      "context": "适合区分通用代码能力与需要科学背景的程序实现。",
+      "context_en": "Helps distinguish general coding ability from programming that requires scientific knowledge."
+    },
+    {
+      "id": "biocoder",
+      "title": "BioCoder: A Benchmark for Bioinformatics Code Generation with Large Language Models",
+      "authors": [
+        "Xiangru Tang et al."
+      ],
+      "year": 2023,
+      "paper_type": "benchmark",
+      "source_url": "https://arxiv.org/abs/2308.16458",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "测试模型能否写出生物信息学代码，保留依赖、全局变量等上下文，并用模糊测试检查功能。",
+      "one_liner_en": "Tests bioinformatics code generation with contextual dependencies and a fuzz-testing evaluation framework.",
+      "context": "这是领域代码生成基准，适合作为完整生物研究智能体的底层能力参照。",
+      "context_en": "A domain-specific coding benchmark that provides a component-level reference for biology agents."
+    },
+    {
+      "id": "dsgym",
+      "title": "DSGym: A Holistic Framework for Evaluating and Training Data Science Agents",
+      "authors": [
+        "Fan Nie et al."
+      ],
+      "year": 2026,
+      "paper_type": "framework",
+      "source_url": "https://arxiv.org/abs/2601.16344",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "统一数据科学任务的执行和评价环境，过滤不看数据也能解答的捷径任务，并支持用执行反馈训练智能体。",
+      "one_liner_en": "Standardizes execution and evaluation for data-science tasks, filters tasks solvable without their data, and supports training with execution feedback.",
+      "context": "重点看跨基准比较、数据依赖和任务质量，适合与具体数据分析基准一起阅读。",
+      "context_en": "Relevant to cross-benchmark comparison, data grounding and task quality; complements individual data-analysis benchmarks."
+    },
+    {
+      "id": "bixbench",
+      "title": "BixBench: a Comprehensive Benchmark for LLM-based Agents in Computational Biology",
+      "authors": [
+        "Ludovico Mitchener et al."
+      ],
+      "year": 2025,
+      "paper_type": "benchmark",
+      "source_url": "https://arxiv.org/abs/2503.00096",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "围绕真实生物数据分析设置多步任务，要求智能体探索数据、完成分析，并解释结果。",
+      "one_liner_en": "Evaluates agents on practical biological data analysis requiring exploration, multi-step computation and interpretation.",
+      "context": "开放回答与选择题的设置不同，阅读时应单独核对评分方式和任务版本。",
+      "context_en": "Its open-answer and multiple-choice settings should be distinguished when examining scores and task versions."
+    },
+    {
+      "id": "promptbreeder",
+      "title": "Promptbreeder: Self-Referential Self-Improvement Via Prompt Evolution",
+      "authors": [
+        "Chrisantha Fernando et al."
+      ],
+      "year": 2023,
+      "paper_type": "method",
+      "source_url": "https://arxiv.org/abs/2309.16797",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "不仅进化解题提示词，也进化用来修改提示词的提示词，让改进规则本身进入搜索过程。",
+      "one_liner_en": "Evolves both task prompts and the mutation prompts used to improve them, bringing the improvement rule into the search.",
+      "context": "涉及改进机制的演化；索引不把任务成绩提升当作已证明持续自加速。",
+      "context_en": "Evolves an improvement mechanism; task gains alone do not establish sustained self-acceleration."
+    },
+    {
+      "id": "hyperagents",
+      "title": "Hyperagents",
+      "authors": [
+        "Jenny Zhang et al."
+      ],
+      "year": 2026,
+      "paper_type": "framework",
+      "source_url": "https://arxiv.org/abs/2603.19461",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "把解题智能体和修改智能体放进同一份可编辑程序，让负责产生改进的部分也能被修改。",
+      "one_liner_en": "Combines task and meta agents in one editable program so that the mechanism producing improvements can also change.",
+      "context": "直接关注元层改进，与早期依赖固定改进流程的方法形成对照。",
+      "context_en": "Directly concerns meta-level modification, contrasting with fixed improvement procedures."
+    },
+    {
+      "id": "sica",
+      "title": "A Self-Improving Coding Agent",
+      "authors": [
+        "Maxime Robeyns, Martin Szummer, Laurence Aitchison"
+      ],
+      "year": 2025,
+      "paper_type": "method",
+      "source_url": "https://arxiv.org/abs/2504.15228",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "让编码智能体修改自己的实现，再用编程任务检查修改后的版本是否更有用。",
+      "one_liner_en": "Lets a coding agent edit its own implementation and evaluates the resulting versions on coding tasks.",
+      "context": "值得进一步核对新版本如何部署，以及改进能否迁移到不同任务。",
+      "context_en": "Further reading should check redeployment and whether improvements transfer beyond the optimization tasks."
+    },
+    {
+      "id": "adas",
+      "title": "Automated Design of Agentic Systems",
+      "authors": [
+        "Shengran Hu, Cong Lu, Jeff Clune"
+      ],
+      "year": 2024,
+      "paper_type": "framework",
+      "source_url": "https://arxiv.org/abs/2408.08435",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "用元智能体编写新的智能体程序，并把以前发现的设计放进档案，供后续搜索参考。",
+      "one_liner_en": "Uses a meta agent to write new agent programs, drawing on an archive of previous designs.",
+      "context": "自动设计的背景工作；档案中出现更好的候选，不等于元智能体本身已经进化。",
+      "context_en": "Background on automated design; better archived candidates do not by themselves establish an evolving meta agent."
+    },
+    {
+      "id": "self-refine",
+      "title": "Self-Refine: Iterative Refinement with Self-Feedback",
+      "authors": [
+        "Aman Madaan et al."
+      ],
+      "year": 2023,
+      "paper_type": "method",
+      "source_url": "https://arxiv.org/abs/2303.17651",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "先生成回答，再让同一个模型提出反馈并重写，重复这个过程来改善输出。",
+      "one_liner_en": "Improves outputs by repeatedly asking the same model to generate feedback and revise its answer.",
+      "context": "自我反馈的背景方法，模型和修改流程保持固定，不直接证明递归自我改进。",
+      "context_en": "Background on self-feedback, with a fixed model and revision procedure rather than demonstrated recursive improvement."
+    },
+    {
+      "id": "reflexion",
+      "title": "Reflexion: Language Agents with Verbal Reinforcement Learning",
+      "authors": [
+        "Noah Shinn et al."
+      ],
+      "year": 2023,
+      "paper_type": "framework",
+      "source_url": "https://arxiv.org/abs/2303.11366",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "把一次任务的失败反思写进记忆，让智能体在下一次尝试时参考，而不是直接更新模型权重。",
+      "one_liner_en": "Stores verbal reflections on task feedback in memory to guide later attempts without updating model weights.",
+      "context": "作为经验积累与反思机制的背景，需与改进器自身发生变化区分。",
+      "context_en": "Background on reflection and memory, distinct from changes to the improvement mechanism itself."
+    },
+    {
+      "id": "star",
+      "title": "STaR: Bootstrapping Reasoning With Reasoning",
+      "authors": [
+        "Eric Zelikman, Yuhuai Wu, Jesse Mu, Noah D. Goodman"
+      ],
+      "year": 2022,
+      "paper_type": "method",
+      "source_url": "https://arxiv.org/abs/2203.14465",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "用模型自己生成、最终答对的推理过程继续训练模型，再用更新后的模型生成下一轮训练材料。",
+      "one_liner_en": "Fine-tunes on successful model-generated rationales, then uses the updated model to produce another round of training data.",
+      "context": "生成的数据进入后续训练，但仍依赖给定问题和正确答案作为监督。",
+      "context_en": "Generated data feeds later training, while given questions and correct answers still provide supervision."
+    },
+    {
+      "id": "self-rewarding",
+      "title": "Self-Rewarding Language Models",
+      "authors": [
+        "Weizhe Yuan et al."
+      ],
+      "year": 2024,
+      "paper_type": "method",
+      "source_url": "https://arxiv.org/abs/2401.10020",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "让模型给自己的回答打分，再迭代做偏好训练，同时观察回答能力和评分能力是否一起改善。",
+      "one_liner_en": "Uses the model to score its own responses during iterative preference training, examining both response and judging ability.",
+      "context": "关注改进后的评分者能否继续提供有用反馈；自评分仍需要外部检验其可靠性。",
+      "context_en": "Connects self-improvement with evaluation; self-produced scores still require independent reliability checks."
+    },
+    {
+      "id": "seal",
+      "title": "Self-Adapting Language Models",
+      "authors": [
+        "Adam Zweiger et al."
+      ],
+      "year": 2025,
+      "paper_type": "method",
+      "source_url": "https://arxiv.org/abs/2506.10943",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "让模型生成用于更新自己的训练材料和更新指令，再用更新后的任务表现训练这种自编辑能力。",
+      "one_liner_en": "Generates adaptation data and update directives, training the self-editing behavior using downstream performance after adaptation.",
+      "context": "连接自编辑与适应能力；并非对内部机制的完整解释，也不是持续自加速的证据。",
+      "context_en": "Links self-editing to adaptation, without establishing complete mechanistic explanations or sustained self-acceleration."
+    },
+    {
+      "id": "textgrad",
+      "title": "TextGrad: Automatic \"Differentiation\" via Text",
+      "authors": [
+        "Mert Yuksekgonul et al."
+      ],
+      "year": 2024,
+      "paper_type": "framework",
+      "source_url": "https://arxiv.org/abs/2406.07496",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "把语言模型写出的批评沿计算图传回各个组件，用文字建议修改提示词、代码或其他变量。",
+      "one_liner_en": "Propagates textual feedback through a computation graph to optimize prompts, code and other variables.",
+      "context": "作为自动优化工具的背景，优化变量不意味着反馈模型或优化算法也在演化。",
+      "context_en": "Background on automated optimization; changing variables does not imply an evolving optimizer or feedback model."
+    },
+    {
+      "id": "gepa",
+      "title": "GEPA: Reflective Prompt Evolution Can Outperform Reinforcement Learning",
+      "authors": [
+        "Lakshya A Agrawal et al."
+      ],
+      "year": 2025,
+      "paper_type": "method",
+      "source_url": "https://arxiv.org/abs/2507.19457",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "读取推理、工具调用和运行结果，用自然语言总结失败原因，再提出和测试新的提示词。",
+      "one_liner_en": "Reflects on reasoning, tool calls and outputs to diagnose failures and propose and test prompt updates.",
+      "context": "可观察轨迹如何指导改进的工具背景；文字反思并不自动等于忠实的内部解释。",
+      "context_en": "A tool reference for trace-guided improvement; verbal reflection is not automatically a faithful account of internal computation."
+    },
+    {
+      "id": "voyager",
+      "title": "Voyager: An Open-Ended Embodied Agent with Large Language Models",
+      "authors": [
+        "Guanzhi Wang et al."
+      ],
+      "year": 2023,
+      "paper_type": "framework",
+      "source_url": "https://arxiv.org/abs/2305.16291",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "在 Minecraft 中不断尝试新任务，把写出的可执行技能存进库，供之后的探索复用。",
+      "one_liner_en": "Explores Minecraft with an automatic curriculum and an expanding library of reusable executable skills.",
+      "context": "技能积累的背景工作；底层模型和技能生成流程保持固定。",
+      "context_en": "Background on skill accumulation with a fixed underlying model and skill-generation procedure."
+    },
+    {
+      "id": "funsearch",
+      "title": "Mathematical discoveries from program search with large language models",
+      "authors": [
+        "Bernardino Romera-Paredes et al."
+      ],
+      "year": 2024,
+      "paper_type": "method",
+      "source_url": "https://www.nature.com/articles/s41586-023-06924-6",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "让语言模型提出程序，用自动评价器筛选，再把较好的程序送回模型，逐步搜索更好的算法。",
+      "one_liner_en": "Pairs a language model with an evaluator, feeding strong programs back into an evolutionary search for better algorithms.",
+      "context": "FunSearch 是程序搜索背景：冻结的生成模型和固定评价器不因候选得分上升而成为递归改进器。",
+      "context_en": "FunSearch is program-search background: better candidates do not imply that its frozen generator or fixed evaluator improves."
+    },
+    {
+      "id": "absolute-zero",
+      "title": "Absolute Zero: Reinforced Self-play Reasoning with Zero Data",
+      "authors": [
+        "Andrew Zhao et al."
+      ],
+      "year": 2025,
+      "paper_type": "method",
+      "source_url": "https://arxiv.org/abs/2505.03335",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "由同一个模型提出代码推理任务并学习解答，用代码执行器核验任务和答案，减少对人工题库的依赖。",
+      "one_liner_en": "Uses one model to propose and solve code-reasoning tasks, with an executor providing verifiable feedback instead of a curated task dataset.",
+      "context": "关注训练课程与推理能力的共同变化；外部执行器依然承担固定的验证职责。",
+      "context_en": "Studies co-evolving tasks and reasoning, while an external executor retains the verification role."
+    },
+    {
+      "id": "dspy",
+      "title": "DSPy: Compiling Declarative Language Model Calls into Self-Improving Pipelines",
+      "authors": [
+        "Omar Khattab et al."
+      ],
+      "year": 2023,
+      "paper_type": "framework",
+      "source_url": "https://arxiv.org/abs/2310.03714",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "把语言模型调用写成可组合的模块，再通过编译器自动选择示例和优化提示，减少手工试提示词。",
+      "one_liner_en": "Expresses language-model pipelines as composable modules and uses a compiler to optimize demonstrations and prompts.",
+      "context": "模块化优化的背景框架，不能仅凭标题中的 self-improving 就判定为 RSI。",
+      "context_en": "Background on modular pipeline optimization; the title's self-improving wording alone is not evidence of RSI."
+    },
+    {
+      "id": "predict-before-modify",
+      "title": "Predict Before You Modify: Learning Improvement Dynamics for Self-Evolving Agents",
+      "authors": [
+        "Zixuan Xie, Chang Xu, Yuhua Jiang, Li Zhao"
+      ],
+      "year": 2026,
+      "paper_type": "method",
+      "source_url": "https://arxiv.org/abs/2610.13991",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "修改智能体前先预测修改会影响哪些任务，再用真实结果更新预测模型，让改进过程积累经验。",
+      "one_liner_en": "Predicts task-level effects of proposed modifications, then updates the predictive model using observed outcomes.",
+      "context": "连接可检查的修改预测与元层改进；这里的解释来自任务级预测，并非完整神经电路解释。",
+      "context_en": "Links inspectable modification predictions with meta-level improvement, rather than a complete neural-circuit account."
+    },
+    {
+      "id": "transformer-circuits-framework",
+      "title": "A Mathematical Framework for Transformer Circuits",
+      "authors": [
+        "Nelson Elhage et al."
+      ],
+      "year": 2021,
+      "paper_type": "analysis",
+      "source_url": "https://transformer-circuits.pub/2021/framework/index.html",
+      "source_basis": "official-paper",
+      "verified_at": "2026-11-11",
+      "one_liner": "用统一的数学表示拆解注意力头和残差流，说明简单 Transformer 怎样组合出具体计算。",
+      "one_liner_en": "Develops a mathematical view of attention heads and residual streams to explain computations in simplified transformers.",
+      "context": "电路分析的基础工具背景，可用于比较修改前后的计算路径，不直接研究 RSI。",
+      "context_en": "Foundational circuit-analysis background for comparing computations before and after changes; not an RSI study."
+    },
+    {
+      "id": "toy-superposition",
+      "title": "Toy Models of Superposition",
+      "authors": [
+        "Nelson Elhage et al."
+      ],
+      "year": 2022,
+      "paper_type": "analysis",
+      "source_url": "https://arxiv.org/abs/2209.10652",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "用小模型研究为什么一个神经元会同时承载多个概念，解释直接按神经元读模型为什么容易误判。",
+      "one_liner_en": "Uses toy models to study how multiple features share neurons and why neuron-level interpretation can be misleading.",
+      "context": "理解特征混叠的工具背景，提醒研究者不要把神经元变化直接当成单一能力变化。",
+      "context_en": "Background on superposition, cautioning against equating a changed neuron with a single changed capability."
+    },
+    {
+      "id": "towards-monosemanticity",
+      "title": "Towards Monosemanticity: Decomposing Language Models With Dictionary Learning",
+      "authors": [
+        "Trenton Bricken et al."
+      ],
+      "year": 2023,
+      "paper_type": "method",
+      "source_url": "https://transformer-circuits.pub/2023/monosemantic-features/index.html",
+      "source_basis": "official-summary",
+      "verified_at": "2026-11-11",
+      "one_liner": "用稀疏自编码器把小模型的激活拆成更容易解释的特征，尝试绕过单个神经元语义混杂的问题。",
+      "one_liner_en": "Uses sparse autoencoders to decompose activations into more interpretable features in a small transformer.",
+      "context": "SAE 方法的基础背景，为模型更新前后的特征检查提供工具，论文没有闭合 RSI 循环。",
+      "context_en": "Foundational SAE tooling for examining model changes, rather than a demonstrated RSI loop."
+    },
+    {
+      "id": "acdc",
+      "title": "Towards Automated Circuit Discovery for Mechanistic Interpretability",
+      "authors": [
+        "Arthur Conmy et al."
+      ],
+      "year": 2023,
+      "paper_type": "method",
+      "source_url": "https://arxiv.org/abs/2304.14997",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "指定一个模型行为后，自动筛选与它相关的计算连接，减少研究者手工寻找电路的工作。",
+      "one_liner_en": "Automates the search for computational connections responsible for a specified model behavior.",
+      "context": "自动电路发现的工具背景，可辅助检查行为改变由哪些内部连接支撑。",
+      "context_en": "Automated circuit-discovery tooling that can help examine internal connections supporting behavioral changes."
+    },
+    {
+      "id": "attribution-patching",
+      "title": "Attribution Patching Outperforms Automated Circuit Discovery",
+      "authors": [
+        "Aaquib Syed, Can Rager, Arthur Conmy"
+      ],
+      "year": 2023,
+      "paper_type": "method",
+      "source_url": "https://arxiv.org/abs/2310.10348",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "用梯度近似估计连接的重要性，更快找到与目标行为有关的电路，并比较这种近似的局限。",
+      "one_liner_en": "Uses a gradient-based approximation to estimate edge importance and accelerate circuit discovery.",
+      "context": "低成本归因的工具背景；近似归因需要另行验证，不能直接当作因果解释。",
+      "context_en": "Lower-cost attribution tooling; approximate scores require validation before causal interpretation."
+    },
+    {
+      "id": "representation-engineering",
+      "title": "Representation Engineering: A Top-Down Approach to AI Transparency",
+      "authors": [
+        "Andy Zou et al."
+      ],
+      "year": 2023,
+      "paper_type": "method",
+      "source_url": "https://arxiv.org/abs/2310.01405",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "从整组激活中寻找与诚实、无害等行为有关的表示，并尝试监测和调整这些表示。",
+      "one_liner_en": "Studies population-level representations for monitoring and influencing high-level behaviors such as honesty and harmlessness.",
+      "context": "表示监测与干预的工具背景，可提出更新后的行为检查，但不自行证明改进可靠。",
+      "context_en": "Background on representation monitoring and intervention, which can inform checks after updates without proving reliable improvement."
+    },
+    {
+      "id": "contrastive-activation-addition",
+      "title": "Steering Llama 2 via Contrastive Activation Addition",
+      "authors": [
+        "Nina Panickssery et al."
+      ],
+      "year": 2023,
+      "paper_type": "method",
+      "source_url": "https://arxiv.org/abs/2312.06681",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "比较正反两类行为的激活差异，提取方向并在推理时加入模型，检查行为是否随之改变。",
+      "one_liner_en": "Extracts activation directions from contrasting behaviors and adds them during inference to test behavioral steering.",
+      "context": "可作为内部干预的工具背景，帮助区分相关的表示与确实能影响行为的方向。",
+      "context_en": "An intervention tool for distinguishing correlated representations from directions that influence behavior."
+    },
+    {
+      "id": "latent-knowledge",
+      "title": "Discovering Latent Knowledge in Language Models Without Supervision",
+      "authors": [
+        "Collin Burns, Haotian Ye, Dan Klein, Jacob Steinhardt"
+      ],
+      "year": 2022,
+      "paper_type": "method",
+      "source_url": "https://arxiv.org/abs/2212.03827",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "不直接问模型相信什么，而是从内部激活中寻找满足逻辑一致性的方向，尝试读出潜在知识。",
+      "one_liner_en": "Looks for logically consistent directions in activations to recover latent knowledge without relying on the model's stated answer.",
+      "context": "用于比较模型知道什么与说出什么；探针读出的信息不自动构成真实知识的完整证明。",
+      "context_en": "Background for comparing internal information with stated answers; probe outputs do not establish a complete account of knowledge."
+    },
+    {
+      "id": "measuring-cot-faithfulness",
+      "title": "Measuring Faithfulness in Chain-of-Thought Reasoning",
+      "authors": [
+        "Tamera Lanham et al."
+      ],
+      "year": 2023,
+      "paper_type": "analysis",
+      "source_url": "https://arxiv.org/abs/2307.13702",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "通过改写、插入错误等方式干预思维链，观察最终答案是否跟着变，检查模型是否真的依赖写出的推理。",
+      "one_liner_en": "Intervenes on chains of thought through edits and mistakes to test whether final answers depend on the stated reasoning.",
+      "context": "反思驱动改进的边界证据：写得合理的解释，未必忠实反映内部计算。",
+      "context_en": "A boundary reference for reflection-driven improvement: plausible explanations may not faithfully describe internal computation."
+    },
+    {
+      "id": "neurons-explained",
+      "title": "Language models can explain neurons in language models",
+      "authors": [
+        "Steven Bills et al."
+      ],
+      "year": 2023,
+      "paper_type": "method",
+      "source_url": "https://openaipublic.blob.core.windows.net/neuron-explainer/paper/index.html",
+      "source_basis": "official-paper",
+      "verified_at": "2026-11-11",
+      "one_liner": "让语言模型给神经元写解释，再根据解释预测它在新文本上的激活，用预测效果检验解释。",
+      "one_liner_en": "Uses language models to explain neurons and evaluates explanations by predicting activations on new text.",
+      "context": "自动解释与解释检验的工具背景，适合比较可读性和可验证性，未直接验证 RSI。",
+      "context_en": "Background on automated explanation and testing, useful for separating readability from validity; not a direct RSI evaluation."
+    },
+    {
+      "id": "refusal-direction",
+      "title": "Refusal in Language Models Is Mediated by a Single Direction",
+      "authors": [
+        "Andy Arditi et al."
+      ],
+      "year": 2024,
+      "paper_type": "analysis",
+      "source_url": "https://arxiv.org/abs/2406.11717",
+      "source_basis": "abstract",
+      "verified_at": "2026-11-11",
+      "one_liner": "研究拒答行为与残差流中一个方向的关系，通过干预检查这个方向是否实际影响模型的回答。",
+      "one_liner_en": "Studies a residual-stream direction associated with refusal and uses interventions to examine its effect on model behavior.",
+      "context": "模型行为干预的边界证据，提醒性能变化之外还要核查安全行为是否发生改变。",
+      "context_en": "A behavioral-intervention reference highlighting the need to examine safety changes alongside performance gains."
+    }
+  ]
+}

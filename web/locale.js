@@ -2,6 +2,11 @@
 "use strict";
 let language = "zh";
 const englishUI = {
+  "清空": "Clear", "重置筛选": "Reset filters", "整理状态": "Reading status", "全部内容": "All content",
+  "精读卡片": "Full-text card", "文献索引": "Reading-list entry", "文献索引 · 待精读": "Reading-list entry · Not yet reviewed",
+  "查看文献": "View entry", "阅读卡片": "Read card", "为什么放在这里": "Why it is included",
+  "来源核对": "Source checked", "在新标签页打开": "Opens in a new tab",
+  "这是根据官方论文页整理的阅读线索，尚未完成全文精读。方法细节、实验结果与适用边界请以原文为准。": "This reading-list entry is based on the official paper page, not a full-text review. Consult the original for methods, results and limitations.",
   "评测基准": "Benchmark", "方法": "Method", "框架": "Framework",
   "数据集": "Dataset", "分析研究": "Analysis", "综述": "Survey", "观点论文": "Position paper",
   "全部论文": "All papers", "研究主题": "Research topics", "专题": "Collections",

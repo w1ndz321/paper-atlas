@@ -7,7 +7,7 @@
   --muted: #6e6e73;
   --line: #e2e2e6;
   --accent: #62546d;
-  --link: #55465f;
+  --link: #2874b8;
   --tint: #efedf2;
   --navigation: #f0f0f2;
   --font:
@@ -33,6 +33,10 @@ body.reading {
 a {
   color: var(--link);
   text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+}
+a:hover {
+  text-decoration-thickness: 2px;
 }
 button,
 input,
@@ -161,8 +165,10 @@ main {
   color: var(--muted);
 }
 .guide-reading a {
-  color: var(--accent);
-  text-decoration: none;
+  color: var(--link);
+  text-decoration: underline;
+  text-decoration-color: #b7d5f0;
+  text-decoration-thickness: 1px;
 }
 .guide-reading a:hover {
   text-decoration: underline;
@@ -225,6 +231,34 @@ main {
   font: 14px var(--font);
   color: var(--muted);
 }
+.clear-search,
+#reset-filters {
+  flex: 0 0 auto;
+  min-height: 36px;
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--secondary);
+  font-size: 13px;
+}
+.clear-search:hover,
+#reset-filters:hover {
+  background: var(--navigation);
+}
+.list-context {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding-top: 16px;
+}
+.reading-summary {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.8;
+}
 .toolbar {
   display: flex;
   align-items: center;
@@ -248,13 +282,67 @@ main {
 .toolbar select {
   min-height: 44px;
   max-width: 170px;
-  padding: 8px 4px;
+  padding: 8px 10px;
   font-size: 15px;
   color: var(--secondary);
-  background: transparent;
-  border: 0;
+  background: var(--surface);
+  border: 1px solid #d3d3d8;
   border-radius: 8px;
   cursor: pointer;
+}
+.toolbar .filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+.filter-field label {
+  font-size: 12px;
+  color: var(--muted);
+}
+.toolbar .list-filters {
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.reading-status {
+  display: inline-flex;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--page);
+  color: var(--secondary);
+  font-size: 12px;
+  line-height: 1.8;
+}
+.card-cta {
+  align-self: flex-start;
+  margin-top: 18px;
+  color: var(--link);
+  font-size: 14px;
+  text-decoration: underline;
+  text-decoration-color: #b7d5f0;
+  text-underline-offset: 4px;
+}
+.paper-row:hover .card-cta {
+  text-decoration-color: currentColor;
+  text-decoration-thickness: 2px;
+}
+.reference-note {
+  max-width: 860px;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--page);
+}
+.reference-note h3 {
+  margin: 0 0 12px;
+  font-size: 19px;
+}
+.reference-note p {
+  margin: 12px 0 0;
+}
+.reference-note .reference-boundary {
+  font-size: 15px;
+  color: var(--muted);
 }
 
 .paper-list {
@@ -284,7 +372,7 @@ main {
   flex-wrap: wrap;
   gap: 10px;
   align-items: center;
-  padding-right: 32px;
+  padding-right: 0;
   font-size: 14px;
   color: var(--muted);
 }
@@ -502,11 +590,12 @@ footer {
   border-left: 2px solid #d4d1d9;
 }
 .source-locations a {
-  color: #5b5861;
+  color: var(--link);
   font-size: 13px;
   line-height: 1.7;
   overflow-wrap: anywhere;
-  text-decoration: none;
+  text-decoration: underline;
+  text-decoration-color: #b7d5f0;
 }
 .source-locations a:hover {
   text-decoration: underline;
@@ -1104,7 +1193,8 @@ dialog .close {
 }
 .topic-paper-entry a {
   color: var(--link);
-  text-decoration: none;
+  text-decoration: underline;
+  text-decoration-color: #b7d5f0;
   padding: 8px 0;
 }
 .topic-paper-entry a:hover {
@@ -1114,6 +1204,8 @@ dialog .close {
   padding-bottom: 18px;
   border-bottom: 1px solid var(--line);
   margin-bottom: 0;
+  flex-wrap: wrap;
+  align-items: flex-end;
 }
 .toolbar > .result-summary {
   min-width: 0;
@@ -1155,7 +1247,7 @@ dialog .close {
 .paper-row h3 {
   font-size: 22px;
   letter-spacing: -0.4px;
-  margin: 11px 25px 10px 0;
+  margin: 11px 0 10px;
 }
 .paper-row p {
   font-size: 17px;
@@ -1218,11 +1310,17 @@ dialog .close {
   min-width: 90px;
 }
 .question-entry {
-  background: transparent;
-  border: 0;
-  color: var(--link);
-  padding: 8px 0;
+  background: var(--surface);
+  border: 1px solid #d3d3d8;
+  border-radius: 9px;
+  color: var(--secondary);
+  padding: 8px 12px;
   text-align: left;
+  min-height: 44px;
+}
+.question-entry:hover {
+  background: var(--navigation);
+  border-color: #aaaab1;
 }
 .guide-points {
   font-size: 16px;
@@ -1286,7 +1384,7 @@ dialog .close {
   }
   .paper-row h3 {
     font-size: 22px;
-    margin: 12px 24px 10px 0;
+    margin: 12px 0 10px;
   }
   .paper-row p {
     font-size: 16px;
@@ -1306,6 +1404,23 @@ dialog .close {
   }
   .toolbar > div {
     gap: 10px;
+  }
+  .toolbar .list-filters {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    width: 100%;
+    justify-content: stretch;
+  }
+  .toolbar .filter-field {
+    width: auto;
+  }
+  .filter-field:first-child {
+    grid-column: 1 / -1;
+  }
+  .toolbar .filter-field select {
+    width: 100%;
+    max-width: none;
   }
   .question-table {
     font-size: 15px;

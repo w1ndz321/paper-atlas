@@ -34,6 +34,8 @@ function link(text, href, className = "", external = false) {
   if (external) {
     el.target = "_blank";
     el.rel = "noopener noreferrer";
+    el.setAttribute("aria-label", text + " · " + t("在新标签页打开"));
+    el.title = t("在新标签页打开");
   }
   return el;
 }
@@ -47,6 +49,7 @@ function updateQuery(push = false, hash = location.hash) {
   if (guideOpen) query.set("view", "guide");
   else if (topic && !collection) query.set("view", "works");
   if ($("type-filter").value) query.set("type", $("type-filter").value);
+  if ($("read-status").value) query.set("status", $("read-status").value);
   if ($("sort").value !== "added") query.set("sort", $("sort").value);
   history[push ? "pushState" : "replaceState"](
     null,
@@ -85,6 +88,7 @@ function readView(state) {
     !subtopic &&
     !state.get("q") &&
     !state.get("type") &&
+    !state.get("status") &&
     (state.get("view") === "guide" ||
       (!state.has("view") && !state.has("sort")));
   if (subtopic) expandedAxes.add(data.config.subtopics[subtopic].axis);
@@ -140,6 +144,7 @@ function selectView(nextTopic = "", nextSubtopic = "", nextCollection = "") {
     Object.values(data.config.axes).some((axis) => axis.topic === topic);
   $("search").value = "";
   $("type-filter").value = "";
+  $("read-status").value = "";
   if (guideOpen) $("sort").value = "added";
   if (nextSubtopic) expandedAxes.add(data.config.subtopics[nextSubtopic].axis);
   closeSidebar();
@@ -162,14 +167,14 @@ function renderTopics() {
   const nav = $("topics");
   nav.replaceChildren();
   nav.append(
-    navButton(t("全部论文"), data.papers.length, !topic && !collection, () =>
+    navButton(t("全部论文"), data.entries.length, !topic && !collection, () =>
       selectView(),
     ),
   );
   nav.append(node("p", "nav-section-label", t("研究主题")));
   for (const [id, label] of Object.entries(data.config.topics)) {
     if (id === "interest-exploration") continue;
-    const count = data.papers.filter((p) => p.topics.includes(id)).length;
+    const count = data.entries.filter((p) => p.topics.includes(id)).length;
     const branch = node("div", "topic-branch");
     branch.dataset.topic = id;
     branch.append(
@@ -196,7 +201,7 @@ function renderTopics() {
         for (const [sid, child] of Object.entries(data.config.subtopics).filter(
           ([, s]) => s.axis === axisId,
         )) {
-          const count = data.papers.filter(
+          const count = data.entries.filter(
             (p) =>
               p.topics.includes(topic) &&
               (!collection || p.collections.includes(collection)) &&
@@ -223,7 +228,7 @@ function renderTopics() {
     collections.append(
       navButton(
         entry.label,
-        data.papers.filter((p) => p.collections.includes(id)).length,
+        data.entries.filter((p) => p.collections.includes(id)).length,
         collection === id,
         () => selectView(entry.topic || "", "", id),
         "collection",
@@ -234,7 +239,7 @@ function renderTopics() {
   collections.append(
     navButton(
       data.config.topics[interest],
-      data.papers.filter((p) => p.topics.includes(interest)).length,
+      data.entries.filter((p) => p.topics.includes(interest)).length,
       topic === interest,
       () => selectView(interest),
     ),
@@ -275,7 +280,7 @@ function renderGuide() {
     details.append(node("p", "guide-summary", guide.summary));
   } else {
     const jump = node("div", "topic-paper-entry");
-    const count = data.papers.filter((p) => p.topics.includes(topic)).length;
+    const count = data.entries.filter((p) => p.topics.includes(topic)).length;
     jump.append(
       node("span", "", t("问题导航")),
       link(language === "en" ? `View ${count} papers in this topic ↓` : `查看本主题 ${count} 篇论文 ↓`, "#list-controls"),
@@ -291,7 +296,7 @@ function renderGuide() {
     head.append(hrow);
     table.append(head);
     const body = node("tbody");
-    for (const question of guide.questions) {
+    for (const question of guide.questions.slice(0, 3)) {
       const row = node("tr");
       const cell = node("td");
       const action = node("button", "question-entry", question.label + " →");
@@ -348,12 +353,15 @@ function renderList() {
     .split(/\s+/)
     .filter(Boolean);
   const type = $("type-filter").value;
-  const filtered = data.papers.filter(
+  const status = $("read-status").value;
+  const scope = data.entries.filter(
+    (p) => (!topic || collection || p.topics.includes(topic)) &&
+      matchesCategory(p) && (!collection || p.collections.includes(collection)),
+  );
+  const filtered = scope.filter(
     (p) =>
-      (!topic || p.topics.includes(topic)) &&
-      matchesCategory(p) &&
-      (!collection || p.collections.includes(collection)) &&
       (!type || p.paper_type === type) &&
+      (!status || p.entry_kind === status) &&
       terms.every((t) => p.searchText.includes(t)),
   );
   const mode = $("sort").value;
@@ -365,7 +373,14 @@ function renderList() {
         : b.added_at.localeCompare(a.added_at) || a.id.localeCompare(b.id),
   );
   $("papers").replaceChildren();
-  $("total").textContent = filtered.length + " / " + data.papers.length + " " + t("篇");
+  $("total").textContent = filtered.length + " / " + scope.length + " " + t("篇");
+  const cards = filtered.filter((p) => p.entry_kind === "card").length;
+  const references = filtered.length - cards;
+  $("reading-summary").textContent = language === "en"
+    ? `${cards} full-text ${cards === 1 ? "card" : "cards"} · ${references} reading-list ${references === 1 ? "entry" : "entries"}. Entries link to official sources; facet categories cover full-text cards.`
+    : `${cards} 篇精读卡片 · ${references} 篇文献索引。索引可查看官方原文，细分分类暂只覆盖精读卡片。`;
+  $("clear-search").hidden = !$("search").value;
+  $("reset-filters").hidden = !terms.length && !type && !status && !subtopic;
   $("active-label").textContent =
     data.config.collections[collection]?.label ||
     data.config.subtopics[subtopic]?.label ||
@@ -382,11 +397,12 @@ function renderList() {
     row.style.animationDelay = Math.min(i * 35, 210) + "ms";
     const meta = node("div", "paper-meta");
     meta.append(
+      node("span", "reading-status", t(p.entry_kind === "reference" ? "文献索引 · 待精读" : "精读卡片")),
       node("span", "type", t(typeLabels[p.paper_type])),
       node("span", "", "·"),
       node("span", "", String(p.year)),
     );
-    if (language === "en" && !p.translations?.en)
+    if (p.entry_kind === "card" && language === "en" && !p.translations?.en)
       meta.append(node("span", "example-label", t("英文翻译待补充")));
     if (p.origin === "example")
       meta.append(node("span", "example-label", t("示例论文")));
@@ -411,12 +427,13 @@ function renderList() {
     const time = node("time", "", p.added_at + " " + t("收录"));
     time.dateTime = p.added_at;
     bottom.append(tags, time);
+    const cta = node("span", "card-cta", t(p.entry_kind === "reference" ? "查看文献" : "阅读卡片") + " →");
     row.append(
       meta,
       node("h3", "", p.title),
       node("p", "", p.one_liner),
       bottom,
-      node("span", "row-arrow", "↗"),
+      cta,
     );
     row.addEventListener("click", () => {
       savedScroll = window.scrollY;
@@ -458,7 +475,7 @@ function showRoute() {
   } catch {
     id = "";
   }
-  const paper = data.papers.find((p) => p.id === id);
+  const paper = data.entries.find((p) => p.id === id);
   $("library").hidden = true;
   const reader = $("reader");
   reader.hidden = false;
@@ -486,7 +503,7 @@ function showRoute() {
     node("p", "lead", paper.one_liner),
     node("p", "author", paper.authors.join(" · ")),
   );
-  if (language === "en" && !paper.translations?.en)
+  if (paper.entry_kind === "card" && language === "en" && !paper.translations?.en)
     head.append(node("p", "example-label", t("英文翻译待补充")));
   if (paper.origin === "example")
     head.append(node("p", "example-label", t("示例论文")));
@@ -497,6 +514,16 @@ function showRoute() {
   actions.append(link(t("阅读原文 ↗"), source, "", true));
   head.append(actions);
   reader.append(head);
+  if (paper.entry_kind === "reference") {
+    head.prepend(node("p", "reading-status", t("文献索引 · 待精读")));
+    const note = node("section", "reference-note");
+    note.append(node("h3", "", t("为什么放在这里")), node("p", "", paper.context));
+    note.append(node("p", "reference-boundary", t("这是根据官方论文页整理的阅读线索，尚未完成全文精读。方法细节、实验结果与适用边界请以原文为准。")));
+    note.append(node("p", "author", t("来源核对") + " · " + paper.verified_at));
+    reader.append(note);
+    window.scrollTo(0, 0);
+    return;
+  }
   const visibleSections = Object.entries(data.sections).filter(
     ([key]) => key !== "relevance",
   );
@@ -543,7 +570,7 @@ function showRoute() {
         relations.push({ id: p.id, reason: r.reason });
   for (const r of relations) {
     const other = data.papers.find((p) => p.id === r.id);
-    const a = link(other.title + " ↗", "#paper/" + other.id, "related-link");
+    const a = link(other.title + " →", "#paper/" + other.id, "related-link");
     a.append(node("small", "", r.reason));
     related.append(a);
   }
@@ -591,6 +618,7 @@ function applyLocale(nextLanguage) {
   $("type-filter").value = selectedType;
   const englishLabels = originalData.config.translations?.en || {};
   for (const paper of data.papers) {
+    paper.entry_kind = "card";
     const original = originalData.papers.find((item) => item.id === paper.id);
     const visibleText = (record) => Object.entries(record.sections)
       .filter(([key]) => key !== "relevance").map(([, section]) => section.text);
@@ -608,6 +636,24 @@ function applyLocale(nextLanguage) {
       labels.map((label) => [label, englishLabels[label] || label]),
     ]).toLocaleLowerCase();
   }
+  const manifest = data.reading_lists || { lists: {}, references: [] };
+  const reviewedIds = new Set(data.papers.map((p) => p.id));
+  const references = manifest.references.filter((p) => !reviewedIds.has(p.id)).map((ref) => {
+    const memberships = Object.entries(manifest.lists).filter(([, ids]) => ids.includes(ref.id)).map(([id]) => id);
+    const topics = memberships.filter((id) => Object.hasOwn(data.config.topics, id));
+    const collections = memberships.filter((id) => Object.hasOwn(data.config.collections, id));
+    return {
+      ...ref, entry_kind: "reference", topics, collections, subtopics: [], tags: [],
+      source: { url: ref.source_url }, added_at: ref.verified_at,
+      one_liner: language === "en" ? ref.one_liner_en : ref.one_liner,
+      context: language === "en" ? ref.context_en : ref.context,
+      searchText: JSON.stringify([ref.title, ref.authors, ref.one_liner, ref.one_liner_en, ref.context, ref.context_en,
+        topics.map((id) => [originalData.config.topics[id], data.config.topics[id]]),
+        collections.map((id) => [originalData.config.collections[id].label, data.config.collections[id].label]),
+      ]).toLocaleLowerCase(),
+    };
+  });
+  data.entries = [...data.papers, ...references];
   if (data.pending_count)
     $("footer").textContent += language === "en"
       ? ` ${data.pending_count} papers are pending. See inbox in the repository.`
@@ -637,6 +683,7 @@ async function init() {
     readView(params);
     $("search").value = params.get("q") || "";
     $("type-filter").value = params.get("type") || "";
+    $("read-status").value = params.get("status") || "";
     $("sort").value = ["added", "year", "title"].includes(params.get("sort"))
       ? params.get("sort")
       : "added";
@@ -654,6 +701,20 @@ async function init() {
       if (toc) toc.open = event.matches;
     });
     $("search-form").onsubmit = (event) => event.preventDefault();
+    $("clear-search").onclick = () => {
+      $("search").value = "";
+      renderList();
+      $("search").focus();
+    };
+    $("reset-filters").onclick = () => {
+      $("search").value = "";
+      $("type-filter").value = "";
+      $("read-status").value = "";
+      subtopic = "";
+      renderTopics();
+      renderList();
+      $("search").focus();
+    };
     $("search").oninput = () => {
       if (guideOpen) {
         guideOpen = false;
@@ -662,6 +723,7 @@ async function init() {
       renderList();
     };
     $("type-filter").onchange = renderList;
+    $("read-status").onchange = renderList;
     $("sort").onchange = renderList;
     $("close-help").onclick = () => $("help").close();
     $("header-help").onclick = () => $("help").showModal();
@@ -700,6 +762,7 @@ async function init() {
       $("search").value = state.get("q") || "";
       readView(state);
       $("type-filter").value = state.get("type") || "";
+      $("read-status").value = state.get("status") || "";
       $("sort").value = ["added", "year", "title"].includes(state.get("sort"))
         ? state.get("sort")
         : "added";

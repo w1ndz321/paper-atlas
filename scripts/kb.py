@@ -354,6 +354,61 @@ def check_record(p, cfg, ids, root=ROOT, source=None):
     return errors
 
 
+def reading_lists(root, papers, cfg):
+    """Source-checked discovery records are separate from full-text reviewed cards."""
+    path = root / "reading_lists.json"
+    if not path.exists():
+        return {"schema_version": 1, "lists": {}, "references": []}
+    manifest = read(path)
+    if (manifest.get("schema_version") != 1 or not isinstance(manifest.get("lists"), dict)
+            or not isinstance(manifest.get("references"), list)):
+        raise Invalid("reading_lists.json 格式无效")
+    known = {p["id"]: p for p in papers}
+    identities = {identity(p["source"]["url"]): p["id"] for p in papers if p["source"].get("url")}
+    seen = set()
+    for ref in manifest["references"]:
+        if not isinstance(ref, dict) or not slug_ok(ref.get("id")) or ref["id"] in seen:
+            raise Invalid("文献索引 id 无效或重复")
+        seen.add(ref["id"])
+        if (not all(isinstance(ref.get(k), str) and ref[k].strip() for k in
+                    ("title", "one_liner", "one_liner_en", "context", "context_en"))
+                or not isinstance(ref.get("authors"), list) or not ref["authors"]
+                or not all(isinstance(a, str) and a.strip() for a in ref["authors"])
+                or type(ref.get("year")) is not int or not 1900 <= ref["year"] <= date.today().year
+                or ref.get("paper_type") not in TYPES
+                or ref.get("source_basis") not in ("abstract", "official-summary", "official-paper")
+                or not safe_url(ref.get("source_url", ""))
+                or urlparse(ref["source_url"]).scheme != "https"):
+            raise Invalid(ref["id"] + ": 文献索引缺少双语简介、作者、年份或有效来源")
+        try:
+            if date.fromisoformat(ref["verified_at"]) > date.today():
+                raise ValueError()
+        except (KeyError, TypeError, ValueError):
+            raise Invalid(ref["id"] + ": 来源核对日期无效")
+        key = identity(ref["source_url"])
+        if key in identities and identities[key] != ref["id"]:
+            raise Invalid(ref["id"] + ": 文献索引与其他文章来源重复")
+        # A later full-text ingestion can promote the same id, preserving shared links.
+        if ref["id"] in known and identity(known[ref["id"]]["source"]["url"]) != key:
+            raise Invalid(ref["id"] + ": 精读卡片与索引来源不一致")
+        identities[key] = ref["id"]
+    ids = set(known) | seen
+    referenced = set()
+    for group, members in manifest["lists"].items():
+        if group not in cfg["topics"] and group not in cfg.get("collections", {}):
+            raise Invalid("文献清单分类无效：" + group)
+        if (not isinstance(members, list) or not members or not all(isinstance(i, str) for i in members)
+                or len(members) != len(set(members)) or not set(members) <= ids):
+            raise Invalid(group + ": 文献清单包含重复或不存在的文章")
+        axis = "topics" if group in cfg["topics"] else "collections"
+        if any(group not in known[i].get(axis, []) for i in members if i in known):
+            raise Invalid(group + ": 精读卡片的分类与清单不一致")
+        referenced.update(members)
+    if not seen <= referenced:
+        raise Invalid("文献索引存在未归入清单的文章")
+    return manifest
+
+
 def validate(root=ROOT):
     cfg = config(root)
     papers = records(root)
@@ -402,6 +457,7 @@ def validate(root=ROOT):
                     errors.append(f"{topic}: 问题入口必须指向本主题维度或有效视图")
     if errors:
         raise Invalid("\n".join(errors))
+    reading_lists(root, papers, cfg)
     return papers
 
 
@@ -504,10 +560,12 @@ def build(output, root=ROOT):
     public_config["topic_guides"] = cfg.get("topic_guides", {})
     for key in ("subtopics", "collections", "classification_rules", "topic_aliases", "topic_descriptions", "axes", "subtopic_aliases", "translations"):
         public_config[key] = cfg.get(key, [] if key == "classification_rules" else {})
-    write(output / "data.json", {"config": public_config, "papers": sorted(papers, key=lambda p: (p["added_at"], p["id"]), reverse=True), "sections": SECTIONS, "pending_count": len(inbox)})
-    # Only website assets and reviewed cards are published; extraction caches/drafts never enter dist.
+    manifest = reading_lists(root, papers, cfg)
+    write(output / "data.json", {"config": public_config, "papers": sorted(papers, key=lambda p: (p["added_at"], p["id"]), reverse=True), "reading_lists": manifest, "sections": SECTIONS, "pending_count": len(inbox)})
+    # Discovery indices are explicitly separate; extraction caches and drafts never enter dist.
     (output / ".nojekyll").touch()
-    print(f"已构建 {len(papers)} 篇论文，{len(inbox)} 篇待处理：{output}")
+    new_refs = [r for r in manifest["references"] if r["id"] not in {p["id"] for p in papers}]
+    print(f"已构建 {len(papers)} 篇精读卡片、{len(new_refs)} 篇文献索引，{len(inbox)} 篇待处理：{output}")
 
 
 def main():

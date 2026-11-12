@@ -23,7 +23,7 @@
   ],
   "classification_reason": "研究特定任务的计算子图，通过激活差与梯度近似边的重要性；电路恢复分数与精确干预效应的忠实性需要分别判断。",
   "added_at": "2026-11-11",
-  "updated_at": "2026-11-11",
+  "updated_at": "2026-11-12",
   "source": {
     "url": "https://arxiv.org/abs/2310.10348v2",
     "sha256": "d2bb28ed2f9a93ecf3287885c3fe221cadeddaf526b89a5361a8043a8ee63f04",
@@ -47,7 +47,7 @@
       ]
     },
     "method": {
-      "text": "准备成对的正常与破坏输入，记录连接在两种输入下的激活。EAP 用“破坏激活减正常激活”与任务指标对正常激活的梯度做内积，作为一阶效应近似；跨样本平均后，按绝对值保留前 k 条边。主要计算需要两次前向和一次反向传播。完整模型处 KL 散度梯度为零，因此作者改用任务特定指标。",
+      "text": "**Edge Attribution Patching (EAP)** 用一阶线性近似一次筛选全图连接，主要计算只需 **2 次前向传播 + 1 次反向传播**：\n1. **记录激活**：准备成对的正常（clean）与破坏（corrupt）输入，分别跑前向传播记录各条连接的激活。\n2. **一阶归因近似**：用“破坏激活减正常激活”与“任务指标对正常激活的梯度”做内积，近似单条边的局部干预效应；因为完整模型处 KL 散度梯度为零，实验改用任务特定指标。\n3. **筛选候选边**：跨样本平均归因分数后，按绝对值保留 `top-k` 条边进入候选子图。",
       "evidence": [
         "e2"
       ]
@@ -67,7 +67,7 @@
       ]
     },
     "results": {
-      "text": "在已有人工电路作参照的实验中，IOI 上 EAP 的 AUC 为 0.904，对比 KL-ACDC 的 0.868；Greater-Than 为 0.896，对比 0.849。不过 Docstring 上 EAP 为 0.976，略低于 KL-ACDC 的 0.982，也低于直接激活替换的 0.978。优势是较低筛选开销，并非所有任务逐项最优。",
+      "text": "以已有人工电路作参照（图 2），三项电路恢复任务的 AUC 对比如下：\n\n| 任务 | EAP | KL-ACDC | 直接逐边激活替换 |\n| --- | --- | --- | --- |\n| IOI | **0.904** | 0.868 | —（GPT-2 Small 开销过高） |\n| Greater-Than | **0.896** | 0.849 | —（GPT-2 Small 开销过高） |\n| Docstring | 0.976 | **0.982** | 0.978 |\n\n- **结论边界**：EAP 的优势在于把筛选成本与高恢复率结合起来，并非在每项任务上都逐项高于 ACDC。",
       "evidence": [
         "e3"
       ]
@@ -81,7 +81,7 @@
       ]
     },
     "limitations": {
-      "text": "Docstring 的近似分数和真实替换分数相关性较弱，R² 为 0.27，嵌入边尤其可能违反局部线性近似。指标选择会改变结果，人工电路也不是完美标答；在尚无人理解的任务上，现有恢复指标本身难以验证解释是否完整。",
+      "text": "- **一阶近似相关性有限**：Docstring 上近似归因分数与真实替换分数的相关性较弱（$R^2 = 0.27$），尤其是嵌入边容易违反局部线性近似。\n- **指标与参照依赖**：评估受任务指标选择影响，已有人工电路也并非完美真值；在尚无人理解的新任务上，现有恢复指标本身难以验证解释是否完整。",
       "evidence": [
         "e4",
         "e5"
@@ -146,12 +146,12 @@
       "sections": {
         "problem": "Identifying task-relevant circuits requires searching many attention-head and MLP connections. Re-running the model after each activation replacement is expensive; the authors investigate a faster gradient-based search.",
         "gap": "ACDC prunes edges using repeated activation replacements. A cheaper approximation must be tested both against known circuits and against actual intervention effects; good recovery need not imply accurate edge-effect estimates.",
-        "method": "For clean and corrupted input pairs, EAP takes the inner product of the activation difference with the clean task-metric gradient. After averaging over examples, it retains the top-k edges by absolute attribution. This needs two forward passes and one backward pass. The experiments use task-specific metrics because KL divergence has zero gradient at the unperturbed model.",
+        "method": "**Edge Attribution Patching (EAP)** screens all edges using a first-order linear approximation in **2 forward passes + 1 backward pass**:\n1. **Record activations**: run paired clean and corrupted prompts and cache activations along each edge.\n2. **First-order attribution**: take the inner product of the activation difference (corrupted minus clean) with the clean task-metric gradient; task-specific metrics replace KL divergence because KL has zero gradient at the unperturbed model.\n3. **Candidate selection**: average attribution across examples and keep the `top-k` edges by absolute score.",
         "trace": "On the Docstring task, an embedding-origin edge changes the metric nonlinearly during interpolation, so a first-order estimate overstates its effect. This motivates EAP screening followed by ACDC on the smaller candidate graph.",
         "inputs_outputs": "Inputs are a model with internal and gradient access, clean/corrupted prompt pairs and a task metric. Outputs are edge scores and thresholded or top-k subgraphs. The goal is task interpretation, not inference acceleration.",
-        "results": "Against known circuits, EAP obtains AUC 0.904 versus KL-ACDC’s 0.868 on IOI and 0.896 versus 0.849 on Greater-Than. On Docstring, its 0.976 is below KL-ACDC’s 0.982 and direct activation patching’s 0.978. Its advantage combines recovery quality with lower screening cost, rather than winning every task.",
+        "results": "Against human-identified circuits (Figure 2), AUC comparisons across the three circuit-recovery tasks are:\n\n| Task | EAP | KL-ACDC | Direct edge patching |\n| --- | --- | --- | --- |\n| IOI | **0.904** | 0.868 | — (too costly on GPT-2 Small) |\n| Greater-Than | **0.896** | 0.849 | — (too costly on GPT-2 Small) |\n| Docstring | 0.976 | **0.982** | 0.978 |\n\n- **Takeaway**: EAP combines strong circuit recovery with lower screening cost rather than winning every task individually.",
         "contributions": "The paper turns attribution patching into an all-edge screening algorithm, benchmarks three tasks and investigates approximation failures. Combining EAP with later ACDC refinement improves Docstring circuit recovery.",
-        "limitations": "On Docstring, approximate and actual intervention scores have R² 0.27; embedding edges can be particularly nonlinear. Results depend on metric choice and imperfect human circuit references, limiting evaluation on previously unexplained tasks.",
+        "limitations": "- **Weak correlation on Docstring**: approximate and actual intervention scores reach only $R^2 = 0.27$, with embedding edges especially prone to nonlinearity.\n- **Metric and reference sensitivity**: outcomes vary with metric choice and rely on imperfect human-found circuits, limiting validation on previously unexplained tasks.",
         "cost": "Propagation count avoids scaling with one intervention per edge, but activation/gradient storage and dataset aggregation still cost resources. ACDC refinement adds further work. Direct edge patching was run only on the smaller Docstring model because it was too expensive for the GPT-2 Small tasks; no universal large-model memory or latency guarantee is supplied.",
         "relevance": "Library analysis: This is a bridge tool for automated interpretability and screening connections before and after model changes. Attribution scores alone establish neither update reliability nor an explanation-driven RSI loop."
       },

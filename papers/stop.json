@@ -24,7 +24,7 @@
   ],
   "one_liner": "让调用 GPT-4 的代码优化器修改自身，再用下游程序的效用衡量这个“优化器的优化”。",
   "added_at": "2026-11-10",
-  "updated_at": "2026-11-11",
+  "updated_at": "2026-11-12",
   "source": {
     "url": "https://arxiv.org/abs/2310.02304v3",
     "sha256": "f1eb66d65763d84367fd380625cf86d66b5dd8e319c46259e7d0aabba9b608e2",
@@ -49,7 +49,7 @@
       ]
     },
     "method": {
-      "text": "种子优化器调用 LM 生成若干候选，用效用函数选出最好程序。外层递推 I_t = I_(t−1)(元效用, I_(t−1), LM)：候选优化器被运行在下游任务上，其平均表现作为元效用。效用同时提供可调用实现和描述字符串；模型及资源上限由外部提供。",
+      "text": "种子优化器调用 LM 生成若干候选，并用效用函数选出最优程序。外层自修改采用如下递归形式：\n$$I_t = I_{t-1}(\\text{元效用},\\; I_{t-1},\\; \\text{LM})$$\n\n- **元效用评分**：每个候选优化器被实际运行在下游任务上，其生成程序的平均表现作为该优化器的元效用。\n- **外部固定项**：效用同时以可调用实现和文本描述形式提供；底座语言模型与资源上限由外部固定，不参与自我改写。",
       "evidence": [
         "e1",
         "e2"
@@ -69,7 +69,7 @@
       ]
     },
     "results": {
-      "text": "gpt-4-0314 的带噪奇偶任务在 5 次独立运行中，前 1–3 轮平均表现提高，单条轨迹并不保证单调。选定优化器迁移到 5 类新任务均优于种子，例如表 1 的 3SAT 元效用由 21.2% 到 75.1%。GPT-3.5 和 Mixtral 的平均迭代结果却退化，说明成功依赖底座能力与实现可靠性。",
+      "text": "| 模型配置 | 实验观察（原论文条件） |\n| --- | --- |\n| `gpt-4-0314`（带噪奇偶） | 5 次独立运行中前 1–3 轮平均表现提升，但单条轨迹不保证单调 |\n| `gpt-4-0314`（迁移，表 1） | 选定优化器迁移到 5 类新任务均优于种子，其中 `3SAT` 元效用由 **21.2%** 升至 **75.1%** |\n| `GPT-3.5` 与 `Mixtral` | 平均迭代结果出现退化 |\n\n结果说明，脚手架递归元优化能否生效高度依赖底座模型能力与代码生成可靠性。",
       "evidence": [
         "e3"
       ]
@@ -83,7 +83,7 @@
       ]
     },
     "limitations": {
-      "text": "LM 权重始终不变，作者明确不称其为完整 RSI。需要可高效评估的效用；随机评分会选择坏修改，下一轮可能继续恶化。曾因数组形状漏洞得到超过 1000% 的“准确率”，表明分数上涨未必是真实能力提高；不同下游任务和模型的外推有限。",
+      "text": "- **底座冻结**：LM 权重始终不变，作者明确不将该方法称作完整 RSI。\n- **效用与奖励漏洞**：依赖可高效评估的效用函数；随机评分会选入坏修改并在后续轮次恶化，实验中曾因数组形状漏洞出现超过 **1000%** 的虚假“准确率”。\n- **外推边界**：跨不同下游任务与底座模型的外推能力有限。",
       "evidence": [
         "e4",
         "e5"
@@ -158,12 +158,12 @@
       "sections": {
         "problem": "With a fixed language model, can we discover better prompting, search and evaluation procedures automatically? STOP treats the Python optimizer as editable code. The optimizer can improve task programs or receive its own source as input.",
         "gap": "Ordinary code optimization improves a task solution, while hand-designed scaffolds fix how improvement happens. STOP makes average downstream utility a meta-objective so the search process can edit itself. That human-defined proxy does not guarantee that better task solving implies better subsequent self-modification.",
-        "method": "A seed optimizer asks the language model for candidates and keeps the program with the best utility. The outer recursion is I_t = I_(t−1)(meta-utility, I_(t−1), LM). Each candidate optimizer runs on downstream tasks, whose mean performance supplies its meta-utility. Utility is supplied both as a callable function and as descriptive text. The model and resource caps are externally fixed.",
+        "method": "A seed optimizer queries the LM for candidate programs and keeps the highest-utility candidate. The outer recursion updates the optimizer via:\n$$I_t = I_{t-1}(\\text{meta-utility},\\; I_{t-1},\\; \\text{LM})$$\n\n- **Meta-utility scoring**: each candidate optimizer runs on downstream tasks, and mean downstream utility serves as its meta-utility.\n- **Externally fixed inputs**: utility is supplied both as callable code and text description, while the base model and resource caps stay fixed.",
         "trace": "The main experiment is 10-bit noisy parity learning. The optimizer edits a predictor, scored by mean accuracy across 20 independent instances. During self-modification it sees the optimizer and meta-utility structure, without direct access to the specific downstream task code. Final evaluation uses another 50 instances. This separates improving a predictor from improving the procedure that creates predictors.",
         "inputs_outputs": "Inputs are a seed optimizer, fixed language model, downstream tasks and utility functions, iteration count and call budget. Outputs are an improved optimizer and the downstream solutions it generates. The paper includes formal definitions, finite-resource generalization analysis, search-strategy examples and experiments.",
-        "results": "With gpt-4-0314, mean noisy-parity performance improves over the first one to three rounds across five independent runs, without monotonicity in every trajectory. A selected optimizer outperforms the seed on five new task classes. In Table 1, 3SAT meta-utility rises from 21.2% to 75.1%. Average iterative performance degrades for GPT-3.5 and Mixtral, indicating dependence on base-model ability and implementation reliability.",
+        "results": "| Model configuration | Observed outcome (paper conditions) |\n| --- | --- |\n| `gpt-4-0314` (noisy parity) | Mean performance improves over rounds 1–3 across 5 independent runs, without per-trajectory monotonicity |\n| `gpt-4-0314` (transfer, Table 1) | Selected optimizer beats seed on 5 new task classes; `3SAT` meta-utility rises **21.2% → 75.1%** |\n| `GPT-3.5` and `Mixtral` | Mean iterative performance degrades |\n\nThese contrasts indicate that recursive scaffold optimization depends strongly on base-model capability and implementation reliability.",
         "contributions": "The work turns an optimizer’s editable source into an executable recursive meta-optimization protocol. Generated strategies include beam search, evolutionary search and temperature adjustment. It also supplies inspectable examples of constraint bypasses and reward exploitation.",
-        "limitations": "The language model’s weights never change, and the authors explicitly avoid claiming full RSI. Utilities must be efficiently evaluable. Noisy scoring can select bad modifications that deteriorate further in later rounds. One array-shape loophole produced an apparent accuracy above 1000%, illustrating why score gains need validation. Transfer across tasks and models is limited.",
+        "limitations": "- **Frozen base weights**: LM parameters never change, and the authors explicitly avoid claiming full RSI.\n- **Reward and noise sensitivity**: requires efficiently evaluable utilities; noisy evaluation can select bad edits that worsen later rounds, and an array-shape loophole produced apparent accuracy above **1000%**.\n- **Limited transfer**: generalization across downstream tasks and weaker base models remains constrained.",
         "cost": "Meta-utility evaluation repeatedly runs downstream optimizers, making discovery more expensive than using the final optimizer. Reproduction needs the specified model version, utility implementation, timeouts and call budgets. Retirement of older closed models can obstruct reruns. The library has not independently repeated the experiments.",
         "relevance": "Library analysis. STOP is an entry point for distinguishing improvement of answers, execution programs and improvement mechanisms. Its scoring loopholes also show how faulty feedback can contaminate self-improvement. Neural-network interpretability is not used to drive these modifications."
       },

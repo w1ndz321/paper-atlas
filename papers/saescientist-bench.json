@@ -26,7 +26,7 @@
   ],
   "one_liner": "让 Agent 自行设计对照文本、搜索 SAE 特征，并分开评估特征选择性和生成干预，测量自动化可解释性研究能力。",
   "added_at": "2026-11-10",
-  "updated_at": "2026-11-11",
+  "updated_at": "2026-11-12",
   "source": {
     "url": "https://arxiv.org/abs/2609.09113v2",
     "sha256": "32984f5141b2746ff16d4424783947bcfa002b279bcaeffcd356ef83846b9bd2",
@@ -71,7 +71,7 @@
       ]
     },
     "results": {
-      "text": "10 个模型—harness 配置各做 20 任务、3 次独立调查。表 1 中最高 Overall 为 Kimi K3 的 65.82±1.87，专家参考为 85.56；最高选择性 92.91 接近专家 98.92，但最强 steering 为 Grok 4.6 的 31.47，仍低于专家 57.75。±为跨运行标准差，分数均非任务成功率；不同维度的最强模型也不同。",
+      "text": "10 个模型—harness 配置在 20 个任务上各做 **3 次独立调查**（表 1 报告均值 ± 跨运行标准差）。这些指标**均不是任务成功率**，而是分别检验特征定位与因果控制：\n\n| 维度（表 1，↑ 越高越接近专家） | 最强配置 | 专家参考 | 指标含义与核心差距 |\n| --- | --- | --- | --- |\n| `Overall`（三项等权平均） | **65.82 ± 1.87**（Kimi K3） | 85.56 | 综合排名、激活选择性与生成干预，仍明显低于人类专家基线 |\n| 样本选择性（Activation，源自 AUROC） | **92.91** | 98.92 | 所选特征区分正负样本的能力，**最接近专家水平** |\n| 生成干预（Steering） | **31.47**（Grok 4.6） | 57.75 | 相对等范数随机方向推动概念生成的因果效力，**仍是最大短板** |\n\n- **判读边界**：不同维度由不同模型领先，且未拉齐各配置的调用预算与 harness，不能直接当作等成本底座排名；找得出高选择性特征，不代表找得出能因果控生成的特征。",
       "evidence": [
         "e2",
         "e3"
@@ -175,7 +175,7 @@
         "method": "For each of 20 specified concepts, an agent selects one feature from Gemma Scope SAEs at layers 9 and 20 of Gemma-2-9B-IT. It writes control texts, searches and tests candidates through a fixed probe interface, then submits an ID among 131,072 directions. Expert features and evaluation data are hidden during discovery. Evaluation measures dictionary rank, positive/negative selectivity and steering.",
         "trace": "For the cat concept, a candidate responds both to actual cats and unrelated words such as copycat and catalytic. Agent-designed negative controls reveal that it may detect the string cat. The agent then searches for a feature better aligned with the animal concept, testing its hypothesis through counterexamples.",
         "inputs_outputs": "Inputs specify the concept, model and SAE, hook and dictionary width. Each probe call accepts up to 64 agent-written texts. The agent returns one feature ID and a process trace. Evaluation produces activation matrices, steered responses and scores. Rank is scaled against experts, Activation derives from AUROC, and Steering compares normal behavior with equal-norm random directions. Overall averages the three equally.",
-        "results": "Ten model–harness configurations each perform 20 tasks in three independent investigations. Table 1’s highest Overall is Kimi K3 at 65.82 ± 1.87, versus an expert reference of 85.56. The highest selectivity is 92.91, near the expert’s 98.92. Grok 4.6 has the highest steering score, 31.47, below the expert’s 57.75. The ± values are standard deviations across runs. Scores are not task-success rates, and different models lead different dimensions.",
+        "results": "Ten model–harness setups complete 20 tasks across **3 independent runs** (Table 1 reports mean ± cross-run standard deviation). Scores are **not task-success rates**; they separate feature localization from causal control:\n\n| Metric (Table 1, ↑) | Best agent setup | Expert reference | What the metric means |\n| --- | --- | --- | --- |\n| `Overall` (equal average of 3 dims) | **65.82 ± 1.87** (Kimi K3) | 85.56 | Aggregate across rank, selectivity, and steering; still well behind experts |\n| Activation selectivity (from AUROC) | **92.91** | 98.92 | Separability on positive vs. negative test texts; **near expert level** |\n| Steering (causal intervention) | **31.47** (Grok 4.6) | 57.75 | Generation shift over norm-matched random controls; **primary capability gap** |\n\n- **Reading boundary**: different models lead different axes without equalized call budgets, so high selectivity alone does not imply strong causal steering.",
         "contributions": "The benchmark decomposes autonomous representation research into testable experimental skills, using hidden references, control probes and causal generation checks. Process analysis finds useful negative examples, but also misread activations, confusion between document format and concept, and features that harm generation quality.",
         "limitations": "The scope is one model family, two layers and single-feature search for preset concepts. Open hypotheses, multi-feature circuits and training new SAEs are excluded. Evaluation depends on expert references and automated judges, and a high overall score does not guarantee preservation of the original user instruction. Model editing, unlearning and continual alignment are future connections rather than a completed RSI loop.",
         "cost": "Discovery budgets do not force equal calls, steps or inference costs. Configurations also use Codex or Cursor, making this a comparison of models together with their harnesses. Reproduction needs Gemma weights, Gemma Scope, the probe environment, specified model versions and a generation judge.",

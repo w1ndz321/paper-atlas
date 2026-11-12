@@ -25,7 +25,7 @@
   ],
   "one_liner": "用冻结底座的编码 Agent 改写自身工具与工作流，并保存多条演化分支作为后续改进的踏脚石。",
   "added_at": "2026-11-10",
-  "updated_at": "2026-11-11",
+  "updated_at": "2026-11-12",
   "source": {
     "url": "https://arxiv.org/abs/2505.22954v3",
     "sha256": "13ff4abe0c7ad4a7dd3b4876d19a8bf940e39e70dabbf06065aa774a6c3457de",
@@ -69,7 +69,7 @@
       ]
     },
     "results": {
-      "text": "每个主搜索运行 80 轮；自修改用 Claude 3.5 Sonnet (New)，SWE 评估也用该模型，Polyglot 评估用 o3-mini。SWE 的 200 题评估由 20.0% 到 50.0%；Polyglot 搜索的 50 题子集由 14.0% 到 38.0%，全 225 题复评则由 14.2% 到 30.7%。去掉自修改或开放档案的消融较弱，并报告跨模型、跨 benchmark 迁移。",
+      "text": "每个主搜索运行 **80 轮**（自修改与 SWE 评估使用 `Claude 3.5 Sonnet (New)`，Polyglot 评估使用 `o3-mini`）。主结果按“搜索期子集 vs 全量留出复评”呈现：\n\n| 基准与测试集合 | 初始 → 演化后（↑） | 指标含义与判读边界 |\n| --- | --- | --- |\n| SWE-bench Verified（200 题） | 20.0% → **50.0%** | 解决率提升 **+30.0 个百分点**，支撑编码 Agent 源码自改可显著提高任务表现 |\n| Polyglot 搜索子集（50 题，`pass@1`） | 14.0% → **38.0%** | 搜索迭代直接看到的子集成绩（严格 `pass@1`，不能混同公开榜单 `pass@2`） |\n| Polyglot 全量复评（225 题，`pass@1`） | 14.2% → **30.7%** | 扩展到全部 225 题仍有 **+16.5 个百分点**增益，但低于 50 题子集幅度（反映选择子集存在乐观偏差） |\n\n- **消融与迁移**：去掉自修改或开放式版本档案后表现更弱；另报告了跨底座模型与跨 benchmark 迁移结果。",
       "evidence": [
         "e2",
         "e3"
@@ -166,7 +166,7 @@
         "method": "A parent agent is sampled from the archive using its performance and number of descendants. It analyzes logs, proposes improvements and edits its code. Children enter the archive after compilation and basic code-editing checks, then participate in future selection using coding-task scores. The base model, archive maintenance and parent-sampling process are fixed.",
         "trace": "The initial editor views or replaces an entire file. Evolved agents add line-based viewing, exact string replacement, context summaries and ranking of multiple candidate patches. The final lineage in Figure 3 passes through two score decreases. Those intermediate versions are retained and later branches build better agents from them.",
         "inputs_outputs": "The inputs are an initial Python agent, a frozen foundation model, coding tasks, an evaluator and search settings. Outputs include source diffs, an agent archive, lineages and scores. SWE-bench uses the Verified subset. Polyglot reports pass@1 and withholds true test feedback from the task-solving agent, differing from the leaderboard’s pass@2 setting.",
-        "results": "Each main search runs for 80 iterations. Self-modification and SWE evaluation use Claude 3.5 Sonnet (New), while Polyglot evaluation uses o3-mini. On 200 SWE tasks, performance rises from 20.0% to 50.0%. On the 50-task Polyglot search subset it rises from 14.0% to 38.0%. Reevaluation on all 225 tasks gives 14.2% to 30.7%. Ablations without self-modification or an open archive perform worse, and the paper reports cross-model and cross-benchmark transfer.",
+        "results": "Each main search runs **80 iterations** (`Claude 3.5 Sonnet (New)` for self-editing and SWE; `o3-mini` for Polyglot). Separating selection subsets from full-benchmark reevaluation shows both gains and selection shrinkage:\n\n| Benchmark split | Initial → Evolved (↑) | What the metric means |\n| --- | --- | --- |\n| SWE-bench Verified (200 tasks) | 20.0% → **50.0%** | **+30.0 pp** solve rate, showing source-level workflow edits substantially improve coding outcomes |\n| Polyglot search subset (50 tasks, `pass@1`) | 14.0% → **38.0%** | Gain measured on the 50-task subset guiding search (strict `pass@1`, distinct from leaderboard `pass@2`) |\n| Polyglot full reevaluation (225 tasks, `pass@1`) | 14.2% → **30.7%** | **+16.5 pp** full-set transfer, smaller than the 50-task subset due to selection optimism |\n\n- **Ablations & transfer**: removing self-modification or the open archive weakens performance; cross-model and cross-benchmark transfer are also reported.",
         "contributions": "The system combines source-code self-modification, coding evaluation and an open archive. Its lineages show how weaker intermediate agents can contribute to later discoveries, extending search beyond immediate score improvements. The contribution is an empirical system design rather than a solution to the original Gödel Machine’s proof requirements.",
         "limitations": "Using coding performance as evidence of self-improvement ability is a substantial assumption. People define the tasks and evaluation, and both the base model and search process remain fixed. The work neither retrains the foundation model nor establishes long-term self-acceleration. Benchmark subsets used for selection must be distinguished from held-out cross-benchmark tests.",
         "cost": "The main SWE run takes about two weeks and incurs substantial API costs. Reproduction requires matching v3’s model versions, 80-iteration setup, staged task sets, parallelism, tools and isolated execution environment. Public code and lineages support inspection. This library has not independently rerun the experiments.",

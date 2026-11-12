@@ -422,5 +422,13 @@
     "page_count": 18,
     "file": "pdfs/branchpoint.pdf",
     "downloaded_at": "2026-11-12"
+  },
+  "agentic-bootstrap": {
+    "url": "https://arxiv.org/pdf/2607.01507",
+    "source_url": "https://arxiv.org/abs/2607.01507",
+    "sha256": "2dee5952ee3627ce4076657178e9d216a2b8d81f31775aa72983768ce0176ec8",
+    "page_count": 35,
+    "file": "pdfs/agentic-bootstrap.pdf",
+    "downloaded_at": "2026-11-12"
   }
 }

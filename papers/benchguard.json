@@ -19,10 +19,8 @@
   "tags": [],
   "one_liner": "把任务说明、标答、评分程序和环境放在一起交叉检查，找出可能把合理解答判错的基准缺陷，再交给人复核。",
   "subtopics": [
-    "domain-biology",
-    "eval-validity",
     "eval-process",
-    "activity-na"
+    "eval-validity"
   ],
   "collections": [],
   "classification_reason": "审计对象是任务说明、标答、评分器与环境之间的一致性，实证包括科学数据分析和生物信息学基准；审计本身不是执行科研任务，因此活动使用通用方法研究。",

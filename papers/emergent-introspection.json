@@ -153,11 +153,8 @@
     "interpretability-rsi"
   ],
   "subtopics": [
-    "interp-q-introspection",
-    "interp-representations",
-    "interp-behavior",
-    "interp-m-intervention",
-    "interp-m-behavior"
+    "interp-intervention",
+    "interp-audit"
   ],
   "classification_reason": "以概念注入与行为对照检验状态报告能力；识别自身状态不等于能够修复或递归改进。",
   "translations": {

@@ -294,7 +294,8 @@ def check_record(p, cfg, ids, root=ROOT, source=None):
     if "subtopics" in cfg:
         reason = p.get("classification_reason", "")
         need(isinstance(reason, str) and len(reason.strip()) >= 12, "缺少实质归类依据")
-    if cfg.get("axes") and isinstance(topics, list) and "rsi" in topics:
+    has_rsi_taxonomy = bool(cfg.get("axes")) or any(s.get("topic") == "rsi" for s in cfg.get("subtopics", {}).values())
+    if has_rsi_taxonomy and isinstance(topics, list) and "rsi" in topics:
         proof = p.get("rsi_evidence", {})
         need(isinstance(proof, dict) and all(isinstance(proof.get(k), str) and len(proof[k].strip()) >= (4 if k == "status" else 8)
              for k in ("status", "next_round_role", "fixed_components", "capability_evidence")), "RSI 必须说明递归回流、固定组件与改进能力证据")
@@ -464,11 +465,13 @@ def validate(root=ROOT):
                 errors.append(f"{topic}: 问题入口必须是列表")
                 questions = []
             for question in questions:
+                targets = [k for k in ("axis", "subtopic", "view") if k in question]
                 if (not isinstance(question, dict) or not all(isinstance(question.get(k), str) and question[k].strip() for k in ("question", "label"))
-                        or ("axis" in question) == ("view" in question)
+                        or len(targets) != 1
                         or "axis" in question and (question["axis"] not in cfg.get("axes", {}) or cfg["axes"][question["axis"]]["topic"] != topic)
+                        or "subtopic" in question and (question["subtopic"] not in cfg.get("subtopics", {}) or cfg["subtopics"][question["subtopic"]]["topic"] != topic)
                         or "view" in question and question["view"] not in ("works", "recent", "year")):
-                    errors.append(f"{topic}: 问题入口必须指向本主题维度或有效视图")
+                    errors.append(f"{topic}: 问题入口必须指向本主题分类、维度或有效视图")
     if errors:
         raise Invalid("\n".join(errors))
     reading_lists(root, papers, cfg)

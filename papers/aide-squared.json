@@ -155,9 +155,6 @@
   },
   "collections": [],
   "subtopics": [
-    "rsi-task-research",
-    "rsi-cap-research",
-    "rsi-cap-improvement",
     "rsi-rec-improver"
   ],
   "classification_reason": "主循环由固定外层改进内层；另以 ignition test 将演化后的 AIDE47 部署为外层改进器。三种子结果不足以确定改进效率优势，专项检验不等于主循环已持续自加速。",

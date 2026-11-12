@@ -20,7 +20,7 @@ let guideOpen = false;
 let savedScroll = 0;
 const expandedAxes = new Set();
 const expandedTopics = new Set();
-let sidebarCloseTimer;
+const DESKTOP_MEDIA = "(min-width: 960px)";
 const node = (tag, className, text) => {
   const el = document.createElement(tag);
   if (className) el.className = className;
@@ -80,9 +80,9 @@ function readView(state) {
   // Old shared URLs may contain multiple choices; retain only the last valid category.
   subtopic =
     ids.filter((id) => data.config.subtopics[id].topic === topic).at(-1) || "";
-  const researchTopic = Object.values(data.config.axes).some(
-    (axis) => axis.topic === topic,
-  );
+  const researchTopic =
+    Object.values(data.config.axes).some((axis) => axis.topic === topic) ||
+    Object.values(data.config.subtopics).some((sub) => sub.topic === topic);
   guideOpen =
     researchTopic &&
     !collection &&
@@ -94,45 +94,49 @@ function readView(state) {
       (!state.has("view") && !state.has("sort")));
   if (subtopic) {
     expandedTopics.add(topic);
-    expandedAxes.add(data.config.subtopics[subtopic].axis);
+    const axis = data.config.subtopics[subtopic].axis;
+    if (axis) expandedAxes.add(axis);
   }
 }
+function chevronSvg() {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", "0 0 20 20");
+  svg.setAttribute("fill", "none");
+  svg.setAttribute("aria-hidden", "true");
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  path.setAttribute("d", "M7.5 5.5 12.5 10l-5 4.5");
+  path.setAttribute("stroke", "currentColor");
+  path.setAttribute("stroke-width", "1.7");
+  path.setAttribute("stroke-linecap", "round");
+  path.setAttribute("stroke-linejoin", "round");
+  svg.append(path);
+  return svg;
+}
+function isDesktop() {
+  return window.matchMedia(DESKTOP_MEDIA).matches;
+}
+function isSidebarOpen() {
+  return isDesktop()
+    ? !document.body.classList.contains("sidebar-collapsed")
+    : $("sidebar").classList.contains("is-open");
+}
 function setSidebarOpen(open) {
-  clearTimeout(sidebarCloseTimer);
-  $("sidebar").classList.toggle("is-open", open);
+  const desktop = isDesktop();
+  document.body.classList.toggle("sidebar-collapsed", desktop && !open);
+  $("sidebar").classList.toggle("is-open", !desktop && open);
+  $("sidebar-backdrop").hidden = desktop || !open;
   $("sidebar-content").inert = !open;
-  $("sidebar-peek").setAttribute("aria-expanded", String(open));
+  $("sidebar-toggle").setAttribute("aria-expanded", String(open));
 }
 function closeSidebar() {
   setSidebarOpen(false);
 }
 function setupSidebar() {
-  const sidebar = $("sidebar");
-  const desktop = window.matchMedia("(min-width: 761px)");
-  $("sidebar-peek").onclick = (event) => {
-    // Mouse entry already opens the rail; clicking it should keep it open.
-    const mouseClick = desktop.matches && event.pointerType === "mouse";
-    setSidebarOpen(mouseClick || !sidebar.classList.contains("is-open"));
-  };
-  sidebar.addEventListener("pointerenter", (event) => {
-    if (desktop.matches && event.pointerType === "mouse") setSidebarOpen(true);
-  });
-  sidebar.addEventListener("pointerleave", (event) => {
-    if (desktop.matches && event.pointerType === "mouse")
-      sidebarCloseTimer = setTimeout(() => setSidebarOpen(false), 240);
-  });
-  sidebar.addEventListener("focusin", () => {
-    // Keep keyboard navigation visible while moving between directory entries.
-    clearTimeout(sidebarCloseTimer);
-  });
-  sidebar.addEventListener("focusout", (event) => {
-    if (!sidebar.contains(event.relatedTarget) && !sidebar.matches(":hover"))
-      setSidebarOpen(false);
-  });
-  document.addEventListener("pointerdown", (event) => {
-    if (!sidebar.contains(event.target)) setSidebarOpen(false);
-  });
-  desktop.addEventListener("change", closeSidebar);
+  const desktop = window.matchMedia(DESKTOP_MEDIA);
+  setSidebarOpen(desktop.matches);
+  $("sidebar-toggle").onclick = () => setSidebarOpen(!isSidebarOpen());
+  $("sidebar-backdrop").onclick = closeSidebar;
+  desktop.addEventListener("change", (event) => setSidebarOpen(event.matches));
 }
 function refreshView(push = true) {
   updateQuery(push, "");
@@ -148,14 +152,18 @@ function selectView(nextTopic = "", nextSubtopic = "", nextCollection = "") {
   guideOpen =
     !collection &&
     !nextSubtopic &&
-    Object.values(data.config.axes).some((axis) => axis.topic === topic);
+    (Object.values(data.config.axes).some((axis) => axis.topic === topic) ||
+      Object.values(data.config.subtopics).some((sub) => sub.topic === topic));
   $("search").value = "";
   $("type-filter").value = "";
   $("read-status").value = "";
   if (guideOpen) $("sort").value = "added";
-  if (nextSubtopic) expandedAxes.add(data.config.subtopics[nextSubtopic].axis);
+  if (nextSubtopic) {
+    const axis = data.config.subtopics[nextSubtopic].axis;
+    if (axis) expandedAxes.add(axis);
+  }
   if (nextTopic && !nextCollection) expandedTopics.add(nextTopic);
-  closeSidebar();
+  if (!isDesktop()) closeSidebar();
   refreshView();
   window.scrollTo(0, 0);
 }
@@ -172,15 +180,26 @@ function matchesCategory(paper, category = subtopic) {
   return !category || paper.subtopics.includes(category);
 }
 function addPendingCategories(entries, config, currentLanguage) {
-  for (const [axisId, axis] of Object.entries(config.axes)) {
-    const missing = entries.filter((paper) => paper.topics.includes(axis.topic) &&
-      !paper.subtopics.some((id) => config.subtopics[id]?.axis === axisId));
+  const label = currentLanguage === "en" ? "Awaiting classification" : "待核对分类";
+  const axes = Object.entries(config.axes || {});
+  if (axes.length) {
+    for (const [axisId, axis] of axes) {
+      const missing = entries.filter((paper) => paper.topics.includes(axis.topic) &&
+        !paper.subtopics.some((id) => config.subtopics[id]?.axis === axisId));
+      if (!missing.length) continue;
+      const id = "pending-" + axisId;
+      config.subtopics[id] = { topic: axis.topic, axis: axisId, pending: true, label };
+      for (const paper of missing) paper.subtopics.push(id);
+    }
+    return;
+  }
+  const topicIds = new Set(Object.values(config.subtopics || {}).map((s) => s.topic));
+  for (const topicId of topicIds) {
+    const missing = entries.filter((paper) => paper.topics.includes(topicId) &&
+      !paper.subtopics.some((id) => config.subtopics[id]?.topic === topicId));
     if (!missing.length) continue;
-    const id = "pending-" + axisId;
-    config.subtopics[id] = {
-      topic: axis.topic, axis: axisId, pending: true,
-      label: currentLanguage === "en" ? "Awaiting classification" : "待核对分类",
-    };
+    const id = "pending-" + topicId;
+    config.subtopics[id] = { topic: topicId, pending: true, label };
     for (const paper of missing) paper.subtopics.push(id);
   }
 }
@@ -199,7 +218,8 @@ function renderTopics() {
     const branch = node("div", "topic-branch");
     branch.dataset.topic = id;
     const heading = node("div", "topic-heading");
-    const disclosure = node("button", "topic-disclosure", expandedTopics.has(id) ? "⌄" : "›");
+    const disclosure = node("button", "topic-disclosure");
+    disclosure.append(chevronSvg());
     disclosure.type = "button";
     disclosure.setAttribute("aria-label", (expandedTopics.has(id) ? t("收起分类") : t("展开分类")) + " · " + label);
     disclosure.setAttribute("aria-expanded", String(expandedTopics.has(id)));
@@ -216,21 +236,44 @@ function renderTopics() {
     children.id = "categories-" + id;
     children.hidden = !expandedTopics.has(id);
     if (expandedTopics.has(id)) {
-      const axes = Object.entries(data.config.axes).filter(
+      const axes = Object.entries(data.config.axes || {}).filter(
         ([, axis]) => axis.topic === id,
       );
-      for (const [axisId, axis] of axes) {
-        const group = node("details", "facet-group");
-        group.dataset.axis = axisId;
-        group.open = expandedAxes.has(axisId);
-        const summary = node("summary", "", axis.label);
-        group.append(summary);
-        group.addEventListener("toggle", () => {
-          if (group.open) expandedAxes.add(axisId);
-          else expandedAxes.delete(axisId);
-        });
+      if (axes.length) {
+        for (const [axisId, axis] of axes) {
+          const group = node("details", "facet-group");
+          group.dataset.axis = axisId;
+          group.open = expandedAxes.has(axisId);
+          const summary = node("summary", "", axis.label);
+          group.append(summary);
+          group.addEventListener("toggle", () => {
+            if (group.open) expandedAxes.add(axisId);
+            else expandedAxes.delete(axisId);
+          });
+          for (const [sid, child] of Object.entries(data.config.subtopics).filter(
+            ([, s]) => s.axis === axisId,
+          )) {
+            const count = data.entries.filter(
+              (p) =>
+                p.topics.includes(id) &&
+                p.subtopics.includes(sid),
+            ).length;
+            if (!count) continue;
+            group.append(
+              navButton(
+                child.label,
+                count,
+                subtopic === sid,
+                () => selectView(id, sid),
+                "subtopic",
+              ),
+            );
+          }
+          if (group.childElementCount > 1) children.append(group);
+        }
+      } else {
         for (const [sid, child] of Object.entries(data.config.subtopics).filter(
-          ([, s]) => s.axis === axisId,
+          ([, s]) => s.topic === id,
         )) {
           const count = data.entries.filter(
             (p) =>
@@ -238,7 +281,7 @@ function renderTopics() {
               p.subtopics.includes(sid),
           ).length;
           if (!count) continue;
-          group.append(
+          children.append(
             navButton(
               child.label,
               count,
@@ -248,7 +291,6 @@ function renderTopics() {
             ),
           );
         }
-        if (group.childElementCount > 1) children.append(group);
       }
     }
     branch.append(children);
@@ -336,7 +378,9 @@ function renderGuide() {
       const cell = node("td");
       const action = node("button", "question-entry", question.label + " →");
       action.onclick = () => {
-        if (question.axis) {
+        if (question.subtopic) {
+          selectView(topic, question.subtopic);
+        } else if (question.axis) {
           expandedTopics.add(topic);
           expandedAxes.add(question.axis);
           renderTopics();
@@ -433,10 +477,14 @@ function renderList() {
     row.style.animationDelay = Math.min(i * 35, 210) + "ms";
     const meta = node("div", "paper-meta");
     meta.append(
-      node("span", "reading-status", t(p.entry_kind === "reference" ? "文献索引 · 待精读" : "精读卡片")),
+      node(
+        "span",
+        "reading-status " + (p.entry_kind === "reference" ? "is-reference" : "is-card"),
+        t(p.entry_kind === "reference" ? "文献索引 · 待精读" : "精读卡片"),
+      ),
       node("span", "type", t(typeLabels[p.paper_type])),
-      node("span", "", "·"),
-      node("span", "", String(p.year)),
+      node("span", "meta-dot", "·"),
+      node("span", "meta-year", String(p.year)),
     );
     if (p.entry_kind === "card" && language === "en" && !p.translations?.en)
       meta.append(node("span", "example-label", t("英文翻译待补充")));
@@ -444,8 +492,8 @@ function renderList() {
       meta.append(node("span", "example-label", t("示例论文")));
     const bottom = node("div", "paper-bottom");
     const tags = node("div", "paper-tags");
-    for (const t of p.topics)
-      tags.append(node("span", "", data.config.topics[t]));
+    for (const topicId of p.topics)
+      tags.append(node("span", "tag-topic", data.config.topics[topicId]));
     const previewTags = [];
     const seenAxes = new Set();
     for (const s of [
@@ -453,24 +501,29 @@ function renderList() {
       ...p.subtopics,
     ]) {
       const category = data.config.subtopics[s];
-      if (category.pending) continue;
-      if (!seenAxes.has(category.axis)) {
-        seenAxes.add(category.axis);
+      if (!category || category.pending) continue;
+      if (category.axis) {
+        if (!seenAxes.has(category.axis)) {
+          seenAxes.add(category.axis);
+          previewTags.push(s);
+        }
+      } else if (!previewTags.includes(s)) {
         previewTags.push(s);
       }
     }
     for (const s of previewTags.slice(0, 3))
-      tags.append(node("span", "", data.config.subtopics[s].label));
+      tags.append(node("span", "tag-subtopic", data.config.subtopics[s].label));
     const time = node("time", "", p.added_at + " " + t("收录"));
     time.dateTime = p.added_at;
-    bottom.append(tags, time);
     const cta = node("span", "card-cta", t(p.entry_kind === "reference" ? "查看文献" : "阅读卡片") + " →");
+    const footer = node("div", "paper-footer");
+    footer.append(time, cta);
+    bottom.append(tags, footer);
     row.append(
       meta,
       node("h3", "", p.title),
       node("p", "", p.one_liner),
       bottom,
-      cta,
     );
     row.addEventListener("click", () => {
       savedScroll = window.scrollY;
@@ -552,7 +605,7 @@ function showRoute() {
   head.append(actions);
   reader.append(head);
   if (paper.entry_kind === "reference") {
-    head.prepend(node("p", "reading-status", t("文献索引 · 待精读")));
+    head.prepend(node("p", "reading-status is-reference", t("文献索引 · 待精读")));
     const note = node("section", "reference-note");
     note.append(node("h3", "", t("为什么放在这里")), node("p", "", paper.context));
     note.append(node("p", "reference-boundary", t("这是根据官方论文页整理的阅读线索，尚未完成全文精读。方法细节、实验结果与适用边界请以原文为准。")));
@@ -729,9 +782,9 @@ async function init() {
     $("repo-link").href = data.config.repository_url;
     $("readme-link").href = data.config.repository_url + "/blob/main/README.md";
     document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape" && $("sidebar").classList.contains("is-open")) {
+      if (event.key === "Escape" && !isDesktop() && isSidebarOpen()) {
         closeSidebar();
-        $("sidebar-peek").focus();
+        $("sidebar-toggle").focus();
       }
     });
     window.matchMedia("(min-width: 1100px)").addEventListener("change", (event) => {

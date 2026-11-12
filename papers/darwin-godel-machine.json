@@ -147,8 +147,6 @@
   },
   "collections": [],
   "subtopics": [
-    "rsi-task-code",
-    "rsi-cap-code",
     "rsi-rec-agent"
   ],
   "classification_reason": "演化后的编码 Agent 实际参与后续自身代码修改，形成结构回流；任务成绩与后续改进能力仍须分开评价，固定指令生成与档案选择不被隐去。",

@@ -161,8 +161,6 @@
   },
   "collections": [],
   "subtopics": [
-    "rsi-task-compute",
-    "rsi-cap-efficiency",
     "rsi-rec-background"
   ],
   "classification_reason": "优化算法与训练计算基础设施，未验证演化后的改进器承担下一轮改进；作为 RSI 邻近背景保留。",

@@ -16,9 +16,6 @@
   "tags": [],
   "one_liner": "让表现较好的编码智能体继续修改自身工具和工作流，以任务成绩、时间和费用共同选择下一轮版本。",
   "subtopics": [
-    "rsi-task-code",
-    "rsi-task-math",
-    "rsi-cap-code",
     "rsi-rec-agent"
   ],
   "collections": [],

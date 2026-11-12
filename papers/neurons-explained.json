@@ -36,11 +36,8 @@
     "llm-interpretability"
   ],
   "subtopics": [
-    "interp-q-knowledge",
-    "interp-q-faithfulness",
-    "interp-representations",
-    "interp-m-probe",
-    "interp-m-behavior"
+    "interp-features",
+    "interp-audit"
   ],
   "paper_type": "method",
   "collections": [

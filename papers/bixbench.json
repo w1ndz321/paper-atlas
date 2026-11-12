@@ -22,10 +22,7 @@
   "tags": [],
   "one_liner": "给智能体生物数据和空白 Notebook，让它完成多步分析并回答问题，再分别用开放回答和选择题设置评价结果。",
   "subtopics": [
-    "domain-biology",
-    "eval-tasks",
-    "activity-data",
-    "activity-code"
+    "eval-science-domain"
   ],
   "collections": [],
   "classification_reason": "任务直接基于真实生物信息学数据和分析笔记本，测从探索文件、编写分析到解释结果的端到端能力；不是按是否复现某一份参考程序评分。",

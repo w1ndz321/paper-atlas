@@ -186,10 +186,8 @@
     "interpretability-rsi"
   ],
   "subtopics": [
-    "interp-q-knowledge",
-    "interp-q-behavior",
-    "interp-representations",
-    "interp-m-probe"
+    "interp-features",
+    "interp-audit"
   ],
   "classification_reason": "从激活生成自然语言解释并以重构和审计检验，作为内部状态读取与模型调查的桥接工具。",
   "translations": {

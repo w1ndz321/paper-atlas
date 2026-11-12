@@ -402,36 +402,35 @@ class PipelineTests(unittest.TestCase):
         kb.render_cards(self.root)
         self.assertIn(p["rsi_evidence"]["capability_evidence"], (self.root / "cards/example.md").read_text())
 
-    def test_research_topics_have_three_independent_dimensions(self):
+    def test_research_topics_have_simplified_flat_subtopics(self):
         cfg = kb.config()
-        for topic in ("agent-benchmarks", "rsi", "llm-interpretability"):
-            self.assertEqual(3, sum(axis["topic"] == topic for axis in cfg["axes"].values()))
-        self.assertFalse(any(axis["topic"] == "interest-exploration" for axis in cfg["axes"].values()))
+        self.assertEqual({}, cfg["axes"])
+        self.assertEqual(3, sum(s["topic"] == "agent-benchmarks" for s in cfg["subtopics"].values()))
+        self.assertEqual(3, sum(s["topic"] == "rsi" for s in cfg["subtopics"].values()))
+        self.assertEqual(4, sum(s["topic"] == "llm-interpretability" for s in cfg["subtopics"].values()))
+        self.assertFalse(any(s["topic"] == "interest-exploration" for s in cfg["subtopics"].values()))
 
     @unittest.skipUnless(shutil.which("node"), "需要 Node 验证读者页面筛选逻辑")
-    def test_unclassified_entries_remain_reachable_in_every_axis(self):
+    def test_unclassified_entries_remain_reachable(self):
         program = r"""
 const fs = require('node:fs'), vm = require('node:vm'), assert = require('node:assert/strict');
 const source = fs.readFileSync(process.argv[1], 'utf8').replace(/\ninit\(\);\s*$/, '');
 const {addPendingCategories} = vm.runInNewContext(source + '\n;({addPendingCategories})', {URLSearchParams, location:{search:''}});
 const cfg = JSON.parse(fs.readFileSync(0,'utf8'));
 const entries = [
-  {id:'reviewed', topics:['rsi'], subtopics:['rsi-task-code','rsi-cap-code','rsi-rec-background']},
+  {id:'reviewed', topics:['rsi'], subtopics:['rsi-rec-background']},
   {id:'reference', topics:['rsi','llm-interpretability'], subtopics:[]},
   {id:'outside', topics:['interest-exploration'], subtopics:[]},
 ];
 addPendingCategories(entries,cfg,'zh');
-assert.equal(entries[0].subtopics.length,3);
-assert.equal(entries[1].subtopics.length,6);
+assert.equal(entries[0].subtopics.length,1);
+assert.equal(entries[1].subtopics.length,2);
 assert.equal(entries[2].subtopics.length,0);
-for(const [id,axis] of Object.entries(cfg.axes))
-  for(const paper of entries.filter(p=>p.topics.includes(axis.topic)))
-    assert.ok(paper.subtopics.some(tag=>cfg.subtopics[tag].axis===id));
-assert.equal(cfg.subtopics['pending-rsi-task'].label,'待核对分类');
-assert.equal(cfg.subtopics['pending-rsi-task'].pending,true);
-assert.ok(!cfg.subtopics['pending-eval-domain']);
+assert.equal(cfg.subtopics['pending-rsi'].label,'待核对分类');
+assert.equal(cfg.subtopics['pending-rsi'].pending,true);
+assert.ok(!cfg.subtopics['pending-agent-benchmarks']);
 addPendingCategories(entries,cfg,'zh');
-assert.equal(entries[1].subtopics.length,6);
+assert.equal(entries[1].subtopics.length,2);
 """
         subprocess.run(["node", "-e", program, str(kb.ROOT / "web/app.js")], input=json.dumps(kb.config()), text=True, capture_output=True, check=True)
 
@@ -450,17 +449,18 @@ api.readView(new URLSearchParams('topic=rsi&q=optimizer'));
 assert.equal(api.getView().guideOpen,false);
 api.readView(new URLSearchParams('topic=interest-exploration'));
 assert.equal(api.getView().guideOpen,false);
-assert.ok(data.papers.filter(p=>api.matchesCategory(p,'interp-q-knowledge')).some(p=>p.id==='rome'));
-assert.ok(data.papers.filter(p=>api.matchesCategory(p,'interp-m-sae')).some(p=>p.id==='scaling-monosemanticity'));
+assert.ok(data.papers.filter(p=>api.matchesCategory(p,'interp-features')).some(p=>p.id==='rome'));
+assert.ok(data.papers.filter(p=>api.matchesCategory(p,'interp-features')).some(p=>p.id==='scaling-monosemanticity'));
 api.readView(new URLSearchParams('topic=agent-benchmarks&subtopic=domain-physics&subtopic=domain-earth'));
-assert.equal(api.getView().subtopic,'domain-earth');
+assert.equal(api.getView().subtopic,'eval-science-domain');
 assert.ok(data.papers.filter(p=>api.matchesCategory(p)).some(p=>p.id==='scienceagentbench'));
 assert.ok(!data.papers.filter(p=>api.matchesCategory(p)).some(p=>p.id==='dont-pass-at-k'));
 api.readView(new URLSearchParams('topic=agent-benchmarks&subtopic=eval-metrics'));
-assert.equal(api.getView().subtopic,'eval-metrics');
+assert.equal(api.getView().subtopic,'eval-validity');
 assert.ok(data.papers.filter(p=>api.matchesCategory(p)).some(p=>p.id==='dont-pass-at-k'));
 api.readView(new URLSearchParams('topic=rsi-interpretability&subtopic=interp-representations'));
 assert.equal(api.getView().topic,'llm-interpretability');
+assert.equal(api.getView().subtopic,'interp-features');
 assert.equal(api.getView().guideOpen,false);
 api.readView(new URLSearchParams('topic=rsi&subtopic=rsi-agent-programs'));
 assert.equal(api.getView().subtopic,'rsi-rec-agent');

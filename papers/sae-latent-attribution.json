@@ -157,11 +157,10 @@
     "interpretability-rsi"
   ],
   "subtopics": [
-    "interp-q-behavior",
-    "interp-representations",
-    "interp-m-sae",
-    "interp-m-attribution",
-    "interp-m-intervention"
+    "interp-features",
+    "interp-circuits-reasoning",
+    "interp-intervention",
+    "interp-audit"
   ],
   "classification_reason": "对比异常与正常回答的特征归因，并通过干预检验行为影响，属于诊断与行为调试桥接证据。",
   "translations": {

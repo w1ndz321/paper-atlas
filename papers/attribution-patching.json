@@ -16,9 +16,7 @@
   "tags": [],
   "one_liner": "用激活差与梯度一次估计许多连接的重要性，先快速筛出候选电路，再用更昂贵的干预方法核查。",
   "subtopics": [
-    "interp-q-reasoning",
-    "interp-circuits",
-    "interp-m-attribution"
+    "interp-circuits-reasoning"
   ],
   "collections": [
     "interpretability-rsi"

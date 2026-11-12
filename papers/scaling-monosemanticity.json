@@ -170,10 +170,8 @@
   },
   "collections": [],
   "subtopics": [
-    "interp-q-knowledge",
-    "interp-representations",
-    "interp-m-sae",
-    "interp-m-intervention"
+    "interp-features",
+    "interp-intervention"
   ],
   "classification_reason": "用稀疏表征分解研究概念特征，并干预检验行为影响；未构成自主改进闭环。",
   "translations": {

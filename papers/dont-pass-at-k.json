@@ -178,9 +178,7 @@
   },
   "collections": [],
   "subtopics": [
-    "domain-general",
-    "eval-metrics",
-    "activity-na"
+    "eval-validity"
   ],
   "classification_reason": "研究评分统计与不确定性估计，作为 AI4S 评测的通用背景方法；没有实际科学领域 Agent 或科研活动实验。",
   "translations": {

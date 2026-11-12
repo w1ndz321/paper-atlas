@@ -163,11 +163,7 @@
     "interpretability-rsi"
   ],
   "subtopics": [
-    "interp-q-introspection",
-    "interp-q-behavior",
-    "interp-behavior",
-    "interp-m-probe",
-    "interp-m-behavior"
+    "interp-audit"
   ],
   "classification_reason": "训练行为报告适配器并用留出微调行为检验泛化；审计报告能力没有被用于验证递归改进。",
   "translations": {

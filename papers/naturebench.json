@@ -189,13 +189,8 @@
   },
   "collections": [],
   "subtopics": [
-    "domain-biology",
-    "domain-chemistry",
-    "domain-physics",
-    "eval-tasks",
-    "eval-validity",
-    "activity-data",
-    "activity-code"
+    "eval-science-domain",
+    "eval-validity"
   ],
   "classification_reason": "以生物、分子及物理建模任务测科研编码与已发表结果对标；参考方法隐藏，任务是独立求解，不统一归为照论文复现。",
   "translations": {

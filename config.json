@@ -3,7 +3,7 @@
   "research_topic": "论文知识库",
   "description": "按研究主题整理已读论文，查阅方法、结果与主要贡献。",
   "repository_url": "https://github.com/w1ndz321/paper-atlas",
-  "scope": "三个研究主题分别按三个并列维度组织同一批论文；兴趣探索用于方向之外的完整已读论文。递归自我改进要求演化后的系统组件实际参与后续改进，任务成绩提升与改进能力提升分开核验。",
+  "scope": "三个研究主题各自保留 3–4 个直接子类，用于快速检索已读论文；兴趣探索用于方向之外的完整已读论文。递归自我改进要求演化后的系统组件实际参与后续改进，任务成绩提升与改进能力提升分开核验。",
   "research_questions": [
     "Agent 基准的任务、环境、成功条件与评分指标分别是什么，评价结论是否可靠？",
     "改进后的哪个组件承担下一轮诊断、提案、实现或选择？哪些组件仍由人固定？",
@@ -19,7 +19,7 @@
   },
   "topic_guides": {
     "agent-benchmarks": {
-      "summary": "按科学领域、评测问题与科研活动，从不同问题查找同一篇工作。",
+      "summary": "按科学领域基准、过程诊断或评测方法快速查找相关工作。",
       "points": [
         "科研活动与被测能力分开：任务含有规划不等于独立证明了规划能力。",
         "通用评分方法明确标记为背景，不假称已在 AI4S Agent 上验证。"
@@ -40,19 +40,19 @@
       ],
       "questions": [
         {
-          "question": "物理、化学、生物等领域分别有哪些评测工作？",
-          "label": "科学领域",
-          "axis": "eval-domain"
+          "question": "哪些基准评测物理、化学、生物、地球等具体科学任务？",
+          "label": "科学领域基准",
+          "subtopic": "eval-science-domain"
         },
         {
-          "question": "这些工作在测什么能力，或解决什么评价问题？",
-          "label": "评测问题",
-          "axis": "eval-question"
+          "question": "哪些工作聚焦过程评价、中间轨迹或失败诊断？",
+          "label": "过程评价与失败诊断",
+          "subtopic": "eval-process"
         },
         {
-          "question": "哪些基准让 Agent 做数据分析、模拟、实验设计或研究复现？",
-          "label": "科研活动",
-          "axis": "eval-activity"
+          "question": "哪些研究关注评分指标、pass@k 偏差或基准有效性？",
+          "label": "评测方法与有效性",
+          "subtopic": "eval-validity"
         },
         {
           "question": "这篇论文的方法、结果与主要贡献是什么？",
@@ -72,7 +72,7 @@
       ]
     },
     "rsi": {
-      "summary": "了解 Agent 如何修改自己，并比较这些改动带来的实际提升。",
+      "summary": "按自改载体与闭环边界，快速区分真递归自改与固定改进器背景。",
       "points": [
         "先看实验任务，再看系统修改了什么，以及改动后的程序怎样继续参与后续改进。",
         "比较结果时保留测试任务、模型和计算预算，把作者的结论和适用条件一起阅读。"
@@ -93,19 +93,19 @@
       ],
       "questions": [
         {
-          "question": "在什么任务或 benchmark 上验证自我改进？",
-          "label": "实验场景",
-          "axis": "rsi-task"
+          "question": "哪些工作让演化后的 Agent 直接承担后续代码与任务自改？",
+          "label": "Agent 与代码自改",
+          "subtopic": "rsi-rec-agent"
         },
         {
-          "question": "得到验证的是任务能力，还是产生后续改进的能力？",
-          "label": "改进能力",
-          "axis": "rsi-capability"
+          "question": "哪些工作让改进程序/元优化器自身更新并参与下一轮？",
+          "label": "元优化与改进器自举",
+          "subtopic": "rsi-rec-improver"
         },
         {
-          "question": "演化后的哪个组件实际参与下一轮改进？",
-          "label": "递归机制",
-          "axis": "rsi-recursion"
+          "question": "哪些属于改进流程保持固定的外部优化背景工作？",
+          "label": "固定改进器与邻近背景",
+          "subtopic": "rsi-rec-background"
         },
         {
           "question": "这篇论文的方法、结果与主要贡献是什么？",
@@ -125,7 +125,7 @@
       ]
     },
     "llm-interpretability": {
-      "summary": "从研究问题、解释对象和解释方法三个维度比较模型理解工作。",
+      "summary": "按特征表征、电路推理、因果干预与忠实性审计四个核心切面查找论文。",
       "points": [
         "分别了解论文想解释什么、观察模型的哪个部分、使用了什么方法。",
         "结合实验结果和局限阅读，比较不同方法如何帮助理解模型。"
@@ -146,19 +146,19 @@
       ],
       "questions": [
         {
-          "question": "想理解知识、推理、异常行为还是模型内省？",
-          "label": "研究问题",
-          "axis": "interp-question"
+          "question": "哪些工作研究 SAE 特征、探针解码或参数知识表征？",
+          "label": "特征、知识与表征",
+          "subtopic": "interp-features"
         },
         {
-          "question": "研究的是思维链、内部激活、计算电路还是参数？",
-          "label": "解释对象",
-          "axis": "interp-target"
+          "question": "哪些工作追踪计算电路、归因路径或思维链推理机制？",
+          "label": "电路与推理机制",
+          "subtopic": "interp-circuits-reasoning"
         },
         {
-          "question": "通过什么方法获得解释并检验它？",
-          "label": "解释方法",
-          "axis": "interp-method"
+          "question": "哪些工作通过激活干预或模型编辑验证因果效应？",
+          "label": "因果干预与模型编辑",
+          "subtopic": "interp-intervention"
         },
         {
           "question": "这篇论文的方法、结果与主要贡献是什么？",
@@ -234,401 +234,124 @@
     }
   },
   "classification_rules": [
-    "三个研究主题各有三个并列维度。每篇所属主题在每个维度至少有一个受控标签；论文可归入多个条目，各维度独立；前端每次只浏览一个分类，不叠加筛选。标签须根据全文或已有原文证据，不根据标题猜测。",
+    "三个研究主题采用扁平两级目录（主主题 → 3–4 个直接子类）。每篇所属主题至少选择一个受控子类；论文可归入多个子类；前端每次只浏览一个分类，不叠加筛选。标签须根据全文或已有原文证据，不根据标题猜测。",
     "RSI 以改进后的系统组件实际承担后续改进为核心判据。仅把新版放回档案、任务分数提高或允许编辑代码都不足以证明递归。单独说明结构回流与改进能力增强证据，保留固定组件、预算与负结果。",
-    "固定改进器下的外部程序优化可作为 RSI 邻近背景；以递归机制标签和 rsi_evidence 明确边界，不混作闭环证据。DGM 不因仍有固定组件就被排除；AIDE² 不因做了再部署测试就被标为已证明改进能力增强。",
-    "AI4S 中的通用评价方法可作为背景，科学领域和活动使用明确的不适用标签，不虚构科学 Agent 实验。综合任务表现不自动证明独立子能力。",
-    "可解释性的研究问题、解释对象与解释方法分别标注；原文证据强度与方法标签分开判断。",
+    "固定改进器下的外部程序优化可作为 RSI 邻近背景；通过子类与 rsi_evidence 明确边界，不混作闭环证据。DGM 不因仍有固定组件就被排除；AIDE² 不因做了再部署测试就被标为已证明改进能力增强。",
+    "AI4S 中的通用评价方法可作为背景归入“评测方法与有效性”，不虚构科学 Agent 实验。",
+    "可解释性按主要研究焦点与手段归入对应子类，原文证据强度在卡片中单独核查。",
     "交叉入口独立维护，收录实际桥接工具、审计或边界证据，不因出现关键词自动纳入；分类不代表已实现解释驱动的 RSI。",
-    "兴趣探索暂不预设维度，标签可留空；仍须完整阅读与证据核查，未读论文留在 inbox。",
-    "分类可演化，但每项必须有问题、定义和边界。调整配置时同步迁移既有文章并保留旧链接。同一论文不复制收录。"
+    "兴趣探索暂不预设子类，标签可留空；仍须完整阅读与证据核查，未读论文留在 inbox。",
+    "分类可演化，但每项必须有明确定义和边界。调整配置时同步迁移既有文章并保留旧链接。同一论文不复制收录。"
   ],
   "subtopics": {
-    "domain-physics": {
+    "eval-science-domain": {
       "topic": "agent-benchmarks",
-      "axis": "eval-domain",
-      "group": "科学领域",
-      "label": "物理",
-      "definition": "以物理问题、模型或数据为实际任务。"
-    },
-    "domain-chemistry": {
-      "topic": "agent-benchmarks",
-      "axis": "eval-domain",
-      "group": "科学领域",
-      "label": "化学与分子科学",
-      "definition": "以化学计算、分子设计或化学数据为任务。"
-    },
-    "domain-biology": {
-      "topic": "agent-benchmarks",
-      "axis": "eval-domain",
-      "group": "科学领域",
-      "label": "生物与医学",
-      "definition": "以生物信息、蛋白质、细胞组学或生物医学建模为任务。"
-    },
-    "domain-earth": {
-      "topic": "agent-benchmarks",
-      "axis": "eval-domain",
-      "group": "科学领域",
-      "label": "地球与环境科学",
-      "definition": "包括地理信息、环境及地球系统任务。"
-    },
-    "domain-neuroscience": {
-      "topic": "agent-benchmarks",
-      "axis": "eval-domain",
-      "group": "科学领域",
-      "label": "神经与认知科学",
-      "definition": "包括认知心理学与神经科学数据任务。"
-    },
-    "domain-materials": {
-      "topic": "agent-benchmarks",
-      "axis": "eval-domain",
-      "group": "科学领域",
-      "label": "材料科学",
-      "definition": "以材料研究为实际任务。"
-    },
-    "domain-general": {
-      "topic": "agent-benchmarks",
-      "axis": "eval-domain",
-      "group": "科学领域",
-      "label": "通用评价方法",
-      "definition": "未在具体科学领域的 Agent 上验证，作为评价方法背景收录。"
-    },
-    "eval-tasks": {
-      "topic": "agent-benchmarks",
-      "axis": "eval-question",
-      "group": "评测问题",
-      "label": "科研编程与任务完成",
-      "definition": "测实际科研任务的端到端程序实现和交付；综合任务结果不自动证明某个独立子能力。"
-    },
-    "eval-planning": {
-      "topic": "agent-benchmarks",
-      "axis": "eval-question",
-      "group": "评测问题",
-      "label": "推理与规划",
-      "definition": "以独立指标或实验测科学推理、规划或决策能力。"
+      "label": "科学领域基准",
+      "definition": "以物理、化学、生物医学、地球、神经等具体科学领域的任务与数据为评测对象的基准工作。"
     },
     "eval-process": {
       "topic": "agent-benchmarks",
-      "axis": "eval-question",
-      "group": "评测问题",
       "label": "过程评价与失败诊断",
-      "definition": "研究中间过程、失败位置与诊断，不能只因任务含多个步骤就归类。"
-    },
-    "eval-metrics": {
-      "topic": "agent-benchmarks",
-      "axis": "eval-question",
-      "group": "评测问题",
-      "label": "评分与统计估计",
-      "definition": "研究运行结果聚合、模型比较和不确定性估计。"
+      "definition": "重点考察推理规划过程、中间步骤、失败归因或基准任务审计的工作。"
     },
     "eval-validity": {
       "topic": "agent-benchmarks",
-      "axis": "eval-question",
-      "group": "评测问题",
-      "label": "基准有效性与评价可靠性",
-      "definition": "以任务真实性、验证器可靠性或测量有效性为实质贡献。"
-    },
-    "activity-data": {
-      "topic": "agent-benchmarks",
-      "axis": "eval-activity",
-      "group": "科研活动",
-      "label": "数据分析与建模",
-      "definition": "Agent 实际进行数据处理、统计分析或预测建模。"
-    },
-    "activity-code": {
-      "topic": "agent-benchmarks",
-      "axis": "eval-activity",
-      "group": "科研活动",
-      "label": "科研软件与计算",
-      "definition": "Agent 实际编写科研代码或开展计算工作。"
-    },
-    "activity-reproduction": {
-      "topic": "agent-benchmarks",
-      "axis": "eval-activity",
-      "group": "科研活动",
-      "label": "研究复现",
-      "definition": "目标是复现既有研究的方法或结果，独立求解隐藏参考方法的任务不自动归入。"
-    },
-    "activity-literature": {
-      "topic": "agent-benchmarks",
-      "axis": "eval-activity",
-      "group": "科研活动",
-      "label": "文献检索与综述",
-      "definition": "实际检索、筛选或综合文献。"
-    },
-    "activity-experiment": {
-      "topic": "agent-benchmarks",
-      "axis": "eval-activity",
-      "group": "科研活动",
-      "label": "实验设计与执行",
-      "definition": "实际设计实验或控制实验过程。"
-    },
-    "activity-na": {
-      "topic": "agent-benchmarks",
-      "axis": "eval-activity",
-      "group": "科研活动",
-      "label": "通用方法研究",
-      "definition": "纯评价方法论文，没有被评测的科研 Agent 活动。"
-    },
-    "rsi-task-code": {
-      "topic": "rsi",
-      "axis": "rsi-task",
-      "group": "实验场景",
-      "label": "代码与软件工程",
-      "definition": "以代码生成、程序优化或软件工程基准开展实验。"
-    },
-    "rsi-task-research": {
-      "topic": "rsi",
-      "axis": "rsi-task",
-      "group": "实验场景",
-      "label": "机器学习与科研研发",
-      "definition": "以固定预算下的自动化研究或机器学习任务开展实验。"
-    },
-    "rsi-task-math": {
-      "topic": "rsi",
-      "axis": "rsi-task",
-      "group": "实验场景",
-      "label": "数学与推理",
-      "definition": "以数学问题或推理基准验证。"
-    },
-    "rsi-task-tools": {
-      "topic": "rsi",
-      "axis": "rsi-task",
-      "group": "实验场景",
-      "label": "工具交互与控制",
-      "definition": "以工具交互或控制任务验证。"
-    },
-    "rsi-task-compute": {
-      "topic": "rsi",
-      "axis": "rsi-task",
-      "group": "实验场景",
-      "label": "算法与计算基础设施",
-      "definition": "以算法、调度或训练计算程序评价，可能只是 RSI 邻近背景。"
-    },
-    "rsi-cap-code": {
-      "topic": "rsi",
-      "axis": "rsi-capability",
-      "group": "改进能力",
-      "label": "编程与程序优化",
-      "definition": "实验支持端到端编码或程序优化表现变化，不推断规划等子能力独立增强。"
-    },
-    "rsi-cap-research": {
-      "topic": "rsi",
-      "axis": "rsi-capability",
-      "group": "改进能力",
-      "label": "研发与搜索",
-      "definition": "实验测量固定预算下的研究、搜索或优化效率。"
-    },
-    "rsi-cap-improvement": {
-      "topic": "rsi",
-      "axis": "rsi-capability",
-      "group": "改进能力",
-      "label": "后续改进能力",
-      "definition": "论文直接评价演化后系统产生后续改进的能力；标签表示做了检验，结论仍须查看证据。"
-    },
-    "rsi-cap-efficiency": {
-      "topic": "rsi",
-      "axis": "rsi-capability",
-      "group": "改进能力",
-      "label": "计算与资源效率",
-      "definition": "改善算法或基础设施资源效率，不能直接视为 Agent 自改能力增强。"
+      "label": "评测方法与有效性",
+      "definition": "研究评分与统计估计、验证器可靠性、基准有效性及通用评价方法背景。"
     },
     "rsi-rec-agent": {
       "topic": "rsi",
-      "axis": "rsi-recursion",
-      "group": "递归机制",
-      "label": "演化 Agent 继续自改",
-      "definition": "改进后的 Agent 实际承担后续自修改；任务能力与改进能力可能依赖同一技能。"
+      "label": "Agent 与代码自改",
+      "definition": "改进后的 Agent 实际承担后续代码或任务自修改。"
     },
     "rsi-rec-improver": {
       "topic": "rsi",
-      "axis": "rsi-recursion",
-      "group": "递归机制",
-      "label": "改进程序继续改进自己",
-      "definition": "演化后的优化器或研究程序被用于产生后续改进；须核对是否主循环使用、是否仅专项测试，以及收益证据。"
-    },
-    "rsi-rec-meta": {
-      "topic": "rsi",
-      "axis": "rsi-recursion",
-      "group": "递归机制",
-      "label": "任务程序与改进程序一起更新",
-      "definition": "任务执行与生成后续修改的元机制都可演化，并在后续迭代实际使用。"
+      "label": "元优化与改进器自举",
+      "definition": "改进程序或元优化器自身更新并用于产生后续改进，需核对主循环与再部署证据。"
     },
     "rsi-rec-background": {
       "topic": "rsi",
-      "axis": "rsi-recursion",
-      "group": "递归机制",
-      "label": "改进流程保持固定",
-      "definition": "优化其他程序或基础设施，未验证演化后的改进器承担后续改进。"
+      "label": "固定改进器与邻近背景",
+      "definition": "改进流程或优化器保持固定的外部程序优化与搜索工作，明确作为 RSI 邻近背景。"
     },
-    "interp-q-knowledge": {
+    "interp-features": {
       "topic": "llm-interpretability",
-      "axis": "interp-question",
-      "group": "研究问题",
-      "label": "知识与概念表征",
-      "definition": "研究知识、概念或内部语义如何表示和调用。"
+      "label": "特征、知识与表征",
+      "definition": "研究内部激活概念、SAE 稀疏特征分解、探针解码或参数中的知识定位。"
     },
-    "interp-q-reasoning": {
+    "interp-circuits-reasoning": {
       "topic": "llm-interpretability",
-      "axis": "interp-question",
-      "group": "研究问题",
-      "label": "推理与决策机制",
-      "definition": "研究输出产生的计算过程或决策路径。"
+      "label": "电路与推理机制",
+      "definition": "通过归因、电路追踪或思维链分析揭示组件交互与推理决策路径。"
     },
-    "interp-q-faithfulness": {
+    "interp-intervention": {
       "topic": "llm-interpretability",
-      "axis": "interp-question",
-      "group": "研究问题",
-      "label": "解释忠实性与监测",
-      "definition": "检验外显理由是否反映实际影响因素。"
-    },
-    "interp-q-behavior": {
-      "topic": "llm-interpretability",
-      "axis": "interp-question",
-      "group": "研究问题",
-      "label": "行为诊断与审计",
-      "definition": "研究训练后的行为倾向、隐藏动因或异常行为。"
-    },
-    "interp-q-introspection": {
-      "topic": "llm-interpretability",
-      "axis": "interp-question",
-      "group": "研究问题",
-      "label": "内省与状态感知",
-      "definition": "检验模型能否可靠读取或报告自身状态。"
-    },
-    "interp-knowledge": {
-      "topic": "llm-interpretability",
-      "axis": "interp-target",
-      "group": "解释对象",
-      "label": "模型参数与知识关联",
-      "definition": "定位和编辑参数中的知识关联。"
-    },
-    "interp-representations": {
-      "topic": "llm-interpretability",
-      "axis": "interp-target",
-      "group": "解释对象",
-      "label": "内部激活与概念特征",
-      "definition": "研究内部激活中表示的概念或即时状态。"
-    },
-    "interp-circuits": {
-      "topic": "llm-interpretability",
-      "axis": "interp-target",
-      "group": "解释对象",
-      "label": "组件交互与计算电路",
-      "definition": "研究组件或特征之间的计算关系。"
-    },
-    "interp-reasoning": {
-      "topic": "llm-interpretability",
-      "axis": "interp-target",
-      "group": "解释对象",
-      "label": "思维链与推理文本",
-      "definition": "研究模型输出的理由与推理轨迹。"
-    },
-    "interp-behavior": {
-      "topic": "llm-interpretability",
-      "axis": "interp-target",
-      "group": "解释对象",
-      "label": "模型行为与自我报告",
-      "definition": "以跨输入行为或模型报告为观察对象，并核对内部或行为证据。"
-    },
-    "interp-m-sae": {
-      "topic": "llm-interpretability",
-      "axis": "interp-method",
-      "group": "解释方法",
-      "label": "稀疏表征分解",
-      "definition": "通过 SAE 或跨层转码器等稀疏表示研究特征。"
-    },
-    "interp-m-probe": {
-      "topic": "llm-interpretability",
-      "axis": "interp-method",
-      "group": "解释方法",
-      "label": "探针与状态解码",
-      "definition": "从内部状态读取信息，包括自然语言解码器与报告适配器。"
-    },
-    "interp-m-attribution": {
-      "topic": "llm-interpretability",
-      "axis": "interp-method",
-      "group": "解释方法",
-      "label": "归因与电路追踪",
-      "definition": "计算特征、组件与输出之间的归因或路径。"
-    },
-    "interp-m-intervention": {
-      "topic": "llm-interpretability",
-      "axis": "interp-method",
-      "group": "解释方法",
       "label": "因果干预与模型编辑",
-      "definition": "改变激活、组件或参数后检验输出变化。"
+      "definition": "通过激活引导、特征干预或参数编辑检验内部表征与输出的因果关系。"
     },
-    "interp-m-behavior": {
+    "interp-audit": {
       "topic": "llm-interpretability",
-      "axis": "interp-method",
-      "group": "解释方法",
-      "label": "行为对照与忠实性测试",
-      "definition": "以受控输入、线索或行为实验检验解释。"
+      "label": "忠实性审计与内省",
+      "definition": "检验解释忠实性、诊断异常行为或评估模型对自身内部状态的报告能力。"
     }
   },
   "topic_descriptions": {
-    "agent-benchmarks": "按科学领域、评测问题与科研活动，从不同问题查找同一篇工作。",
-    "rsi": "了解 Agent 如何修改自己，并比较这些改动带来的实际提升。",
-    "llm-interpretability": "从研究问题、解释对象和解释方法三个维度比较模型理解工作。",
+    "agent-benchmarks": "按科学领域基准、过程诊断或评测方法快速查找相关工作。",
+    "rsi": "按自改载体与闭环边界，快速区分真递归自改与固定改进器背景。",
+    "llm-interpretability": "按特征表征、电路推理、因果干预与忠实性审计四个核心切面查找论文。",
     "interest-exploration": "收录现有研究方向之外感兴趣的论文，保留同样完整的总结与原文证据。"
   },
   "topic_aliases": {
     "rsi-interpretability": "rsi"
   },
-  "axes": {
-    "eval-domain": {
-      "topic": "agent-benchmarks",
-      "label": "科学领域",
-      "question": "物理、化学、生物等领域分别有哪些评测工作？"
-    },
-    "eval-question": {
-      "topic": "agent-benchmarks",
-      "label": "评测问题",
-      "question": "这些工作在测什么能力，或解决什么评价问题？"
-    },
-    "eval-activity": {
-      "topic": "agent-benchmarks",
-      "label": "科研活动",
-      "question": "哪些基准让 Agent 做数据分析、模拟、实验设计或研究复现？"
-    },
-    "rsi-task": {
-      "topic": "rsi",
-      "label": "实验场景",
-      "question": "在什么任务或 benchmark 上验证自我改进？"
-    },
-    "rsi-capability": {
-      "topic": "rsi",
-      "label": "改进能力",
-      "question": "得到验证的是任务能力，还是产生后续改进的能力？"
-    },
-    "rsi-recursion": {
-      "topic": "rsi",
-      "label": "递归机制",
-      "question": "演化后的哪个组件实际参与下一轮改进？"
-    },
-    "interp-question": {
-      "topic": "llm-interpretability",
-      "label": "研究问题",
-      "question": "想理解知识、推理、异常行为还是模型内省？"
-    },
-    "interp-target": {
-      "topic": "llm-interpretability",
-      "label": "解释对象",
-      "question": "研究的是思维链、内部激活、计算电路还是参数？"
-    },
-    "interp-method": {
-      "topic": "llm-interpretability",
-      "label": "解释方法",
-      "question": "通过什么方法获得解释并检验它？"
-    }
-  },
+  "axes": {},
   "subtopic_aliases": {
+    "domain-physics": "eval-science-domain",
+    "domain-chemistry": "eval-science-domain",
+    "domain-biology": "eval-science-domain",
+    "domain-earth": "eval-science-domain",
+    "domain-neuroscience": "eval-science-domain",
+    "domain-materials": "eval-science-domain",
+    "domain-general": "eval-validity",
+    "eval-tasks": "eval-science-domain",
+    "eval-planning": "eval-process",
+    "eval-metrics": "eval-validity",
+    "activity-data": "eval-science-domain",
+    "activity-code": "eval-science-domain",
+    "activity-reproduction": "eval-science-domain",
+    "activity-literature": "eval-science-domain",
+    "activity-experiment": "eval-science-domain",
+    "activity-na": "eval-validity",
     "rsi-agent-programs": "rsi-rec-agent",
     "rsi-improvement-programs": "rsi-rec-improver",
-    "rsi-compute-programs": "rsi-task-compute",
+    "rsi-rec-meta": "rsi-rec-improver",
+    "rsi-compute-programs": "",
+    "rsi-task-code": "",
+    "rsi-task-research": "",
+    "rsi-task-math": "",
+    "rsi-task-tools": "",
+    "rsi-task-compute": "",
+    "rsi-cap-code": "",
+    "rsi-cap-research": "",
+    "rsi-cap-improvement": "",
+    "rsi-cap-efficiency": "",
     "rsi-parameters": "",
-    "rsi-context": ""
+    "rsi-context": "",
+    "interp-q-knowledge": "interp-features",
+    "interp-knowledge": "interp-features",
+    "interp-representations": "interp-features",
+    "interp-m-sae": "interp-features",
+    "interp-m-probe": "interp-features",
+    "interp-q-reasoning": "interp-circuits-reasoning",
+    "interp-circuits": "interp-circuits-reasoning",
+    "interp-reasoning": "interp-circuits-reasoning",
+    "interp-m-attribution": "interp-circuits-reasoning",
+    "interp-m-intervention": "interp-intervention",
+    "interp-q-faithfulness": "interp-audit",
+    "interp-q-behavior": "interp-audit",
+    "interp-q-introspection": "interp-audit",
+    "interp-behavior": "interp-audit",
+    "interp-m-behavior": "interp-audit"
   },
   "translations": {
     "en": {
@@ -665,7 +388,7 @@
       "通用评价方法": "General evaluation methods",
       "科研编程与任务完成": "Scientific coding and task completion",
       "推理与规划": "Reasoning and planning",
-      "过程评价与失败诊断": "Process evaluation and failure diagnosis",
+      "过程评价与失败诊断": "Process & failure diagnosis",
       "评分与统计估计": "Scoring and statistical estimation",
       "基准有效性与评价可靠性": "Benchmark validity and evaluation reliability",
       "数据分析与建模": "Data analysis and modeling",
@@ -700,7 +423,7 @@
       "稀疏表征分解": "Sparse representation decomposition",
       "探针与状态解码": "Probes and state decoding",
       "归因与电路追踪": "Attribution and circuit tracing",
-      "因果干预与模型编辑": "Causal intervention and model editing",
+      "因果干预与模型编辑": "Causal intervention & editing",
       "行为对照与忠实性测试": "Behavioral controls and faithfulness tests",
       "按科学领域、评测问题与科研活动，从不同问题查找同一篇工作。": "Find the same study through its scientific domain, evaluation question or research activity.",
       "科研活动与被测能力分开：任务含有规划不等于独立证明了规划能力。": "A task involving planning does not by itself establish a separate improvement in planning ability.",
@@ -733,7 +456,27 @@
       "查看模型解释、行为分析与 Agent 自主研发相关的论文。": "Explore papers on model explanations, behavioral analysis and autonomous agent research.",
       "比较 SAE 特征、自然语言解释和模型自述等方法如何帮助理解模型。": "Compare how SAE features, natural-language explanations and model self-reports contribute to understanding models.",
       "了解这些方法如何用于发现异常行为、检查训练后的变化，以及辅助 Agent 开展研究。": "Explore their use in diagnosing abnormal behavior, inspecting post-training changes and helping agents conduct research.",
-      "这里同时保留直接研究与工具背景；方法可能用于检查模型变化，不等于已经实现递归自我改进。": "This collection includes direct studies and supporting tools. A method that can examine model changes does not by itself establish recursive self-improvement."
+      "这里同时保留直接研究与工具背景；方法可能用于检查模型变化，不等于已经实现递归自我改进。": "This collection includes direct studies and supporting tools. A method that can examine model changes does not by itself establish recursive self-improvement.",
+      "科学领域基准": "Scientific domain benchmarks",
+      "评测方法与有效性": "Evaluation methods & validity",
+      "Agent 与代码自改": "Agent & code self-modification",
+      "元优化与改进器自举": "Meta-optimization & improver bootstrap",
+      "固定改进器与邻近背景": "Fixed improvers & background",
+      "特征、知识与表征": "Features, knowledge & representations",
+      "电路与推理机制": "Circuits & reasoning mechanisms",
+      "忠实性审计与内省": "Faithfulness auditing & introspection",
+      "按科学领域基准、过程诊断或评测方法快速查找相关工作。": "Quickly find papers by scientific domain benchmark, process diagnosis, or evaluation methodology.",
+      "哪些基准评测物理、化学、生物、地球等具体科学任务？": "Which benchmarks evaluate tasks in physics, chemistry, biology, earth science, and related fields?",
+      "哪些工作聚焦过程评价、中间轨迹或失败诊断？": "Which studies focus on process evaluation, intermediate trajectories, or failure diagnosis?",
+      "哪些研究关注评分指标、pass@k 偏差或基准有效性？": "Which studies examine scoring metrics, pass@k bias, or benchmark validity?",
+      "按自改载体与闭环边界，快速区分真递归自改与固定改进器背景。": "Quickly distinguish genuine recursive self-improvement from fixed-improver background work.",
+      "哪些工作让演化后的 Agent 直接承担后续代码或任务自改？": "Which systems have an evolved agent directly perform subsequent code or task self-modification?",
+      "哪些工作让改进程序/元优化器自身更新并参与下一轮？": "Which systems update the improver or meta-optimizer itself for subsequent rounds?",
+      "哪些属于改进流程保持固定的外部优化背景工作？": "Which studies use a fixed improvement process as neighboring background work?",
+      "按特征表征、电路推理、因果干预与忠实性审计四个核心切面查找论文。": "Browse papers across features & representations, circuits & reasoning, causal intervention, and faithfulness auditing.",
+      "哪些工作研究 SAE 特征、探针解码或参数知识表征？": "Which studies examine SAE features, probe decoding, or parametric knowledge representations?",
+      "哪些工作追踪计算电路、归因路径或思维链推理机制？": "Which studies trace computational circuits, attribution paths, or chain-of-thought reasoning?",
+      "哪些工作通过激活干预或模型编辑验证因果效应？": "Which studies test causal effects through activation steering or model editing?"
     }
   }
 }

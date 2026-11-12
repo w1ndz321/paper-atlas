@@ -165,9 +165,8 @@
   },
   "collections": [],
   "subtopics": [
-    "interp-q-faithfulness",
-    "interp-reasoning",
-    "interp-m-behavior"
+    "interp-circuits-reasoning",
+    "interp-audit"
   ],
   "classification_reason": "用成对提示与线索实验检验思维链忠实性；外显解释可靠性不能替代内部机制证据。",
   "translations": {

@@ -43,10 +43,8 @@
   "tags": [],
   "one_liner": "截断或改错模型写出的思维链，检查答案是否随之变化，并区分推理有用、模型依赖推理和解释忠实这几件事。",
   "subtopics": [
-    "interp-q-faithfulness",
-    "interp-q-reasoning",
-    "interp-reasoning",
-    "interp-m-behavior"
+    "interp-circuits-reasoning",
+    "interp-audit"
   ],
   "collections": [
     "interpretability-rsi"

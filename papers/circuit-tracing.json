@@ -184,12 +184,9 @@
   },
   "collections": [],
   "subtopics": [
-    "interp-q-reasoning",
-    "interp-representations",
-    "interp-circuits",
-    "interp-m-sae",
-    "interp-m-attribution",
-    "interp-m-intervention"
+    "interp-circuits-reasoning",
+    "interp-features",
+    "interp-intervention"
   ],
   "classification_reason": "研究内部特征如何组成计算路径，以跨层转码器、归因图和干预检验机制。",
   "translations": {

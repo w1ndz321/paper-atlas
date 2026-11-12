@@ -188,14 +188,8 @@
   },
   "collections": [],
   "subtopics": [
-    "domain-biology",
-    "domain-chemistry",
-    "domain-earth",
-    "domain-neuroscience",
-    "eval-tasks",
-    "eval-validity",
-    "activity-data",
-    "activity-code"
+    "eval-science-domain",
+    "eval-validity"
   ],
   "classification_reason": "跨四学科的科研程序任务基准，评价端到端交付与任务真实性；不把综合成绩拆称为已独立验证的规划或推理能力。",
   "translations": {

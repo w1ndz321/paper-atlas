@@ -23,10 +23,8 @@
   "tags": [],
   "one_liner": "让智能体从数据中得出研究结论，再按结论的适用范围、变量和关系逐项评分；不同分析路线可以通向同一假设。",
   "subtopics": [
-    "domain-biology",
-    "eval-tasks",
-    "eval-process",
-    "activity-data"
+    "eval-science-domain",
+    "eval-process"
   ],
   "collections": [],
   "classification_reason": "任务覆盖社会学、生物学、经济学等六个领域，以数据处理与统计建模形成自然语言发现；按最终假设的语义维度评分，不要求唯一分析路线。生物领域标签只表示其中一部分实际任务。",

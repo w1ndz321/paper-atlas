@@ -9,31 +9,66 @@
     />
     <meta name="color-scheme" content="light" />
     <title>Paper Atlas · 已读论文库</title>
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='6.5' y='5' width='16.5' height='21' rx='3.5' transform='rotate(-10 16 16)' fill='%23a8c7fa'/%3E%3Crect x='9' y='5.5' width='17' height='21.5' rx='3.5' fill='%230b57d0'/%3E%3Cpath d='M17.5 10.5c.35 3.35 1.9 4.9 5.25 5.25-3.35.35-4.9 1.9-5.25 5.25-.35-3.35-1.9-4.9-5.25-5.25 3.35-.35 4.9-1.9 5.25-5.25Z' fill='%23ffffff'/%3E%3C/svg%3E"
+    />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <header class="masthead">
-      <a class="brand" href="./" aria-label="Paper Atlas 首页" data-i18n-aria="Paper Atlas 首页">
-        <svg class="mark" viewBox="0 0 28 28" fill="none" aria-hidden="true">
-          <path
-            d="M14 7.5C10.8 5.5 7.2 5.3 3.5 6.5v16c3.7-1.2 7.3-1 10.5 1 3.2-2 6.8-2.2 10.5-1v-16C20.8 5.3 17.2 5.5 14 7.5Z"
-            stroke="currentColor"
-            stroke-width="1.8"
-            stroke-linejoin="round"
-          />
-          <path
-            d="M14 7.5v16M7 10.5l3.5.5M7 14.5l3.5.5M17.5 11l3.5-.5M17.5 15l3.5-.5"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-          />
-        </svg>
-        <span>Paper Atlas</span>
-      </a>
+      <div class="masthead-left">
+        <button
+          id="sidebar-toggle"
+          class="icon-button"
+          type="button"
+          aria-controls="sidebar-content"
+          aria-expanded="true"
+          aria-label="展开或收起分类目录"
+          data-i18n-aria="展开或收起分类目录"
+        >
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M4 6.5h16M4 12h16M4 17.5h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          </svg>
+        </button>
+        <a class="brand" href="./" aria-label="Paper Atlas 首页" data-i18n-aria="Paper Atlas 首页">
+          <svg class="mark" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+            <defs>
+              <linearGradient id="atlas-mark-grad" x1="9" y1="5.5" x2="26" y2="27" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#1b6ef3" />
+                <stop offset="100%" stop-color="#0b57d0" />
+              </linearGradient>
+            </defs>
+            <rect
+              x="6.5"
+              y="5"
+              width="16.5"
+              height="21"
+              rx="3.5"
+              transform="rotate(-10 16 16)"
+              fill="#a8c7fa"
+            />
+            <rect
+              x="9"
+              y="5.5"
+              width="17"
+              height="21.5"
+              rx="3.5"
+              fill="url(#atlas-mark-grad)"
+            />
+            <path
+              d="M17.5 10.5c.35 3.35 1.9 4.9 5.25 5.25-3.35.35-4.9 1.9-5.25 5.25-.35-3.35-1.9-4.9-5.25-5.25 3.35-.35 4.9-1.9 5.25-5.25Z"
+              fill="#ffffff"
+            />
+          </svg>
+          <span>Paper Atlas</span>
+        </a>
+      </div>
       <div class="header-links">
         <button id="language-toggle" type="button" aria-label="Switch to English" lang="en">EN</button>
-        <button id="header-help" data-i18n="使用说明">使用说明</button
-        ><a
+        <button id="header-help" type="button" data-i18n="使用说明">使用说明</button>
+        <a
           id="repo-link"
           class="repo"
           target="_blank"
@@ -42,21 +77,13 @@
         >
       </div>
     </header>
+    <div id="sidebar-backdrop" class="sidebar-backdrop" hidden></div>
     <div class="workspace">
       <aside id="sidebar" class="sidebar" aria-label="主题与分类目录" data-i18n-aria="主题与分类目录">
-        <div id="sidebar-content" class="sidebar-content" inert>
+        <div id="sidebar-content" class="sidebar-content">
           <nav id="topics" aria-label="研究主题与分类维度" data-i18n-aria="研究主题与分类维度"></nav>
           <nav id="collections" aria-label="专题与兴趣探索" data-i18n-aria="专题与兴趣探索"></nav>
         </div>
-        <button
-          id="sidebar-peek"
-          class="sidebar-rail"
-          type="button"
-          aria-controls="sidebar-content"
-          aria-expanded="false"
-          aria-label="展开或收起分类目录"
-          data-i18n-aria="展开或收起分类目录"
-        ></button>
       </aside>
       <main>
         <section id="library" aria-label="论文列表" data-i18n-aria="论文列表">

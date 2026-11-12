@@ -161,11 +161,8 @@
     "interpretability-rsi"
   ],
   "subtopics": [
-    "interp-q-knowledge",
-    "interp-representations",
-    "interp-m-sae",
-    "interp-m-behavior",
-    "interp-m-intervention"
+    "interp-features",
+    "interp-intervention"
   ],
   "classification_reason": "评测 Agent 发现并验证 SAE 特征的能力；属于自动化解释研究与桥接评测，不证明被评测 Agent 已递归改进自身。",
   "translations": {

@@ -145,9 +145,8 @@
   },
   "collections": [],
   "subtopics": [
-    "interp-q-knowledge",
-    "interp-knowledge",
-    "interp-m-intervention"
+    "interp-features",
+    "interp-intervention"
   ],
   "classification_reason": "研究参数中的事实关联，以激活恢复定位和参数编辑验证；属于知识与因果干预脉络，未验证自主递归改进。",
   "translations": {

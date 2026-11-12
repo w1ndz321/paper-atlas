@@ -473,6 +473,365 @@ function renderList() {
   }
   updateQuery();
 }
+const mathSymbols = {
+  alpha: "α", beta: "β", gamma: "γ", delta: "δ", epsilon: "ϵ", varepsilon: "ε",
+  zeta: "ζ", eta: "η", theta: "θ", vartheta: "ϑ", iota: "ι", kappa: "κ",
+  lambda: "λ", mu: "μ", nu: "ν", xi: "ξ", pi: "π", rho: "ρ", varrho: "ϱ",
+  sigma: "σ", tau: "τ", upsilon: "υ", phi: "ϕ", varphi: "φ", chi: "χ",
+  psi: "ψ", omega: "ω", Gamma: "Γ", Delta: "Δ", Theta: "Θ", Lambda: "Λ",
+  Xi: "Ξ", Pi: "Π", Sigma: "Σ", Phi: "Φ", Psi: "Ψ", Omega: "Ω",
+  sum: "∑", prod: "∏", int: "∫", oint: "∮", cdot: "·", cdots: "⋯",
+  ldots: "…", dots: "…", times: "×", div: "÷", pm: "±", mp: "∓",
+  le: "≤", leq: "≤", ge: "≥", geq: "≥", ne: "≠", neq: "≠",
+  approx: "≈", equiv: "≡", sim: "∼", simeq: "≃", propto: "∝",
+  in: "∈", notin: "∉", subset: "⊂", subseteq: "⊆", supset: "⊃", supseteq: "⊇",
+  cup: "∪", cap: "∩", emptyset: "∅", varnothing: "∅", forall: "∀", exists: "∃",
+  neg: "¬", land: "∧", lor: "∨", to: "→", rightarrow: "→", leftarrow: "←",
+  leftrightarrow: "↔", Rightarrow: "⇒", Leftarrow: "⇐", Leftrightarrow: "⇔",
+  mapsto: "↦", infty: "∞", partial: "∂", nabla: "∇", circ: "∘",
+  oplus: "⊕", otimes: "⊗", langle: "⟨", rangle: "⟩", lceil: "⌈", rceil: "⌉",
+  lfloor: "⌊", rfloor: "⌋", mid: "∣", parallel: "∥", ell: "ℓ", hbar: "ℏ",
+  prime: "′", star: "⋆", dagger: "†",
+};
+const mathOperators = new Set([
+  "arg", "max", "min", "sup", "inf", "lim", "log", "ln", "exp",
+  "sin", "cos", "tan", "Pr", "det", "dim", "rank", "tr",
+  "softmax", "argmax", "argmin", "var", "cov",
+]);
+const mathBlackboard = {
+  R: "ℝ", E: "𝔼", N: "ℕ", Z: "ℤ", P: "ℙ", Q: "ℚ", C: "ℂ", 1: "𝟙",
+};
+function renderMath(tex, display = false) {
+  const wrap = node(display ? "div" : "span", display ? "math-block" : "math-inline");
+  const cur = { s: tex.trim(), i: 0 };
+  const skip = () => {
+    while (cur.i < cur.s.length && /\s/.test(cur.s[cur.i])) cur.i += 1;
+  };
+  const readCommand = () => {
+    cur.i += 1;
+    if (cur.i >= cur.s.length) return "";
+    const ch = cur.s[cur.i];
+    if (!/[A-Za-z]/.test(ch)) {
+      cur.i += 1;
+      return ch;
+    }
+    const start = cur.i;
+    while (cur.i < cur.s.length && /[A-Za-z]/.test(cur.s[cur.i])) cur.i += 1;
+    return cur.s.slice(start, cur.i);
+  };
+  const readRawGroup = () => {
+    skip();
+    if (cur.s[cur.i] !== "{") return cur.s[cur.i++] || "";
+    cur.i += 1;
+    let depth = 1;
+    const start = cur.i;
+    while (cur.i < cur.s.length && depth > 0) {
+      if (cur.s[cur.i] === "\\") cur.i += 2;
+      else if (cur.s[cur.i] === "{") { depth += 1; cur.i += 1; }
+      else if (cur.s[cur.i] === "}") { depth -= 1; cur.i += 1; }
+      else cur.i += 1;
+    }
+    return cur.s.slice(start, cur.i - (depth === 0 ? 1 : 0));
+  };
+  const readGroup = () => {
+    skip();
+    if (cur.s[cur.i] === "{") {
+      cur.i += 1;
+      return parseSeq(true);
+    }
+    return readAtom();
+  };
+  const readAtom = () => {
+    skip();
+    if (cur.i >= cur.s.length) return document.createTextNode("");
+    const ch = cur.s[cur.i];
+    if (ch === "{") {
+      cur.i += 1;
+      return parseSeq(true);
+    }
+    if (ch === "\\") {
+      const cmd = readCommand();
+      if (cmd === "frac" || cmd === "dfrac" || cmd === "tfrac") {
+        const box = node("span", "m-frac");
+        const num = node("span", "m-num");
+        const den = node("span", "m-den");
+        num.append(readGroup());
+        den.append(readGroup());
+        box.append(num, den);
+        return box;
+      }
+      if (cmd === "sqrt") {
+        skip();
+        if (cur.s[cur.i] === "[") {
+          while (cur.i < cur.s.length && cur.s[cur.i] !== "]") cur.i += 1;
+          if (cur.s[cur.i] === "]") cur.i += 1;
+        }
+        const box = node("span", "m-sqrt");
+        box.append(node("span", "m-rad", "√"));
+        const inner = node("span", "m-radicand");
+        inner.append(readGroup());
+        box.append(inner);
+        return box;
+      }
+      if (cmd === "text" || cmd === "mathrm" || cmd === "operatorname") {
+        const span = node("span", "m-text");
+        span.textContent = readRawGroup();
+        return span;
+      }
+      if (cmd === "mathbf" || cmd === "boldsymbol") {
+        const span = node("span", "m-bold");
+        span.append(readGroup());
+        return span;
+      }
+      if (cmd === "mathcal") {
+        const span = node("span", "m-cal");
+        span.append(readGroup());
+        return span;
+      }
+      if (cmd === "mathbb") {
+        const raw = readRawGroup().trim();
+        return node("span", "m-bb", [...raw].map((c) => mathBlackboard[c] || c).join(""));
+      }
+      if (cmd === "hat" || cmd === "bar" || cmd === "overline" || cmd === "tilde" || cmd === "vec") {
+        const span = node("span", "m-accent m-accent-" + cmd);
+        span.append(readGroup());
+        return span;
+      }
+      if (cmd === "left" || cmd === "right") {
+        skip();
+        if (cur.s[cur.i] === "\\") {
+          const next = readCommand();
+          if (next === ".") return document.createTextNode("");
+          return node("span", "m-delim", mathSymbols[next] || (next === "|" ? "‖" : next));
+        }
+        const d = cur.s[cur.i++] || "";
+        return document.createTextNode(d === "." ? "" : d);
+      }
+      if (mathOperators.has(cmd)) return node("span", "m-op", cmd);
+      if (Object.hasOwn(mathSymbols, cmd)) return document.createTextNode(mathSymbols[cmd]);
+      if ([",", ";", ":", " "].includes(cmd) || cmd === "quad" || cmd === "qquad")
+        return document.createTextNode(cmd.startsWith("q") ? "  " : "\u2009");
+      if (["{", "}", "%", "_", "$", "|", "&", "#"].includes(cmd))
+        return document.createTextNode(cmd === "|" ? "‖" : cmd);
+      return node("span", "m-op", cmd);
+    }
+    if (/[0-9]/.test(ch)) {
+      const start = cur.i;
+      while (cur.i < cur.s.length && /[0-9.]/.test(cur.s[cur.i])) cur.i += 1;
+      return node("span", "m-lit", cur.s.slice(start, cur.i));
+    }
+    if (/[A-Za-z]/.test(ch)) {
+      cur.i += 1;
+      return node("var", "m-var", ch);
+    }
+    cur.i += 1;
+    if ("+-=<>*/".includes(ch)) return node("span", "m-bin", ch === "-" ? "−" : ch);
+    return document.createTextNode(ch);
+  };
+  const readScriptable = () => {
+    const base = readAtom();
+    let sub = null;
+    let sup = null;
+    while (true) {
+      skip();
+      const ch = cur.s[cur.i];
+      if (ch === "_" && !sub) {
+        cur.i += 1;
+        sub = readGroup();
+      } else if (ch === "^" && !sup) {
+        cur.i += 1;
+        sup = readGroup();
+      } else break;
+    }
+    if (!sub && !sup) return base;
+    const holder = node("span", "m-scripted");
+    holder.append(base);
+    if (sub && sup) {
+      const stack = node("span", "m-scripts");
+      const supEl = node("sup", "m-sup");
+      const subEl = node("sub", "m-sub");
+      supEl.append(sup);
+      subEl.append(sub);
+      stack.append(supEl, subEl);
+      holder.append(stack);
+    } else if (sup) {
+      const supEl = node("sup", "m-sup");
+      supEl.append(sup);
+      holder.append(supEl);
+    } else {
+      const subEl = node("sub", "m-sub");
+      subEl.append(sub);
+      holder.append(subEl);
+    }
+    return holder;
+  };
+  function parseSeq(stopOnBrace) {
+    const frag = document.createDocumentFragment();
+    while (cur.i < cur.s.length) {
+      skip();
+      if (cur.i >= cur.s.length) break;
+      if (stopOnBrace && cur.s[cur.i] === "}") {
+        cur.i += 1;
+        break;
+      }
+      frag.append(readScriptable());
+    }
+    return frag;
+  }
+  wrap.append(parseSeq(false));
+  return wrap;
+}
+function findInlineMath(text, from) {
+  for (let i = from; i < text.length; i += 1) {
+    if (text[i] !== "$" || (i > 0 && text[i - 1] === "\\")) continue;
+    if (text[i + 1] === "$" || i + 1 >= text.length || /\s/.test(text[i + 1])) continue;
+    for (let j = i + 1; j < text.length; j += 1) {
+      if (text[j] === "\n") break;
+      if (text[j] === "$" && text[j - 1] !== "\\") {
+        if (/\s/.test(text[j - 1]) || (j + 1 < text.length && /\d/.test(text[j + 1]))) continue;
+        return { index: i, end: j + 1, inner: text.slice(i + 1, j) };
+      }
+    }
+  }
+  return null;
+}
+function appendInlineRich(parent, text) {
+  let pos = 0;
+  while (pos < text.length) {
+    const rest = text.slice(pos);
+    const codeMatch = rest.match(/`([^`\n]+)`/);
+    const boldMatch = rest.match(/\*\*([^*\n]+?)\*\*/);
+    const mathMatch = findInlineMath(text, pos);
+    const candidates = [];
+    if (codeMatch) candidates.push({ kind: "code", index: pos + codeMatch.index, end: pos + codeMatch.index + codeMatch[0].length, inner: codeMatch[1] });
+    if (boldMatch) candidates.push({ kind: "bold", index: pos + boldMatch.index, end: pos + boldMatch.index + boldMatch[0].length, inner: boldMatch[1] });
+    if (mathMatch) candidates.push({ kind: "math", ...mathMatch });
+    if (!candidates.length) {
+      parent.append(document.createTextNode(text.slice(pos).replaceAll("\\$", "$")));
+      break;
+    }
+    candidates.sort((a, b) => a.index - b.index);
+    const next = candidates[0];
+    if (next.index > pos)
+      parent.append(document.createTextNode(text.slice(pos, next.index).replaceAll("\\$", "$")));
+    if (next.kind === "code") parent.append(node("code", "inline-code", next.inner));
+    else if (next.kind === "bold") {
+      const strong = node("strong");
+      appendInlineRich(strong, next.inner);
+      parent.append(strong);
+    } else parent.append(renderMath(next.inner, false));
+    pos = next.end;
+  }
+}
+function splitTableCells(line) {
+  const trimmed = line.trim().replace(/^\|/, "").replace(/\|$/, "");
+  return trimmed.split("|").map((cell) => cell.trim());
+}
+function isTableSeparator(line) {
+  const cells = splitTableCells(line);
+  return cells.length >= 2 && cells.every((c) => /^:?-{2,}:?$/.test(c));
+}
+function renderRichText(text) {
+  const container = node("div", "reader-rich");
+  const lines = String(text || "").split(/\r?\n/);
+  let i = 0;
+  const isUl = (line) => /^\s*[-*•]\s+(.+)$/.test(line);
+  const isOl = (line) => /^\s*\d+[.)]\s+(.+)$/.test(line);
+  while (i < lines.length) {
+    const line = lines[i];
+    if (!line.trim()) { i += 1; continue; }
+    if (line.trim().startsWith("$$")) {
+      const single = line.trim().match(/^\$\$(.+)\$\$$/);
+      if (single) {
+        container.append(renderMath(single[1], true));
+        i += 1;
+        continue;
+      }
+      const buf = [line.trim().slice(2)];
+      i += 1;
+      while (i < lines.length && !lines[i].trim().endsWith("$$")) {
+        buf.push(lines[i]);
+        i += 1;
+      }
+      if (i < lines.length) {
+        buf.push(lines[i].trim().slice(0, -2));
+        i += 1;
+      }
+      container.append(renderMath(buf.join("\n"), true));
+      continue;
+    }
+    if (i + 1 < lines.length && line.includes("|") && isTableSeparator(lines[i + 1])) {
+      const headers = splitTableCells(line);
+      const aligns = splitTableCells(lines[i + 1]).map((c) =>
+        c.startsWith(":") && c.endsWith(":") ? "center" : c.endsWith(":") ? "right" : "left",
+      );
+      const wrap = node("div", "table-wrap");
+      const table = node("table", "rich-table");
+      const thead = node("thead");
+      const hrow = node("tr");
+      headers.forEach((h, idx) => {
+        const th = node("th");
+        if (aligns[idx] && aligns[idx] !== "left") th.style.textAlign = aligns[idx];
+        appendInlineRich(th, h);
+        hrow.append(th);
+      });
+      thead.append(hrow);
+      table.append(thead);
+      const tbody = node("tbody");
+      i += 2;
+      while (i < lines.length && lines[i].trim() && lines[i].includes("|")) {
+        const row = node("tr");
+        const cells = splitTableCells(lines[i]);
+        headers.forEach((_, idx) => {
+          const td = node("td");
+          if (aligns[idx] && aligns[idx] !== "left") td.style.textAlign = aligns[idx];
+          appendInlineRich(td, cells[idx] || "");
+          row.append(td);
+        });
+        tbody.append(row);
+        i += 1;
+      }
+      table.append(tbody);
+      wrap.append(table);
+      container.append(wrap);
+      continue;
+    }
+    if (isUl(line) || isOl(line)) {
+      const ordered = isOl(line);
+      const list = node(ordered ? "ol" : "ul", "rich-list");
+      const matcher = ordered ? /^\s*\d+[.)]\s+(.+)$/ : /^\s*[-*•]\s+(.+)$/;
+      while (i < lines.length) {
+        const m = lines[i].match(matcher);
+        if (!m) break;
+        const li = node("li");
+        appendInlineRich(li, m[1]);
+        list.append(li);
+        i += 1;
+      }
+      container.append(list);
+      continue;
+    }
+    const p = node("p");
+    const paraLines = [];
+    while (
+      i < lines.length &&
+      lines[i].trim() &&
+      !lines[i].trim().startsWith("$$") &&
+      !isUl(lines[i]) &&
+      !isOl(lines[i]) &&
+      !(i + 1 < lines.length && lines[i].includes("|") && isTableSeparator(lines[i + 1]))
+    ) {
+      paraLines.push(lines[i].trim());
+      i += 1;
+    }
+    paraLines.forEach((part, idx) => {
+      if (idx > 0) p.append(document.createElement("br"));
+      appendInlineRich(p, part);
+    });
+    container.append(p);
+  }
+  return container;
+}
 function sourceLocation(paper, evidence) {
   const url = new URL(
     paper.source.url ||
@@ -578,7 +937,7 @@ function showRoute() {
     const section = node("section", "reader-section");
     section.id = key;
     const heading = node("h3", "", title);
-    section.append(heading, node("p", "", paper.sections[key].text));
+    section.append(heading, renderRichText(paper.sections[key].text));
     const locations = node("div", "source-locations");
     const seen = new Set();
     for (const evidenceId of paper.sections[key].evidence) {

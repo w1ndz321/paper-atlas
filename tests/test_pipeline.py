@@ -471,6 +471,62 @@ assert.equal(api.getView().subtopic,'');
 """
         subprocess.run(["node", "-e", program, str(kb.ROOT / "web/app.js")], input=json.dumps({"config": kb.config(), "papers": kb.records()}), text=True, capture_output=True, check=True)
 
+    @unittest.skipUnless(shutil.which("node"), "需要 Node 验证卡片富文本与公式渲染")
+    def test_rich_section_renders_lists_tables_math_and_preserves_currency(self):
+        program = r"""
+const fs = require('node:fs'), vm = require('node:vm'), assert = require('node:assert/strict');
+class MockNode {
+  constructor(tag, text = '') { this.tag = tag; this.textContent = text; this.className = ''; this.style = {}; this.children = []; }
+  append(...items) {
+    for (const item of items) {
+      if (item === undefined || item === null) continue;
+      if (typeof item === 'string') this.children.push(new MockNode('#text', item));
+      else if (item.tag === '#fragment') this.children.push(...item.children);
+      else this.children.push(item);
+    }
+  }
+  get text() { return this.tag === '#text' ? this.textContent : (this.textContent || '') + this.children.map(c => c.text).join(''); }
+}
+const document = {
+  createElement: (tag) => new MockNode(tag),
+  createElementNS: (_ns, tag) => new MockNode(tag),
+  createTextNode: (text) => new MockNode('#text', text),
+  createDocumentFragment: () => new MockNode('#fragment'),
+};
+const source = fs.readFileSync(process.argv[1], 'utf8').replace(/\ninit\(\);\s*$/, '');
+const {renderRichText} = vm.runInNewContext(source + '\n;({renderRichText})', { URL, URLSearchParams, location:{search:''}, document });
+const sample = [
+  '第一段含 **加粗**、`code`、行内公式 $g = \\frac{m - m_0}{|m_0|}$。',
+  '',
+  '- 步骤一：计算 $\\alpha_i^2$',
+  '- 步骤二：对比条件',
+  '',
+  '| 方法 | 分数 |',
+  '| --- | ---: |',
+  '| Ours | 86.0% |',
+  '',
+  '$$\\sum_{i=1}^{N} x_i$$',
+  '',
+  '单任务成本 $0.057，对比基线 $0.958（货币不应误判为公式）。',
+].join('\n');
+const root = renderRichText(sample);
+assert.equal(root.children[0].tag, 'p');
+assert.ok(root.children[0].children.some(c => c.tag === 'strong' && c.text === '加粗'));
+assert.ok(root.children[0].children.some(c => c.tag === 'code' && c.text === 'code'));
+assert.ok(root.children[0].children.some(c => c.className === 'math-inline' && c.text.includes('m')));
+assert.equal(root.children[1].tag, 'ul');
+assert.equal(root.children[1].children.length, 2);
+assert.equal(root.children[2].className, 'table-wrap');
+assert.equal(root.children[2].children[0].tag, 'table');
+assert.equal(root.children[3].className, 'math-block');
+assert.ok(root.children[3].text.includes('∑'));
+assert.equal(root.children[4].tag, 'p');
+assert.ok(!root.children[4].children.some(c => c.className === 'math-inline'));
+assert.ok(root.children[4].text.includes('$0.057'));
+assert.ok(root.children[4].text.includes('$0.958'));
+"""
+        subprocess.run(["node", "-e", program, str(kb.ROOT / "web/app.js")], text=True, capture_output=True, check=True)
+
     def test_cross_collection_is_scoped_to_its_parent_topic(self):
         cfg, p = self.taxonomy()
         cfg["collections"]["cross-view"]["topic"] = "other-topic"

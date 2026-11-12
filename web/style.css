@@ -1174,6 +1174,240 @@ footer {
   color: #2b2d30;
 }
 
+.reader-rich {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.reader-rich p {
+  white-space: normal;
+}
+
+.reader-rich strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.inline-code {
+  padding: 1px 6px;
+  border-radius: var(--radius-xs);
+  background: var(--surface-tonal);
+  border: 1px solid var(--line-soft);
+  color: var(--ink);
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.88em;
+}
+
+.rich-list {
+  margin: 0;
+  padding-left: 1.4em;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 16px;
+  line-height: 1.8;
+  color: #2b2d30;
+}
+
+.rich-list li::marker {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.rich-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14.5px;
+  line-height: 1.6;
+  font-variant-numeric: tabular-nums;
+}
+
+.rich-table th {
+  padding: 10px 14px;
+  background: var(--page);
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.rich-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line-soft);
+  color: var(--secondary);
+  vertical-align: top;
+}
+
+.rich-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.rich-table tbody tr:hover td {
+  background: var(--accent-tint);
+}
+
+/* Zero-dependency Math Typography */
+.math-inline,
+.math-block {
+  font-family: "STIX Two Math", "Cambria Math", "Times New Roman", Times, Georgia, serif;
+  color: var(--ink);
+  letter-spacing: 0.01em;
+}
+
+.math-inline {
+  display: inline;
+  padding: 0 2px;
+  font-size: 1.03em;
+}
+
+.math-block {
+  display: block;
+  margin: 4px 0;
+  padding: 14px 18px;
+  border-radius: var(--radius-md);
+  background: var(--page);
+  border: 1px solid var(--line-soft);
+  font-size: 1.12em;
+  line-height: 1.6;
+  text-align: center;
+  overflow-x: auto;
+}
+
+.m-var,
+.m-cal {
+  font-style: italic;
+}
+
+.m-text,
+.m-op,
+.m-lit {
+  font-style: normal;
+}
+
+.m-op {
+  margin: 0 2px;
+}
+
+.m-bold {
+  font-weight: 700;
+}
+
+.m-bin {
+  margin: 0 4px;
+}
+
+.m-frac {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: middle;
+  margin: 0 3px;
+  font-size: 0.86em;
+  line-height: 1.15;
+}
+
+.m-num {
+  padding: 0 3px 2px;
+  border-bottom: 1px solid currentColor;
+}
+
+.m-den {
+  padding: 2px 3px 0;
+}
+
+.m-sqrt {
+  display: inline-flex;
+  align-items: stretch;
+  margin: 0 2px;
+}
+
+.m-rad {
+  padding-right: 1px;
+}
+
+.m-radicand {
+  border-top: 1px solid currentColor;
+  padding: 0 3px;
+}
+
+.m-scripted {
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.m-scripts {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  vertical-align: middle;
+  margin-left: 1px;
+  line-height: 1;
+}
+
+.m-sup,
+.m-sub {
+  font-size: 0.72em;
+  line-height: 1;
+}
+
+.m-sup {
+  vertical-align: super;
+}
+
+.m-sub {
+  vertical-align: sub;
+}
+
+.m-scripts .m-sup,
+.m-scripts .m-sub {
+  vertical-align: baseline;
+}
+
+.m-accent {
+  position: relative;
+  display: inline-block;
+}
+
+.m-accent-bar,
+.m-accent-overline {
+  border-top: 1px solid currentColor;
+  padding-top: 1px;
+}
+
+.m-accent-hat::before,
+.m-accent-tilde::before,
+.m-accent-vec::before {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -0.45em;
+  text-align: center;
+  font-size: 0.75em;
+  line-height: 1;
+}
+
+.m-accent-hat::before {
+  content: "^";
+}
+
+.m-accent-tilde::before {
+  content: "~";
+}
+
+.m-accent-vec::before {
+  content: "→";
+}
+
 .source-locations {
   display: flex;
   flex-wrap: wrap;

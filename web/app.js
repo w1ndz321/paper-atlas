@@ -351,77 +351,18 @@ function renderGuide() {
     ? data.config.collections[collection]
     : data.config.topic_guides[topic];
   if (!guide || panel.hidden) return;
-  const details = node(collection ? "details" : "section", "guide-details");
-  if (collection) {
-    details.append(node("summary", "", t("专题介绍")));
-    details.append(node("p", "guide-summary", guide.summary));
-  } else {
-    const jump = node("div", "topic-paper-entry");
-    const count = data.entries.filter((p) => p.topics.includes(topic)).length;
-    jump.append(
-      node("span", "", t("问题导航")),
-      link(language === "en" ? `View ${count} papers in this topic ↓` : `查看本主题 ${count} 篇论文 ↓`, "#list-controls"),
-    );
-    details.append(jump);
-  }
-  if (guide.questions?.length) {
-    const table = node("table", "question-table");
-    const head = node("thead");
-    const hrow = node("tr");
-    for (const label of [t("如果你想问的是……"), t("从这里开始")])
-      hrow.append(node("th", "", label));
-    head.append(hrow);
-    table.append(head);
-    const body = node("tbody");
-    for (const question of guide.questions.slice(0, 3)) {
-      const row = node("tr");
-      const cell = node("td");
-      const action = node("button", "question-entry", question.label + " →");
-      action.onclick = () => {
-        if (question.subtopic) {
-          selectView(topic, question.subtopic);
-        } else if (question.axis) {
-          expandedTopics.add(topic);
-          expandedAxes.add(question.axis);
-          renderTopics();
-          const target = $("topics").querySelector(
-            `[data-axis="${question.axis}"] summary`,
-          );
-          setSidebarOpen(true);
-          target?.focus();
-          target?.scrollIntoView({ block: "nearest" });
-        } else {
-          guideOpen = false;
-          subtopic = "";
-          $("search").value = "";
-          $("type-filter").value = "";
-          $("sort").value = question.view === "year" ? "year" : "added";
-          refreshView();
-          window.scrollTo(0, 0);
-        }
-      };
-      cell.append(action);
-      row.append(node("td", "", question.question), cell);
-      body.append(row);
-    }
-    table.append(body);
-    details.append(table);
-  }
-  const notes = collection ? details : node("details", "guide-notes");
-  if (!collection) {
-    notes.append(node("summary", "", t("主题说明与阅读建议")));
-    notes.append(node("p", "guide-summary", guide.summary));
-    details.append(notes);
-  }
+  const details = node("details", "guide-details");
+  details.append(node("summary", "", t(collection ? "专题介绍" : "主题说明与阅读建议")));
+  details.append(node("p", "guide-summary", guide.summary));
   const points = node("ul", "guide-points");
   for (const point of guide.points) points.append(node("li", "", point));
-  notes.append(points);
+  details.append(points);
   if (guide.reading_order.length) {
     const reading = node("div", "guide-reading");
     reading.append(node("span", "", t("建议阅读")));
     for (const item of guide.reading_order)
       reading.append(link(item.label, "#paper/" + item.id));
-    notes.append(reading);
+    details.append(reading);
   }
   panel.append(details);
 }

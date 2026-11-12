@@ -603,109 +603,23 @@ body.sidebar-collapsed .sidebar {
 
 /* Topic Guide Module */
 .topic-guide {
-  margin-top: 18px;
-  padding: 22px 26px;
+  margin-top: 14px;
+  padding: 12px 18px;
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-xs);
+  border-radius: var(--radius-md);
 }
 
 .guide-details > summary {
   cursor: pointer;
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--ink);
-}
-
-.topic-paper-entry {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px 20px;
-}
-
-.topic-paper-entry > span {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--ink);
-}
-
-.topic-paper-entry a {
   font-size: 14px;
   font-weight: 500;
-  text-decoration: underline;
-  text-decoration-color: var(--link-underline);
+  color: var(--secondary);
 }
 
-.question-table {
-  width: 100%;
-  margin: 14px 0 8px;
-  border-collapse: collapse;
-  font-size: 14.5px;
-}
-
-.question-table th {
-  padding: 0 12px 10px 0;
-  text-align: left;
-  color: var(--muted);
-  font-size: 12.5px;
+.guide-details[open] > summary {
+  color: var(--ink);
   font-weight: 600;
-  border-bottom: 1px solid var(--line-soft);
-}
-
-.question-table td {
-  padding: 12px 12px 12px 0;
-  border-bottom: 1px solid var(--line-soft);
-  color: var(--secondary);
-  line-height: 1.55;
-}
-
-.question-table tr:last-child td {
-  border-bottom: 0;
-}
-
-.question-table td:last-child {
-  width: 30%;
-  min-width: 120px;
-  text-align: right;
-  padding-right: 0;
-}
-
-.question-entry {
-  display: inline-flex;
-  align-items: center;
-  min-height: 36px;
-  padding: 6px 14px;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-pill);
-  color: var(--accent);
-  font-size: 13.5px;
-  font-weight: 500;
-  text-align: left;
-  transition: background 0.15s ease, border-color 0.15s ease;
-}
-
-.question-entry:hover {
-  background: var(--accent-tint);
-  border-color: var(--link-underline);
-}
-
-.guide-notes {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid var(--line-soft);
-  font-size: 14.5px;
-  color: var(--secondary);
-}
-
-.guide-notes > summary {
-  cursor: pointer;
-  padding: 4px 0;
-  font-weight: 500;
-  color: var(--secondary);
 }
 
 .guide-summary {
@@ -1498,12 +1412,7 @@ dialog .close:hover {
   }
 
   .topic-guide {
-    padding: 18px;
-  }
-
-  .question-table td:last-child {
-    width: auto;
-    min-width: 100px;
+    padding: 12px 14px;
   }
 
   .toolbar {

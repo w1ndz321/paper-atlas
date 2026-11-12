@@ -11,15 +11,11 @@
   "year": 2026,
   "paper_type": "method",
   "topics": [
-    "agent-benchmarks"
+    "interest-exploration"
   ],
-  "subtopics": [
-    "domain-earth",
-    "eval-metrics",
-    "activity-data"
-  ],
+  "subtopics": [],
   "collections": [],
-  "classification_reason": "两个生态学任务对应地球与环境科学；研究分析结果的采样、分布与成本，对应评分与统计估计；Agent 实际开展数据分析与建模。本文不是递归自我改进研究。",
+  "classification_reason": "本文的主要贡献是数据分析路径的结构化分叉与采样；生态学数据集是实验案例，尚不足以把方法归为地球与环境科学研究。按方法自身的问题收录于兴趣探索。",
   "tags": [
     "multiverse analysis",
     "agentic bootstrap",
@@ -112,7 +108,7 @@
       ]
     },
     "relevance": {
-      "text": "知识库分析：本文直接研究生态学 Agent 分析结果的采样与数值分布，适合放在 AI4S Agent 评测中的地球与环境科学、评分与统计估计、数据分析与建模。它能揭示分析选择带来的变化，但没有判断不同路径是否都是正确答案，也没有验证统计不确定性的校准。",
+      "text": "知识库分析：本文研究如何探索数据分析中的替代路径，主要贡献是采样结构与数值多样性比较。生态学是两个实验任务的背景，文章没有提出科学领域专属评测基准，也没有验证递归自我改进或模型内部解释机制，因此收录于兴趣探索。它能展示分析选择带来的变化，但没有判断不同路径是否都是正确答案，也没有验证不确定性的校准。",
       "evidence": []
     }
   },
@@ -216,7 +212,7 @@
         "contributions": "The main contribution is a resumable branching representation that reuses earlier analysis steps and supports interchangeable decision-allocation rules. Uniform and least-tried allocation are evaluated for numerical diversity and cost. This is a sampling method, not a verifier of valid analyses. The illustrated interactive visualization implementation is absent from the supplement.",
         "limitations": "Novelty review does not assess statistical validity. Distinct values and width establish neither analysis quality, search completeness, nor calibrated uncertainty. There is no full-restart baseline explicitly instructed to avoid prior choices, so forking and diversity prompting are not isolated. Each branching condition is run once; branches share a root and prefixes, and errors across three models do not quantify campaign-level replication uncertainty. Detection, scope judgments, and normalization lack independent validation. Tables and forest plots use different human subsets. Table 3 does not explicitly specify the lower and upper endpoints of its percentile width.",
         "cost": "The full grid costs $144.53 including post-processing; the project budget is $500. Cost per distinct outcome includes attempts that produce no retained result. For blue tit, 40 of Opus Naive's 50 reports fail normalization, leaving 10, so retention also affects the cost metric. Reproduction-ready condition-specific runtime and hardware details are not reported.",
-        "relevance": "Library analysis: the study directly examines sampling and numerical distributions of ecology-agent analyses. It belongs under AI4S agent evaluation, with Earth and environmental science, Scoring and statistical estimation, and Data analysis and modeling. It reveals variation due to analytical choices, but does not establish that alternative paths are correct answers or that statistical uncertainty is calibrated."
+        "relevance": "Library analysis: the paper explores alternative data-analysis paths through a structured sampler and comparisons of numerical diversity. Ecology supplies two experimental cases; the paper does not introduce a domain-specific scientific benchmark or validate recursive self-improvement or internal model explanations. It is therefore filed under Other interests. It reveals variation due to analytical choices, but does not establish that alternative paths are correct answers or that uncertainty is calibrated."
       },
       "related": {
         "discoverybench": "Both ask agents to draw conclusions from scientific data. DiscoveryBench compares generated hypotheses with references; Branchpoint compares numerical distributions across alternative analysis paths without validating correct answers.",

@@ -414,5 +414,13 @@
     "file": "pdfs/darwin-godel-machine.pdf",
     "downloaded_at": "2026-11-11",
     "source_url": "https://arxiv.org/abs/2505.22954v3"
+  },
+  "branchpoint": {
+    "url": "https://openreview.net/pdf?id=AvfjhEy9NJ",
+    "source_url": "https://openreview.net/pdf?id=AvfjhEy9NJ",
+    "sha256": "394b2b7abd9d4bc4302dbaac0ddc2cd9e3ccfb22c8aa82ec7b53d4b1e190a0f5",
+    "page_count": 18,
+    "file": "pdfs/branchpoint.pdf",
+    "downloaded_at": "2026-11-12"
   }
 }

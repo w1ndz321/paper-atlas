@@ -1,0 +1,240 @@
+{
+  "schema_version": 1,
+  "id": "branchpoint",
+  "origin": "user",
+  "title": "Branchpoint: Structured agentic multiverse analysis",
+  "authors": [
+    "Mattias Akke",
+    "Carl Bringle",
+    "Linus von Ekensteen Löfgren"
+  ],
+  "year": 2026,
+  "paper_type": "method",
+  "topics": [
+    "agent-benchmarks"
+  ],
+  "subtopics": [
+    "domain-earth",
+    "eval-metrics",
+    "activity-data"
+  ],
+  "collections": [],
+  "classification_reason": "两个生态学任务对应地球与环境科学；研究分析结果的采样、分布与成本，对应评分与统计估计；Agent 实际开展数据分析与建模。本文不是递归自我改进研究。",
+  "tags": [
+    "multiverse analysis",
+    "agentic bootstrap",
+    "ecology",
+    "analysis diversity",
+    "branching"
+  ],
+  "one_liner": "在科研 Agent 已记录的分析轨迹上识别决策点并分叉，比较不同分析结果的多样性、分布宽度与获取成本。",
+  "added_at": "2026-11-12",
+  "updated_at": "2026-11-12",
+  "source": {
+    "url": "https://openreview.net/pdf?id=AvfjhEy9NJ",
+    "sha256": "394b2b7abd9d4bc4302dbaac0ddc2cd9e3ccfb22c8aa82ec7b53d4b1e190a0f5",
+    "format": "pdf",
+    "page_count": 18,
+    "attachment": ""
+  },
+  "read_scope": "full",
+  "sections": {
+    "problem": {
+      "text": "同一数据和研究问题可以导出不同分析结果。作者希望更高效地探索科研 Agent 的分析选择，并观察结果分布，而不是把一次运行当成唯一答案。实验只涉及 Gould 等（2025）中的蓝山雀和桉树两个生态学数据集。",
+      "evidence": [
+        "e1",
+        "e3"
+      ]
+    },
+    "gap": {
+      "text": "预先枚举多路径分析的决策空间依赖领域判断，组合数量也容易膨胀。反复从相同提示重启 Agent，又可能反复选择模型偏好的方法。已有采样能展示差异，却不能自动证明分布有代表性或路径在统计上有效。",
+      "evidence": [
+        "e1",
+        "e2"
+      ]
+    },
+    "method": {
+      "text": "先运行根分析，再由 GPT-5.6-sol 从可见分析轨迹识别决策点；复制相应前缀，在决策前插入中断，要求避开该节点已有方法。新颖性评审接受不同做法，累计两次拒绝后关闭该决策出现实例。均匀版从开放且空闲的实例中采样；BpDynamic 按 n_d=b_d+s_d 升序分配，其中 b_d、s_d 分别是保留和拒绝的分支数；打乱顺序以随机处理并列，新实例从零开始。排序不使用数值结果。",
+      "evidence": [
+        "e2",
+        "e4",
+        "e5"
+      ]
+    },
+    "trace": {
+      "text": "论文的真实桉树任务询问草本覆盖度如何影响幼苗补充：输入为 351×43 的数据、设计摘要、列说明、文字目标估计量和范围规则，样方嵌套于 18 处地块。Agent 用 run_code 分步分析，用 submit_report 完成。分叉复用先前步骤并更换某一决策的做法；运行后再提取统计量并转换为 Fisher Z_r。论文没有提供一条足以逐步复核的具体分叉执行轨迹，不能把示意图当作完整实测日志。",
+      "evidence": [
+        "e3",
+        "e5",
+        "e10"
+      ]
+    },
+    "inputs_outputs": {
+      "text": "输入是数据和研究任务，以及可记录、可续接的 Agent 分析过程。输出包括决策点与分支组成的 DAG、分析报告和事后统一尺度的效应量。新颖性被拒绝、无数值估计、无法标准化或不在范围内的报告不会进入最终数值比较；失败尝试不补跑。",
+      "evidence": [
+        "e2",
+        "e5",
+        "e9"
+      ]
+    },
+    "results": {
+      "text": "实验使用低推理强度的 GPT-5.6-sol、Claude Opus 5、GLM-5.3，每次响应上限为 32,768 token。三模型×两数据集×三方法共 18 个条件：Naive 各跑 50 次，分叉方法各跑 1 个根加 50 次尝试，总计 912 次、保留 720 条。独特结果按 Fisher-z 四舍五入到三位小数计数。GPT-5.6-sol 的蓝山雀独特结果由 Naive 15 个增至均匀分叉 28 个，宽度从 0.05 增至 0.55，成本由每个 0.59 美元降至 0.20 美元；桉树为 10→34 个、0.03→0.10、1.18→0.25 美元。GLM 蓝山雀独特结果反而由 31 降至 20。BpDynamic 在三模型平均上增加独特终点，但宽度并不总增大。",
+      "evidence": [
+        "e5",
+        "e6",
+        "e9",
+        "e11"
+      ]
+    },
+    "contributions": {
+      "text": "主要贡献是把分析路径组织成可续接的分叉结构，复用已有步骤，并让选择分叉点的策略可以替换。实验展示了均匀与最少尝试优先两种分配方式的数值多样性和成本差异；它是一种采样方法，而非正确分析的判定器。交互可视化仅有展示，未随补充材料提供实现。",
+      "evidence": [
+        "e2",
+        "e4",
+        "e8",
+        "e11"
+      ]
+    },
+    "limitations": {
+      "text": "新颖性评审不检查统计有效性；更多不同数值或更宽分布不能证明分析质量、搜索完备性或不确定性校准。没有“从头重启且避开已有选择”的对照，无法隔离局部分叉与多样性提示的贡献。每个分叉条件只运行一次，共享根和前缀，跨三模型的标准误不是重复整轮实验的误差。决策检测、范围判断、归一化未独立验证；数值表与森林图使用不同真人子集。表 3 的分位宽度未明确写出上下分位数端点。",
+      "evidence": [
+        "e3",
+        "e7",
+        "e8",
+        "e6"
+      ]
+    },
+    "cost": {
+      "text": "完整实验网格含后处理共 144.53 美元，项目总预算 500 美元。$/unique 包括未产生保留结果的采样和归一化开销。蓝山雀上 Opus Naive 的 50 份报告中 40 份无法标准化，仅保留 10 份，说明该成本指标也受到后处理留存率影响。未报告足以复现的逐条件运行时间和硬件资源明细。",
+      "evidence": [
+        "e5",
+        "e9"
+      ]
+    },
+    "relevance": {
+      "text": "知识库分析：本文直接研究生态学 Agent 分析结果的采样与数值分布，适合放在 AI4S Agent 评测中的地球与环境科学、评分与统计估计、数据分析与建模。它能揭示分析选择带来的变化，但没有判断不同路径是否都是正确答案，也没有验证统计不确定性的校准。",
+      "evidence": []
+    }
+  },
+  "evidence": [
+    {
+      "id": "e1",
+      "page": 1,
+      "locator": "摘要与 §1 · 问题和动机",
+      "quote": "requires enumerating the decision space"
+    },
+    {
+      "id": "e2",
+      "page": 2,
+      "locator": "§2—3 · 分布代表性与分叉方法",
+      "quote": "An LLM judge finds consequential choices"
+    },
+    {
+      "id": "e3",
+      "page": 3,
+      "locator": "§4.1、表 1 · 数据与真人筛选",
+      "quote": "The table and plotting pipelines apply different filters"
+    },
+    {
+      "id": "e4",
+      "page": 3,
+      "locator": "§3.2 · 最少尝试优先",
+      "quote": "numerical estimates do not enter the ranking."
+    },
+    {
+      "id": "e5",
+      "page": 4,
+      "locator": "§4.2—4.3 · 模型、预算与归一化",
+      "quote": "720 records remained."
+    },
+    {
+      "id": "e6",
+      "page": 6,
+      "locator": "表 3 · 宽度、独特结果与成本",
+      "quote": "Unique counts distinct Fisher-z estimates rounded to three decimal places."
+    },
+    {
+      "id": "e7",
+      "page": 6,
+      "locator": "§6.1 · 对照边界",
+      "quote": "the results do not isolate"
+    },
+    {
+      "id": "e8",
+      "page": 7,
+      "locator": "§6.1 · 有效性、相关性与重复运行",
+      "quote": "does not assess statistical validity."
+    },
+    {
+      "id": "e9",
+      "page": 9,
+      "locator": "附录 A、表 4 · 留存数量",
+      "quote": "Retained counts standardized, in-frame results"
+    },
+    {
+      "id": "e10",
+      "page": 13,
+      "locator": "核对表第 4 项 · 原始执行轨迹缺失",
+      "quote": "Original execution traces are not included"
+    },
+    {
+      "id": "e11",
+      "page": 5,
+      "locator": "§5、图 1—2 · 跨模型结果与可视化",
+      "quote": "The interactive implementation shown in the figure is not included in the supplement."
+    }
+  ],
+  "related": [
+    {
+      "id": "discoverybench",
+      "reason": "都让 Agent 从科学数据形成结论。DiscoveryBench 比较生成假设与参考假设的匹配程度；Branchpoint 比较替代分析路径的数值分布，不提供正确答案验证。"
+    },
+    {
+      "id": "scienceagentbench",
+      "reason": "都涉及科研代码执行和成本记录。ScienceAgentBench 以任务要求和自动检查衡量完成情况；Branchpoint 的新颖性评审只判断做法是否不同。"
+    }
+  ],
+  "review": {
+    "evidence_checked": true,
+    "compression_checked": true,
+    "reviewed_by": "Codex",
+    "prompt_version": "1.7",
+    "visual_checked": true,
+    "evidence_verified_sha256": "394b2b7abd9d4bc4302dbaac0ddc2cd9e3ccfb22c8aa82ec7b53d4b1e190a0f5"
+  },
+  "translations": {
+    "en": {
+      "source_sha256": "394b2b7abd9d4bc4302dbaac0ddc2cd9e3ccfb22c8aa82ec7b53d4b1e190a0f5",
+      "one_liner": "Branchpoint forks recorded scientific-agent analyses at detected decisions to compare numerical diversity, distributional width, and cost.",
+      "sections": {
+        "problem": "Different analyses of the same data and question can produce different results. The paper seeks a more efficient way to explore scientific agents' analytical choices and examine their outcome distribution. Its experiments use only the blue tit and eucalyptus ecology datasets from Gould et al. (2025).",
+        "gap": "Enumerating a multiverse in advance requires domain judgments and can produce a combinatorial explosion. Independent restarts from the same prompt may repeatedly select model-preferred approaches. Sampling variation alone establishes neither representativeness nor statistical validity.",
+        "method": "A root analysis is completed first. GPT-5.6-sol detects decisions in the visible trace; the system copies a prefix and inserts an interrupt requiring an approach different from those already recorded at that decision. Novel alternatives are retained, and an occurrence closes after two novelty rejections. Uniform sampling selects open, idle occurrences. BpDynamic ranks them by n_d=b_d+s_d, the sum of retained and rejected branch counts, randomizes ties, and initializes newly found occurrences at zero. Numerical estimates do not affect allocation.",
+        "trace": "The actual eucalyptus task asks how grass cover affects seedling recruitment. Inputs include a 351×43 dataset, design summary, column guide, verbal estimand, and scope policy; quadrats are clustered within 18 properties. The agent analyzes data with run_code and finishes with submit_report. Branches reuse prefixes and change a decision; outputs are subsequently extracted and converted to Fisher Z_r. The paper does not supply a complete execution trace for independently auditing a particular fork.",
+        "inputs_outputs": "Inputs are data, a research task, and a recorded agent analysis that can be resumed. Outputs include a DAG of decisions and branches, analysis reports, and effects normalized after execution. Novelty rejections, missing estimates, failed standardization, and out-of-frame results are excluded from numerical comparisons. Failed attempts are not replaced.",
+        "results": "The three models are GPT-5.6-sol, Claude Opus 5, and GLM-5.3, all at low reasoning effort with a per-response cap of 32,768 tokens. The 18 model–dataset–method conditions comprise 50 independent runs for each Naive condition and one root plus 50 attempts for each branching condition: 912 attempts and 720 retained records. Distinct outcomes are Fisher-z estimates rounded to three decimal places. For GPT-5.6-sol on blue tit, uniform branching versus Naive gives 28 versus 15 distinct outcomes, widths of 0.55 versus 0.05, and costs of $0.20 versus $0.59 per distinct outcome. Eucalyptus values are 34 versus 10, 0.10 versus 0.03, and $0.25 versus $1.18. GLM blue tit distinct outcomes instead decrease from 31 to 20. BpDynamic increases distinct endpoints on average across models, but does not consistently widen the distribution.",
+        "contributions": "The main contribution is a resumable branching representation that reuses earlier analysis steps and supports interchangeable decision-allocation rules. Uniform and least-tried allocation are evaluated for numerical diversity and cost. This is a sampling method, not a verifier of valid analyses. The illustrated interactive visualization implementation is absent from the supplement.",
+        "limitations": "Novelty review does not assess statistical validity. Distinct values and width establish neither analysis quality, search completeness, nor calibrated uncertainty. There is no full-restart baseline explicitly instructed to avoid prior choices, so forking and diversity prompting are not isolated. Each branching condition is run once; branches share a root and prefixes, and errors across three models do not quantify campaign-level replication uncertainty. Detection, scope judgments, and normalization lack independent validation. Tables and forest plots use different human subsets. Table 3 does not explicitly specify the lower and upper endpoints of its percentile width.",
+        "cost": "The full grid costs $144.53 including post-processing; the project budget is $500. Cost per distinct outcome includes attempts that produce no retained result. For blue tit, 40 of Opus Naive's 50 reports fail normalization, leaving 10, so retention also affects the cost metric. Reproduction-ready condition-specific runtime and hardware details are not reported.",
+        "relevance": "Library analysis: the study directly examines sampling and numerical distributions of ecology-agent analyses. It belongs under AI4S agent evaluation, with Earth and environmental science, Scoring and statistical estimation, and Data analysis and modeling. It reveals variation due to analytical choices, but does not establish that alternative paths are correct answers or that statistical uncertainty is calibrated."
+      },
+      "related": {
+        "discoverybench": "Both ask agents to draw conclusions from scientific data. DiscoveryBench compares generated hypotheses with references; Branchpoint compares numerical distributions across alternative analysis paths without validating correct answers.",
+        "scienceagentbench": "Both involve scientific code execution and cost reporting. ScienceAgentBench evaluates task completion against requirements and automated checks; Branchpoint novelty review only asks whether an approach differs."
+      },
+      "locators": {
+        "e1": "Abstract and §1 · Motivation",
+        "e2": "§2–3 · Representativeness and forking",
+        "e3": "§4.1 and Table 1 · Data and human filtering",
+        "e4": "§3.2 · Least-tried allocation",
+        "e5": "§4.2–4.3 · Models, budget and normalization",
+        "e6": "Table 3 · Width, distinct outcomes and cost",
+        "e7": "§6.1 · Baseline limitations",
+        "e8": "§6.1 · Validity and replication",
+        "e9": "Appendix A and Table 4 · Retention",
+        "e10": "Checklist item 4 · Original execution traces omitted",
+        "e11": "§5 and Figures 1–2 · Cross-model results and visualization"
+      }
+    }
+  }
+}

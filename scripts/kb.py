@@ -424,6 +424,58 @@ def reading_lists(root, papers, cfg):
     return manifest
 
 
+FULLTEXT_KINDS = ("prose", "figure", "references", "appendix_prompt", "math")
+
+
+def check_fulltext_translations(root, papers):
+    """Validate optional page-aligned full-text translations in translations/<id>.json."""
+    folder = root / "translations"
+    if not folder.is_dir():
+        return {}
+    by_id = {p["id"]: p for p in papers}
+    errors, loaded = [], {}
+    for path in sorted(folder.glob("*.json")):
+        doc = read(path)
+        pid = doc.get("id")
+        if not isinstance(doc, dict) or doc.get("schema_version") != 1:
+            errors.append(f"{path.name}: schema_version 必须为 1")
+            continue
+        if path.stem != pid or pid not in by_id:
+            errors.append(f"{path.name}: id 必须与已收录论文一致")
+            continue
+        paper = by_id[pid]
+        if doc.get("language") != "zh":
+            errors.append(f"{path.name}: 当前仅支持 zh 全文译文")
+        if doc.get("source_sha256") != paper["source"]["sha256"]:
+            errors.append(f"{path.name}: source_sha256 与论文来源不一致")
+        expected_pages = paper["source"]["page_count"]
+        if doc.get("page_count") != expected_pages:
+            errors.append(f"{path.name}: page_count 与论文页数不一致")
+        pages = doc.get("pages")
+        if not isinstance(pages, list) or len(pages) != expected_pages:
+            errors.append(f"{path.name}: pages 必须完整覆盖第 1 至 {expected_pages} 页")
+            continue
+        seen_pages = []
+        for idx, item in enumerate(pages, start=1):
+            if not isinstance(item, dict):
+                errors.append(f"{path.name}: 第 {idx} 项页数据必须是对象")
+                continue
+            pg = item.get("page")
+            if type(pg) is not int or pg != idx:
+                errors.append(f"{path.name}: 第 {idx} 项 page 必须按顺序为 {idx}")
+            seen_pages.append(pg)
+            if item.get("kind") not in FULLTEXT_KINDS:
+                errors.append(f"{path.name}: 第 {idx} 页 kind 无效")
+            if not isinstance(item.get("label"), str) or not item["label"].strip():
+                errors.append(f"{path.name}: 第 {idx} 页缺少 label")
+            if not isinstance(item.get("markdown"), str) or not item["markdown"].strip():
+                errors.append(f"{path.name}: 第 {idx} 页缺少 markdown 内容")
+        loaded[pid] = path
+    if errors:
+        raise Invalid("\n".join(errors))
+    return loaded
+
+
 def validate(root=ROOT):
     cfg = config(root)
     papers = records(root)
@@ -474,6 +526,7 @@ def validate(root=ROOT):
                     errors.append(f"{topic}: 问题入口必须指向本主题分类、维度或有效视图")
     if errors:
         raise Invalid("\n".join(errors))
+    check_fulltext_translations(root, papers)
     reading_lists(root, papers, cfg)
     return papers
 
@@ -578,7 +631,19 @@ def build(output, root=ROOT):
     for key in ("subtopics", "collections", "classification_rules", "topic_aliases", "topic_descriptions", "axes", "subtopic_aliases", "translations"):
         public_config[key] = cfg.get(key, [] if key == "classification_rules" else {})
     manifest = reading_lists(root, papers, cfg)
-    write(output / "data.json", {"config": public_config, "papers": sorted(papers, key=lambda p: (p["added_at"], p["id"]), reverse=True), "reading_lists": manifest, "sections": SECTIONS, "pending_count": len(inbox)})
+    fulltext_files = check_fulltext_translations(root, papers)
+    built_papers = []
+    for p in sorted(papers, key=lambda p: (p["added_at"], p["id"]), reverse=True):
+        entry = dict(p)
+        if p["id"] in fulltext_files:
+            entry["has_fulltext_zh"] = True
+        built_papers.append(entry)
+    if fulltext_files:
+        tr_out = output / "translations"
+        tr_out.mkdir(parents=True, exist_ok=True)
+        for pid, src_path in fulltext_files.items():
+            shutil.copyfile(src_path, tr_out / (pid + ".json"))
+    write(output / "data.json", {"config": public_config, "papers": built_papers, "reading_lists": manifest, "sections": SECTIONS, "pending_count": len(inbox)})
     # Discovery indices are explicitly separate; extraction caches and drafts never enter dist.
     (output / ".nojekyll").touch()
     new_refs = [r for r in manifest["references"] if r["id"] not in {p["id"] for p in papers}]

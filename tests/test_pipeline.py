@@ -636,6 +636,31 @@ assert.equal(api.preferredLanguage('?lang=bad',{getItem:()=>{throw Error('denied
                        input=json.dumps({"config": kb.config(), "papers": kb.records(), "sections": kb.SECTIONS}),
                        text=True, capture_output=True, check=True)
 
+    def test_fulltext_translation_validates_and_builds(self):
+        p = self.paper()
+        self.store(p)
+        kb.render_cards(self.root)
+        tr = {
+            "schema_version": 1,
+            "id": "example",
+            "language": "zh",
+            "source_sha256": self.digest,
+            "page_count": 1,
+            "pages": [{"page": 1, "kind": "prose", "label": "第 1 页 · 正文", "markdown": "这是第一页的中文译文。"}],
+        }
+        kb.write(self.root / "translations/example.json", tr)
+        self.assertEqual(1, len(kb.validate(self.root)))
+        dest = self.root / "dist"
+        kb.build(dest, self.root)
+        built = kb.read(dest / "data.json")
+        self.assertTrue(built["papers"][0].get("has_fulltext_zh"))
+        self.assertTrue((dest / "translations/example.json").is_file())
+        bad = copy.deepcopy(tr)
+        bad["source_sha256"] = "0" * 64
+        kb.write(self.root / "translations/example.json", bad)
+        with self.assertRaises(kb.Invalid):
+            kb.validate(self.root)
+
 
 if __name__ == "__main__":
     unittest.main()

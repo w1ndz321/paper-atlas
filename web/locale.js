@@ -43,6 +43,22 @@ const englishUI = {
   "当前位置": "Current location", "主题导读": "Topic guide", "论文详情": "Paper details",
   "Paper Atlas 首页": "Paper Atlas home", "论文知识库": "Paper library",
   "英文翻译待补充": "English translation pending",
+  "双语全文": "Bilingual full text",
+  "双语对照全文 →": "Side-by-side translation →",
+  "← 返回卡片": "← Back to card",
+  "同步滚动": "Sync scroll",
+  "同步滚动：开": "Sync scroll: On",
+  "同步滚动：关": "Sync scroll: Off",
+  "打开本地 PDF": "Open local PDF",
+  "适应宽度": "Fit width",
+  "正在加载原文 PDF…": "Loading original PDF…",
+  "正在加载中文全文译文…": "Loading Chinese full-text translation…",
+  "对齐左页": "Align PDF",
+  "正文": "Body",
+  "图表页": "Figure",
+  "参考文献（略）": "References (stub)",
+  "附录提示词": "Appendix prompt",
+  "公式推导": "Math proof",
 };
 function t(text) {
   return language === "en" ? englishUI[text] || text : text;

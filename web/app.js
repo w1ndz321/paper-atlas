@@ -427,6 +427,8 @@ function renderList() {
       node("span", "meta-dot", "·"),
       node("span", "meta-year", String(p.year)),
     );
+    if (p.has_fulltext_zh)
+      meta.append(node("span", "fulltext-badge", t("双语全文")));
     if (p.entry_kind === "card" && language === "en" && !p.translations?.en)
       meta.append(node("span", "example-label", t("英文翻译待补充")));
     if (p.origin === "example")
@@ -699,10 +701,12 @@ function appendInlineRich(parent, text) {
   let pos = 0;
   while (pos < text.length) {
     const rest = text.slice(pos);
+    const jumpMatch = rest.match(/\[\[p:(\d+)\|([^\]]+)\]\]/);
     const codeMatch = rest.match(/`([^`\n]+)`/);
     const boldMatch = rest.match(/\*\*([^*\n]+?)\*\*/);
     const mathMatch = findInlineMath(text, pos);
     const candidates = [];
+    if (jumpMatch) candidates.push({ kind: "jump", index: pos + jumpMatch.index, end: pos + jumpMatch.index + jumpMatch[0].length, page: Number(jumpMatch[1]), inner: jumpMatch[2] });
     if (codeMatch) candidates.push({ kind: "code", index: pos + codeMatch.index, end: pos + codeMatch.index + codeMatch[0].length, inner: codeMatch[1] });
     if (boldMatch) candidates.push({ kind: "bold", index: pos + boldMatch.index, end: pos + boldMatch.index + boldMatch[0].length, inner: boldMatch[1] });
     if (mathMatch) candidates.push({ kind: "math", ...mathMatch });
@@ -714,7 +718,12 @@ function appendInlineRich(parent, text) {
     const next = candidates[0];
     if (next.index > pos)
       parent.append(document.createTextNode(text.slice(pos, next.index).replaceAll("\\$", "$")));
-    if (next.kind === "code") parent.append(node("code", "inline-code", next.inner));
+    if (next.kind === "jump") {
+      const btn = node("button", "page-jump-chip", next.inner);
+      btn.type = "button";
+      btn.dataset.jumpPage = String(next.page);
+      parent.append(btn);
+    } else if (next.kind === "code") parent.append(node("code", "inline-code", next.inner));
     else if (next.kind === "bold") {
       const strong = node("strong");
       appendInlineRich(strong, next.inner);
@@ -737,9 +746,34 @@ function renderRichText(text) {
   let i = 0;
   const isUl = (line) => /^\s*[-*•]\s+(.+)$/.test(line);
   const isOl = (line) => /^\s*\d+[.)]\s+(.+)$/.test(line);
+  const isHeading = (line) => /^\s{0,3}(#{1,4})\s+(.+)$/.test(line);
+  const isQuote = (line) => /^\s*>\s?(.*)$/.test(line);
   while (i < lines.length) {
     const line = lines[i];
     if (!line.trim()) { i += 1; continue; }
+    const headingMatch = line.match(/^\s{0,3}(#{1,4})\s+(.+)$/);
+    if (headingMatch) {
+      const level = Math.min(6, headingMatch[1].length + 2);
+      const h = node("h" + level, "rich-heading");
+      appendInlineRich(h, headingMatch[2].trim());
+      container.append(h);
+      i += 1;
+      continue;
+    }
+    if (isQuote(line)) {
+      const qLines = [];
+      while (i < lines.length && isQuote(lines[i])) {
+        qLines.push(lines[i].replace(/^\s*>\s?/, ""));
+        i += 1;
+      }
+      const bq = node("blockquote", "rich-quote");
+      qLines.forEach((part, idx) => {
+        if (idx > 0) bq.append(document.createElement("br"));
+        appendInlineRich(bq, part);
+      });
+      container.append(bq);
+      continue;
+    }
     if (line.trim().startsWith("$$")) {
       const single = line.trim().match(/^\$\$(.+)\$\$$/);
       if (single) {
@@ -817,6 +851,8 @@ function renderRichText(text) {
       i < lines.length &&
       lines[i].trim() &&
       !lines[i].trim().startsWith("$$") &&
+      !isHeading(lines[i]) &&
+      !isQuote(lines[i]) &&
       !isUl(lines[i]) &&
       !isOl(lines[i]) &&
       !(i + 1 < lines.length && lines[i].includes("|") && isTableSeparator(lines[i + 1]))
@@ -846,7 +882,386 @@ function sourceLocation(paper, evidence) {
   url.hash = ":~:text=" + encodeURIComponent(evidence.quote);
   return {label: (language === "en" ? "Original · " : "原文 · ") + evidence.locator, href: url.href};
 }
+let bilingualCleanup = null;
+let pdfjsLoaderPromise = null;
+function loadPdfJs() {
+  if (pdfjsLoaderPromise) return pdfjsLoaderPromise;
+  const sources = [
+    {
+      lib: "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.min.mjs",
+      worker: "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.min.mjs",
+    },
+    {
+      lib: "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs",
+      worker: "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs",
+    },
+  ];
+  pdfjsLoaderPromise = (async () => {
+    for (const src of sources) {
+      try {
+        const mod = await import(src.lib);
+        mod.GlobalWorkerOptions.workerSrc = src.worker;
+        return mod;
+      } catch { /* Try next CDN */ }
+    }
+    throw new Error("PDF.js unavailable");
+  })().catch((err) => {
+    pdfjsLoaderPromise = null;
+    throw err;
+  });
+  return pdfjsLoaderPromise;
+}
+function resolvePdfUrl(paper) {
+  if (paper.source?.attachment)
+    return data.config.repository_url + "/raw/refs/heads/main/" + paper.source.attachment;
+  const raw = paper.source?.url || "";
+  const arxiv = raw.match(/https?:\/\/arxiv\.org\/(?:abs|pdf)\/(\d{4}\.\d{4,5}(?:v\d+)?)/i);
+  if (arxiv) return "https://arxiv.org/pdf/" + arxiv[1];
+  if (paper.source?.format === "pdf" && raw) return raw;
+  return "";
+}
+function fulltextKindLabel(kind) {
+  const map = {
+    prose: t("正文"),
+    figure: t("图表页"),
+    references: t("参考文献（略）"),
+    appendix_prompt: t("附录提示词"),
+    math: t("公式推导"),
+  };
+  return map[kind] || t("正文");
+}
+function getPageProgress(pane, selector) {
+  const items = pane.querySelectorAll(selector);
+  if (!items.length) return { page: 1, progress: 0 };
+  const anchor = pane.scrollTop + 28;
+  let current = items[0];
+  for (const el of items) {
+    if (el.offsetTop <= anchor) current = el;
+    else break;
+  }
+  const height = Math.max(1, current.offsetHeight);
+  const progress = Math.min(1, Math.max(0, (anchor - current.offsetTop) / height));
+  return { page: Number(current.dataset.page) || 1, progress };
+}
+function scrollPaneToPage(pane, selector, page, progress = 0, smooth = false) {
+  const target = pane.querySelector(`${selector}[data-page="${page}"]`);
+  if (!target) return;
+  const top = Math.max(0, target.offsetTop + progress * target.offsetHeight - 28);
+  if (smooth) pane.scrollTo({ top, behavior: "smooth" });
+  else pane.scrollTop = top;
+}
+function renderBilingualReader(paper, reader) {
+  document.body.classList.add("bilingual-mode");
+  document.title = paper.title + " · " + t("双语全文") + " · Paper Atlas";
+  const shell = node("div", "bilingual-shell");
+  const toolbar = node("div", "bilingual-toolbar");
+  const leftGroup = node("div", "bilingual-toolbar-group");
+  const backBtn = link(t("← 返回卡片"), "#paper/" + paper.id, "bilingual-back");
+  const titleEl = node("span", "bilingual-title", paper.title);
+  leftGroup.append(backBtn, titleEl);
+
+  const centerGroup = node("div", "bilingual-toolbar-group is-nav");
+  const prevBtn = node("button", "bilingual-btn", "‹");
+  prevBtn.type = "button";
+  prevBtn.setAttribute("aria-label", "上一页");
+  const pageInput = node("input", "bilingual-page-input");
+  pageInput.type = "number";
+  pageInput.min = "1";
+  pageInput.max = String(paper.source.page_count);
+  pageInput.value = "1";
+  pageInput.setAttribute("aria-label", "当前页码");
+  const totalPagesEl = node("span", "bilingual-page-total", `/ ${paper.source.page_count} 页`);
+  const nextBtn = node("button", "bilingual-btn", "›");
+  nextBtn.type = "button";
+  nextBtn.setAttribute("aria-label", "下一页");
+  let syncEnabled = true;
+  const syncBtn = node("button", "bilingual-btn is-toggle is-active", t("同步滚动：开"));
+  syncBtn.type = "button";
+  syncBtn.setAttribute("aria-pressed", "true");
+  centerGroup.append(prevBtn, pageInput, totalPagesEl, nextBtn, syncBtn);
+
+  const rightGroup = node("div", "bilingual-toolbar-group is-tools");
+  const zoomOutBtn = node("button", "bilingual-btn", "−");
+  zoomOutBtn.type = "button";
+  zoomOutBtn.title = "缩小 PDF";
+  const zoomFitBtn = node("button", "bilingual-btn", t("适应宽度"));
+  zoomFitBtn.type = "button";
+  const zoomInBtn = node("button", "bilingual-btn", "+");
+  zoomInBtn.type = "button";
+  zoomInBtn.title = "放大 PDF";
+  const fileInput = document.createElement("input");
+  fileInput.type = "file";
+  fileInput.accept = "application/pdf";
+  fileInput.hidden = true;
+  const pickPdfBtn = node("button", "bilingual-btn", t("打开本地 PDF"));
+  pickPdfBtn.type = "button";
+  pickPdfBtn.onclick = () => fileInput.click();
+  const modeSelect = node("select", "bilingual-mobile-mode");
+  for (const [val, label] of [["split", "双栏对照"], ["zh", "仅看译文"], ["pdf", "仅看原文"]]) {
+    const opt = node("option", "", label);
+    opt.value = val;
+    modeSelect.append(opt);
+  }
+  const sourceUrl =
+    paper.source.url ||
+    data.config.repository_url + "/blob/main/" + paper.source.attachment;
+  const extLink = link(t("阅读原文 ↗"), sourceUrl, "bilingual-ext", true);
+  rightGroup.append(zoomOutBtn, zoomFitBtn, zoomInBtn, pickPdfBtn, fileInput, modeSelect, extLink);
+  toolbar.append(leftGroup, centerGroup, rightGroup);
+
+  const panes = node("div", "bilingual-panes");
+  const pdfPane = node("div", "bilingual-pane is-pdf");
+  const zhPane = node("div", "bilingual-pane is-translation");
+  const pdfStatus = node("div", "pdf-status", t("正在加载原文 PDF…"));
+  const pdfPagesHost = node("div", "pdf-pages");
+  pdfPane.append(pdfStatus, pdfPagesHost);
+  zhPane.append(node("div", "pdf-status", t("正在加载中文全文译文…")));
+  panes.append(pdfPane, zhPane);
+  shell.append(toolbar, panes);
+  reader.append(shell);
+
+  modeSelect.onchange = () => {
+    panes.dataset.mobileMode = modeSelect.value;
+  };
+  panes.dataset.mobileMode = "split";
+
+  let destroyed = false;
+  let observer = null;
+  let activeObjectUrl = "";
+  let pdfDoc = null;
+  let zoomMultiplier = 1;
+  let activeDriver = null;
+  let clearDriverTimer = 0;
+  let currentPage = 1;
+
+  const setCurrentPage = (pg) => {
+    currentPage = Math.min(paper.source.page_count, Math.max(1, pg));
+    if (document.activeElement !== pageInput) pageInput.value = String(currentPage);
+  };
+  const jumpBothToPage = (pg, smooth = true) => {
+    const clamped = Math.min(paper.source.page_count, Math.max(1, pg));
+    setCurrentPage(clamped);
+    activeDriver = "jump";
+    window.clearTimeout(clearDriverTimer);
+    scrollPaneToPage(pdfPane, ".pdf-page", clamped, 0, smooth);
+    scrollPaneToPage(zhPane, ".tr-page", clamped, 0, smooth);
+    clearDriverTimer = window.setTimeout(() => { activeDriver = null; }, 450);
+  };
+
+  prevBtn.onclick = () => jumpBothToPage(currentPage - 1);
+  nextBtn.onclick = () => jumpBothToPage(currentPage + 1);
+  pageInput.onchange = () => jumpBothToPage(Number(pageInput.value) || 1);
+  syncBtn.onclick = () => {
+    syncEnabled = !syncEnabled;
+    syncBtn.textContent = t(syncEnabled ? "同步滚动：开" : "同步滚动：关");
+    syncBtn.classList.toggle("is-active", syncEnabled);
+    syncBtn.setAttribute("aria-pressed", String(syncEnabled));
+  };
+
+  const syncScroll = (sourcePane, targetPane, sourceSel, targetSel, driverName) => {
+    if (activeDriver && activeDriver !== driverName) return;
+    const { page, progress } = getPageProgress(sourcePane, sourceSel);
+    setCurrentPage(page);
+    if (!syncEnabled) return;
+    activeDriver = driverName;
+    window.clearTimeout(clearDriverTimer);
+    scrollPaneToPage(targetPane, targetSel, page, progress, false);
+    clearDriverTimer = window.setTimeout(() => { activeDriver = null; }, 80);
+  };
+  pdfPane.addEventListener("scroll", () => syncScroll(pdfPane, zhPane, ".pdf-page", ".tr-page", "left"), { passive: true });
+  zhPane.addEventListener("scroll", () => syncScroll(zhPane, pdfPane, ".tr-page", ".pdf-page", "right"), { passive: true });
+
+  zhPane.addEventListener("click", (event) => {
+    const btn = event.target.closest("[data-jump-page]");
+    if (!btn) return;
+    const pg = Number(btn.dataset.jumpPage);
+    if (pg >= 1) jumpBothToPage(pg);
+  });
+
+  const renderPdfWithDoc = async (doc) => {
+    if (destroyed) return;
+    pdfDoc = doc;
+    if (observer) observer.disconnect();
+    pdfPagesHost.replaceChildren();
+    pdfStatus.hidden = true;
+    const firstPage = await doc.getPage(1);
+    const baseViewport = firstPage.getViewport({ scale: 1 });
+    const availWidth = Math.max(320, pdfPane.clientWidth - 40);
+    const fitScale = (availWidth / baseViewport.width) * zoomMultiplier;
+    const pageHolders = [];
+    for (let num = 1; num <= doc.numPages; num += 1) {
+      const holder = node("div", "pdf-page");
+      holder.dataset.page = String(num);
+      holder.style.width = Math.round(baseViewport.width * fitScale) + "px";
+      holder.style.height = Math.round(baseViewport.height * fitScale) + "px";
+      holder.append(node("div", "pdf-page-badge", `p. ${num}`));
+      pdfPagesHost.append(holder);
+      pageHolders.push(holder);
+    }
+    const rendered = new Set();
+    const rendering = new Set();
+    const paintPage = async (holder) => {
+      const num = Number(holder.dataset.page);
+      if (destroyed || rendered.has(num) || rendering.has(num)) return;
+      rendering.add(num);
+      try {
+        const page = await doc.getPage(num);
+        if (destroyed) return;
+        const vp0 = page.getViewport({ scale: 1 });
+        const scale = ((Math.max(320, pdfPane.clientWidth - 40)) / vp0.width) * zoomMultiplier;
+        const viewport = page.getViewport({ scale });
+        holder.style.width = Math.round(viewport.width) + "px";
+        holder.style.height = Math.round(viewport.height) + "px";
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.round(viewport.width * dpr);
+        canvas.height = Math.round(viewport.height * dpr);
+        canvas.style.width = Math.round(viewport.width) + "px";
+        canvas.style.height = Math.round(viewport.height) + "px";
+        const ctx = canvas.getContext("2d");
+        await page.render({
+          canvasContext: ctx,
+          viewport,
+          transform: dpr !== 1 ? [dpr, 0, 0, dpr, 0, 0] : null,
+        }).promise;
+        if (!destroyed) {
+          holder.prepend(canvas);
+          rendered.add(num);
+        }
+      } finally {
+        rendering.delete(num);
+      }
+    };
+    observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) paintPage(entry.target);
+        }
+      },
+      { root: pdfPane, rootMargin: "700px 0px" },
+    );
+    for (const holder of pageHolders) observer.observe(holder);
+  };
+
+  const applyZoom = async (nextMultiplier) => {
+    zoomMultiplier = Math.min(2.2, Math.max(0.6, nextMultiplier));
+    if (!pdfDoc) return;
+    const { page, progress } = getPageProgress(pdfPane, ".pdf-page");
+    await renderPdfWithDoc(pdfDoc);
+    scrollPaneToPage(pdfPane, ".pdf-page", page, progress, false);
+  };
+  zoomOutBtn.onclick = () => applyZoom(zoomMultiplier - 0.15);
+  zoomFitBtn.onclick = () => applyZoom(1);
+  zoomInBtn.onclick = () => applyZoom(zoomMultiplier + 0.15);
+
+  const loadPdfSource = async (srcOrBytes) => {
+    pdfStatus.hidden = false;
+    pdfStatus.textContent = t("正在加载原文 PDF…");
+    try {
+      const pdfjs = await loadPdfJs();
+      const task = typeof srcOrBytes === "string"
+        ? pdfjs.getDocument({ url: srcOrBytes, withCredentials: false })
+        : pdfjs.getDocument({ data: srcOrBytes });
+      const doc = await task.promise;
+      await renderPdfWithDoc(doc);
+    } catch {
+      if (destroyed) return;
+      if (typeof srcOrBytes !== "string" && activeObjectUrl) {
+        pdfStatus.hidden = true;
+        const frame = document.createElement("iframe");
+        frame.className = "pdf-native-frame";
+        frame.src = activeObjectUrl;
+        frame.title = paper.title;
+        pdfPagesHost.replaceChildren(frame);
+        return;
+      }
+      pdfPagesHost.replaceChildren();
+      pdfStatus.hidden = false;
+      pdfStatus.replaceChildren(
+        node("p", "pdf-fallback-title", "无法直接跨域加载该 PDF 原文"),
+        node("p", "pdf-fallback-desc", "出版商链接可能禁止跨域或当前处于离线状态。你可以直接拖入本地 PDF 文件（仅在浏览器内存渲染，不上传），或新标签页查看原文；右侧中文译文仍可正常阅读。"),
+      );
+      const fallbackActions = node("div", "pdf-fallback-actions");
+      const pick = node("button", "bilingual-btn is-primary", t("打开本地 PDF"));
+      pick.type = "button";
+      pick.onclick = () => fileInput.click();
+      fallbackActions.append(pick, link(t("阅读原文 ↗"), sourceUrl, "bilingual-btn", true));
+      pdfStatus.append(fallbackActions);
+    }
+  };
+
+  const openLocalFile = async (file) => {
+    if (!file) return;
+    if (activeObjectUrl) URL.revokeObjectURL(activeObjectUrl);
+    activeObjectUrl = URL.createObjectURL(file);
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    await loadPdfSource(bytes);
+  };
+  fileInput.onchange = () => openLocalFile(fileInput.files?.[0]);
+  pdfPane.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    pdfPane.classList.add("is-dragover");
+  });
+  pdfPane.addEventListener("dragleave", () => pdfPane.classList.remove("is-dragover"));
+  pdfPane.addEventListener("drop", (e) => {
+    e.preventDefault();
+    pdfPane.classList.remove("is-dragover");
+    const file = e.dataTransfer?.files?.[0];
+    if (file && (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")))
+      openLocalFile(file);
+  });
+
+  const remoteUrl = resolvePdfUrl(paper);
+  if (remoteUrl) loadPdfSource(remoteUrl);
+  else loadPdfSource("");
+
+  fetch(`translations/${encodeURIComponent(paper.id)}.json`, { cache: "no-cache" })
+    .then((resp) => {
+      if (!resp.ok) throw new Error("HTTP " + resp.status);
+      return resp.json();
+    })
+    .then((doc) => {
+      if (destroyed) return;
+      zhPane.replaceChildren();
+      for (const item of doc.pages) {
+        const sec = node("section", `tr-page is-${item.kind || "prose"}`);
+        sec.dataset.page = String(item.page);
+        const header = node("div", "tr-page-header");
+        const meta = node("div", "tr-page-meta");
+        meta.append(
+          node("span", "tr-page-num", `第 ${item.page} 页`),
+          node("span", "tr-page-kind", fulltextKindLabel(item.kind)),
+          node("span", "tr-page-label", item.label),
+        );
+        const alignBtn = node("button", "tr-align-btn", t("对齐左页") + " ⇄");
+        alignBtn.type = "button";
+        alignBtn.dataset.jumpPage = String(item.page);
+        header.append(meta, alignBtn);
+        sec.append(header, renderRichText(item.markdown));
+        zhPane.append(sec);
+      }
+      zhPane.append(
+        node("p", "tr-end-note", `全文共 ${doc.page_count} 页 · 已保存为页面级双语缓存，下次阅读无需重复翻译。`),
+      );
+    })
+    .catch(() => {
+      if (destroyed) return;
+      zhPane.replaceChildren(node("div", "pdf-status", "暂时无法加载中文全文译文，请刷新重试。"));
+    });
+
+  bilingualCleanup = () => {
+    destroyed = true;
+    window.clearTimeout(clearDriverTimer);
+    if (observer) observer.disconnect();
+    if (activeObjectUrl) URL.revokeObjectURL(activeObjectUrl);
+    document.body.classList.remove("bilingual-mode");
+  };
+}
 function showRoute() {
+  if (bilingualCleanup) {
+    bilingualCleanup();
+    bilingualCleanup = null;
+  }
   document.body.classList.toggle(
     "reading",
     location.hash.startsWith("#paper/"),
@@ -859,9 +1274,11 @@ function showRoute() {
       (data.config.topics[topic] || data.config.research_topic);
     return;
   }
-  let id;
+  let id, routeSub = "";
   try {
-    id = decodeURIComponent(location.hash.slice(7).split("/")[0]);
+    const parts = location.hash.slice(7).split("/");
+    id = decodeURIComponent(parts[0]);
+    routeSub = parts[1] || "";
   } catch {
     id = "";
   }
@@ -870,6 +1287,10 @@ function showRoute() {
   const reader = $("reader");
   reader.hidden = false;
   reader.replaceChildren();
+  if (paper && paper.has_fulltext_zh && routeSub === "bilingual") {
+    renderBilingualReader(paper, reader);
+    return;
+  }
   const back = node("button", "back", t("← 返回论文列表"));
   back.type = "button";
   back.onclick = () => {
@@ -898,10 +1319,12 @@ function showRoute() {
   if (paper.origin === "example")
     head.append(node("p", "example-label", t("示例论文")));
   const actions = node("div", "reader-actions");
+  if (paper.has_fulltext_zh)
+    actions.append(link(t("双语对照全文 →"), "#paper/" + paper.id + "/bilingual", "action-bilingual", false));
   const source =
     paper.source.url ||
     data.config.repository_url + "/blob/main/" + paper.source.attachment;
-  actions.append(link(t("阅读原文 ↗"), source, "", true));
+  actions.append(link(t("阅读原文 ↗"), source, paper.has_fulltext_zh ? "action-secondary" : "", true));
   head.append(actions);
   reader.append(head);
   if (paper.entry_kind === "reference") {

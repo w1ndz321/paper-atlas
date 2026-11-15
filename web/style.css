@@ -1772,6 +1772,46 @@ h6.rich-heading {
   line-height: 1.7;
 }
 
+.rich-quote.is-jumpable {
+  cursor: pointer;
+  transition: background 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.rich-quote.is-jumpable:hover,
+.rich-quote.is-jumpable:focus-visible {
+  background: var(--accent-soft);
+  border-left-color: var(--accent);
+  box-shadow: 0 2px 10px rgba(37, 99, 235, 0.1);
+  outline: none;
+}
+
+.table-wrap.is-jumpable {
+  position: relative;
+  cursor: pointer;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.table-wrap.is-jumpable:hover,
+.table-wrap.is-jumpable:focus-visible {
+  border-color: var(--accent);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.12);
+  outline: none;
+}
+
+.table-jump-hint {
+  padding: 5px 10px;
+  border-top: 1px dashed var(--border);
+  background: var(--surface-tonal);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.table-wrap.is-jumpable:hover .table-jump-hint {
+  background: var(--accent-soft);
+}
+
 .page-jump-chip {
   display: inline-flex;
   align-items: center;
@@ -1946,11 +1986,54 @@ body.bilingual-mode #reader {
   font-size: 13px;
 }
 
+body.is-resizing-panes {
+  cursor: col-resize;
+  user-select: none;
+}
+
 .bilingual-panes {
   flex: 1 1 auto;
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(280px, var(--left-pane-width, 50%)) 8px minmax(280px, 1fr);
+}
+
+.bilingual-resizer {
+  position: relative;
+  background: var(--page);
+  border-left: 1px solid var(--line);
+  border-right: 1px solid var(--line);
+  cursor: col-resize;
+  touch-action: none;
+  user-select: none;
+  transition: background 0.14s ease;
+}
+
+.bilingual-resizer::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2px;
+  height: 36px;
+  border-radius: 2px;
+  background: #b6c2d4;
+  transform: translate(-50%, -50%);
+  transition: background 0.14s ease, height 0.14s ease;
+}
+
+.bilingual-resizer:hover,
+.bilingual-resizer:focus-visible,
+body.is-resizing-panes .bilingual-resizer {
+  background: var(--accent-tint);
+  outline: none;
+}
+
+.bilingual-resizer:hover::after,
+.bilingual-resizer:focus-visible::after,
+body.is-resizing-panes .bilingual-resizer::after {
+  background: var(--accent);
+  height: 52px;
 }
 
 .bilingual-pane {
@@ -1961,7 +2044,6 @@ body.bilingual-mode #reader {
 
 .bilingual-pane.is-pdf {
   background: #e9eef5;
-  border-right: 1px solid var(--line);
   padding: 18px 16px 36px;
   transition: background 0.15s ease;
 }
@@ -1987,6 +2069,36 @@ body.bilingual-mode #reader {
 
 .pdf-page canvas {
   display: block;
+}
+
+.pdf-page.is-target-flash {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25), 0 8px 24px rgba(37, 99, 235, 0.16);
+}
+
+.pdf-jump-marker {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, rgba(37, 99, 235, 0.95), rgba(37, 99, 235, 0.2));
+  box-shadow: 0 0 12px rgba(37, 99, 235, 0.6);
+  pointer-events: none;
+  z-index: 4;
+  transform: translateY(-50%);
+}
+
+.pdf-jump-marker::before {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: var(--accent);
+  transform: translateY(-50%);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.9);
 }
 
 .pdf-page-badge {
@@ -2146,8 +2258,11 @@ body.bilingual-mode #reader {
     grid-template-rows: 1fr 1fr;
   }
 
+  .bilingual-resizer {
+    display: none;
+  }
+
   .bilingual-pane.is-pdf {
-    border-right: 0;
     border-bottom: 1px solid var(--line);
   }
 

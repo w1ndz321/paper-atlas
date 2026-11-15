@@ -476,7 +476,7 @@ assert.equal(api.getView().subtopic,'');
         program = r"""
 const fs = require('node:fs'), vm = require('node:vm'), assert = require('node:assert/strict');
 class MockNode {
-  constructor(tag, text = '') { this.tag = tag; this.textContent = text; this.className = ''; this.style = {}; this.children = []; }
+  constructor(tag, text = '') { this.tag = tag; this.textContent = text; this.className = ''; this.style = {}; this.dataset = {}; this.children = []; }
   append(...items) {
     for (const item of items) {
       if (item === undefined || item === null) continue;
@@ -524,6 +524,27 @@ assert.equal(root.children[4].tag, 'p');
 assert.ok(!root.children[4].children.some(c => c.className === 'math-inline'));
 assert.ok(root.children[4].text.includes('$0.057'));
 assert.ok(root.children[4].text.includes('$0.958'));
+const modular = [
+  ':::figure 图 1 · 图例｜实验设计 [[p:4@0.20|查看第 4 页原图]]',
+  '- **(a)** 流程说明',
+  ':::',
+  '',
+  ':::excerpt 摘录｜样本原话 [[p:7@0.17|第 7 页原话]]',
+  '“对照分析显示负向趋势。”',
+  ':::',
+].join('\n');
+const modRoot = renderRichText(modular);
+assert.equal(modRoot.children.length, 2);
+assert.equal(modRoot.children[0].className, 'tr-module is-figure');
+assert.equal(modRoot.children[0].dataset.module, 'figure');
+assert.equal(modRoot.children[0].children[0].className, 'tr-module-head');
+assert.equal(modRoot.children[0].children[1].className, 'tr-module-body');
+const chip = modRoot.children[0].children[0].children[1].children.find(c => c.className === 'page-jump-chip');
+assert.ok(chip);
+assert.equal(chip.dataset.jumpPage, '4');
+assert.equal(chip.dataset.jumpProgress, '0.2');
+assert.equal(modRoot.children[1].className, 'tr-module is-excerpt');
+assert.equal(modRoot.children[1].dataset.module, 'excerpt');
 """
         subprocess.run(["node", "-e", program, str(kb.ROOT / "web/app.js")], text=True, capture_output=True, check=True)
 

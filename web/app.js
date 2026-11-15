@@ -752,6 +752,47 @@ function renderRichText(text) {
   while (i < lines.length) {
     const line = lines[i];
     if (!line.trim()) { i += 1; continue; }
+    const fenceMatch = line.match(/^\s*:::(figure|excerpt|prompt|refs|note)(?:\s+(.*))?\s*$/);
+    if (fenceMatch) {
+      const modKind = fenceMatch[1];
+      const headerRaw = (fenceMatch[2] || "").trim();
+      const innerLines = [];
+      i += 1;
+      while (i < lines.length && !/^\s*:::\s*$/.test(lines[i])) {
+        innerLines.push(lines[i]);
+        i += 1;
+      }
+      if (i < lines.length) i += 1;
+      const defaultTag = {
+        figure: "图例",
+        excerpt: "摘录",
+        prompt: "提示词框",
+        refs: "参考文献",
+        note: "说明",
+      }[modKind] || modKind;
+      const mod = node("div", `tr-module is-${modKind}`);
+      (mod.dataset ??= {}).module = modKind;
+      if (headerRaw) {
+        const head = node("div", "tr-module-head");
+        const pipeIdx = headerRaw.indexOf("｜");
+        const tagText = pipeIdx > 0 ? headerRaw.slice(0, pipeIdx).trim() : defaultTag;
+        const titleText = pipeIdx > 0 ? headerRaw.slice(pipeIdx + 1).trim() : headerRaw;
+        head.append(node("span", "tr-module-badge", tagText));
+        if (titleText) {
+          const titleSpan = node("span", "tr-module-title");
+          appendInlineRich(titleSpan, titleText);
+          head.append(titleSpan);
+        }
+        mod.append(head);
+      }
+      if (innerLines.some((l) => l.trim())) {
+        const body = renderRichText(innerLines.join("\n"));
+        body.className = "tr-module-body";
+        mod.append(body);
+      }
+      container.append(mod);
+      continue;
+    }
     const headingMatch = line.match(/^\s{0,3}(#{1,4})\s+(.+)$/);
     if (headingMatch) {
       const level = Math.min(6, headingMatch[1].length + 2);
@@ -1144,6 +1185,7 @@ function renderBilingualReader(paper, reader) {
   zhPane.addEventListener("scroll", () => handlePaneScroll(zhPane, pdfPane, ".tr-page", ".pdf-page", "right"), { passive: true });
 
   const triggerJumpFromTarget = (target) => {
+    if (typeof window.getSelection === "function" && window.getSelection()?.toString()) return;
     const btn = target.closest("[data-jump-page]");
     if (!btn) return;
     const pg = Number(btn.dataset.jumpPage);
@@ -1324,7 +1366,7 @@ function renderBilingualReader(paper, reader) {
         const rich = renderRichText(item.markdown);
         let sectionAnchor = { page: item.page, progress: 0.08 };
         for (const el of rich.children) {
-          if (el.classList.contains("rich-quote")) {
+          if (el.classList.contains("tr-module") || el.classList.contains("rich-quote")) {
             const chip = el.querySelector("[data-jump-page]");
             const pg = chip ? Number(chip.dataset.jumpPage) : item.page;
             const prog = chip && chip.dataset.jumpProgress ? Number(chip.dataset.jumpProgress) : 0.1;

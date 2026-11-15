@@ -2235,6 +2235,174 @@ body.is-resizing-panes .bilingual-resizer::after {
   color: #26292e;
 }
 
+.tr-module {
+  margin: 14px 0;
+  border-radius: var(--radius-md);
+  border: 1px solid #e3e7ee;
+  background: #f8f9fb;
+  overflow: hidden;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+}
+
+.tr-module.is-jumpable {
+  cursor: pointer;
+}
+
+.tr-module.is-jumpable:hover,
+.tr-module.is-jumpable:focus-visible {
+  border-color: #93b4eb;
+  box-shadow: 0 3px 12px rgba(37, 99, 235, 0.08);
+  outline: none;
+}
+
+.tr-module-head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  padding: 8px 14px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  background: rgba(15, 23, 42, 0.025);
+}
+
+.tr-module-badge {
+  flex: 0 0 auto;
+  padding: 1px 7px;
+  border-radius: var(--radius-xs);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  background: #e8edf5;
+  color: #3e4e66;
+}
+
+.tr-module-title {
+  flex: 1 1 200px;
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px 10px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.5;
+}
+
+.tr-module-body {
+  padding: 10px 14px 12px;
+  display: grid;
+  gap: 7px;
+}
+
+.tr-page .tr-module-body p,
+.tr-page .tr-module-body li {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #3b4250;
+  margin: 0;
+}
+
+.tr-module-body .rich-list {
+  margin: 2px 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 4px;
+}
+
+.tr-module-body .table-wrap {
+  margin: 4px 0;
+  background: #ffffff;
+}
+
+/* 图例 / 图注模块：贴近论文 Figure Caption 紧凑浅冷灰卡片感 */
+.tr-module.is-figure {
+  background: #f7f9fc;
+  border-color: #dde5f0;
+}
+
+.tr-module.is-figure .tr-module-head {
+  background: #eff4fb;
+  border-bottom-color: #e1e8f3;
+}
+
+.tr-module.is-figure .tr-module-badge {
+  background: #e1eaf7;
+  color: #2d4c7c;
+}
+
+/* 引文 / 智能体推理摘录模块：浅暖纸色 + 柔和左竖线，与正文与图例微弱区分 */
+.tr-module.is-excerpt {
+  background: #faf9f6;
+  border-color: #eae6dc;
+  border-left: 3px solid #9aa4b2;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.tr-module.is-excerpt .tr-module-head {
+  background: transparent;
+  border-bottom: 1px dashed #e6e1d6;
+  padding-top: 7px;
+  padding-bottom: 6px;
+}
+
+.tr-module.is-excerpt .tr-module-badge {
+  background: #efede7;
+  color: #5b616e;
+}
+
+.tr-page .tr-module.is-excerpt .tr-module-body p {
+  font-size: 14.2px;
+  line-height: 1.72;
+  color: #363c46;
+}
+
+/* 提示词 / 协议框模块：贴近附录 Prompt Box 浅石板灰细框感 */
+.tr-module.is-prompt {
+  background: #f6f7f9;
+  border-color: #d8dee7;
+}
+
+.tr-module.is-prompt .tr-module-head {
+  background: #edf0f4;
+  border-bottom-color: #dfe4ec;
+}
+
+.tr-module.is-prompt .tr-module-badge {
+  background: #e1e6ee;
+  color: #475569;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.tr-page .tr-module.is-prompt .tr-module-body p,
+.tr-page .tr-module.is-prompt .tr-module-body li {
+  font-size: 13.8px;
+  line-height: 1.68;
+  color: #374151;
+}
+
+/* 参考文献区：极淡辅助区视觉权重，不干扰正文阅读 */
+.tr-module.is-refs {
+  background: #fafafa;
+  border: 1px dashed #dce1e8;
+}
+
+.tr-module.is-refs .tr-module-head {
+  background: transparent;
+  border-bottom: 1px solid #eceff3;
+}
+
+.tr-module.is-refs .tr-module-badge {
+  background: #eef1f5;
+  color: #5f6978;
+}
+
+.tr-page .tr-module.is-refs .tr-module-body p {
+  font-size: 13.3px;
+  line-height: 1.65;
+  color: #5b6472;
+}
+
 .tr-end-note {
   max-width: 720px;
   margin: 16px auto 0;

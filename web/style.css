@@ -2315,20 +2315,37 @@ body.is-resizing-panes .bilingual-resizer::after {
   background: #ffffff;
 }
 
-/* 图例 / 图注模块：贴近论文 Figure Caption 紧凑浅冷灰卡片感 */
+/* 图例 / 图注模块：采用温柔浅冷灰蓝底衬（无硬方框与割裂顶栏），与原文紧凑图注阅读体验一致 */
 .tr-module.is-figure {
-  background: #f7f9fc;
-  border-color: #dde5f0;
+  background: #f5f7fb;
+  border-color: rgba(186, 200, 222, 0.48);
 }
 
 .tr-module.is-figure .tr-module-head {
-  background: #eff4fb;
-  border-bottom-color: #e1e8f3;
+  background: transparent;
+  border-bottom: none;
+  padding: 11px 16px 3px;
+}
+
+.tr-module.is-figure .tr-module-body {
+  padding: 2px 16px 12px;
 }
 
 .tr-module.is-figure .tr-module-badge {
-  background: #e1eaf7;
+  background: #e3ebf7;
   color: #2d4c7c;
+}
+
+.tr-page .tr-module.is-figure .tr-module-body p {
+  font-size: 14px;
+  line-height: 1.72;
+  color: #3a414e;
+}
+
+.tr-module.is-figure.is-jumpable:hover,
+.tr-module.is-figure.is-jumpable:focus-visible {
+  background: #eff4fb;
+  border-color: rgba(59, 130, 246, 0.42);
 }
 
 /* 引文 / 智能体推理摘录模块：浅暖纸色 + 柔和左竖线，与正文与图例微弱区分 */

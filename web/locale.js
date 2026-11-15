@@ -54,6 +54,7 @@ const englishUI = {
   "正在加载原文 PDF…": "Loading original PDF…",
   "正在加载中文全文译文…": "Loading Chinese full-text translation…",
   "对齐左页": "Align PDF",
+  "对齐当前页": "Align to current page",
   "正文": "Body",
   "图表页": "Figure",
   "参考文献（略）": "References (stub)",

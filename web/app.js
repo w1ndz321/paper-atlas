@@ -952,6 +952,7 @@ function scrollPaneToPage(pane, selector, page, progress = 0, smooth = false) {
 }
 function renderBilingualReader(paper, reader) {
   document.body.classList.add("bilingual-mode");
+  window.scrollTo(0, 0);
   document.title = paper.title + " · " + t("双语全文") + " · Paper Atlas";
   const shell = node("div", "bilingual-shell");
   const toolbar = node("div", "bilingual-toolbar");
@@ -974,11 +975,9 @@ function renderBilingualReader(paper, reader) {
   const nextBtn = node("button", "bilingual-btn", "›");
   nextBtn.type = "button";
   nextBtn.setAttribute("aria-label", "下一页");
-  let syncEnabled = true;
-  const syncBtn = node("button", "bilingual-btn is-toggle is-active", t("同步滚动：开"));
-  syncBtn.type = "button";
-  syncBtn.setAttribute("aria-pressed", "true");
-  centerGroup.append(prevBtn, pageInput, totalPagesEl, nextBtn, syncBtn);
+  const alignNowBtn = node("button", "bilingual-btn is-primary", t("对齐当前页") + " ⇄");
+  alignNowBtn.type = "button";
+  centerGroup.append(prevBtn, pageInput, totalPagesEl, nextBtn, alignNowBtn);
 
   const rightGroup = node("div", "bilingual-toolbar-group is-tools");
   const zoomOutBtn = node("button", "bilingual-btn", "−");
@@ -1027,11 +1026,12 @@ function renderBilingualReader(paper, reader) {
 
   let destroyed = false;
   let observer = null;
+  let resizeObserver = null;
+  let resizeTimer = 0;
+  let lastPaneWidth = 0;
   let activeObjectUrl = "";
   let pdfDoc = null;
   let zoomMultiplier = 1;
-  let activeDriver = null;
-  let clearDriverTimer = 0;
   let currentPage = 1;
 
   const setCurrentPage = (pg) => {
@@ -1041,41 +1041,37 @@ function renderBilingualReader(paper, reader) {
   const jumpBothToPage = (pg, smooth = true) => {
     const clamped = Math.min(paper.source.page_count, Math.max(1, pg));
     setCurrentPage(clamped);
-    activeDriver = "jump";
-    window.clearTimeout(clearDriverTimer);
     scrollPaneToPage(pdfPane, ".pdf-page", clamped, 0, smooth);
     scrollPaneToPage(zhPane, ".tr-page", clamped, 0, smooth);
-    clearDriverTimer = window.setTimeout(() => { activeDriver = null; }, 450);
+  };
+  const alignLeftToPage = (pg, progress = 0, smooth = true) => {
+    const clamped = Math.min(paper.source.page_count, Math.max(1, pg));
+    setCurrentPage(clamped);
+    scrollPaneToPage(pdfPane, ".pdf-page", clamped, progress, smooth);
   };
 
   prevBtn.onclick = () => jumpBothToPage(currentPage - 1);
   nextBtn.onclick = () => jumpBothToPage(currentPage + 1);
   pageInput.onchange = () => jumpBothToPage(Number(pageInput.value) || 1);
-  syncBtn.onclick = () => {
-    syncEnabled = !syncEnabled;
-    syncBtn.textContent = t(syncEnabled ? "同步滚动：开" : "同步滚动：关");
-    syncBtn.classList.toggle("is-active", syncEnabled);
-    syncBtn.setAttribute("aria-pressed", String(syncEnabled));
+  alignNowBtn.onclick = () => {
+    const { page, progress } = getPageProgress(zhPane, ".tr-page");
+    alignLeftToPage(page, progress, true);
   };
 
-  const syncScroll = (sourcePane, targetPane, sourceSel, targetSel, driverName) => {
-    if (activeDriver && activeDriver !== driverName) return;
-    const { page, progress } = getPageProgress(sourcePane, sourceSel);
+  pdfPane.addEventListener("scroll", () => {
+    const { page } = getPageProgress(pdfPane, ".pdf-page");
     setCurrentPage(page);
-    if (!syncEnabled) return;
-    activeDriver = driverName;
-    window.clearTimeout(clearDriverTimer);
-    scrollPaneToPage(targetPane, targetSel, page, progress, false);
-    clearDriverTimer = window.setTimeout(() => { activeDriver = null; }, 80);
-  };
-  pdfPane.addEventListener("scroll", () => syncScroll(pdfPane, zhPane, ".pdf-page", ".tr-page", "left"), { passive: true });
-  zhPane.addEventListener("scroll", () => syncScroll(zhPane, pdfPane, ".tr-page", ".pdf-page", "right"), { passive: true });
+  }, { passive: true });
+  zhPane.addEventListener("scroll", () => {
+    const { page } = getPageProgress(zhPane, ".tr-page");
+    setCurrentPage(page);
+  }, { passive: true });
 
   zhPane.addEventListener("click", (event) => {
     const btn = event.target.closest("[data-jump-page]");
     if (!btn) return;
     const pg = Number(btn.dataset.jumpPage);
-    if (pg >= 1) jumpBothToPage(pg);
+    if (pg >= 1) alignLeftToPage(pg, 0, true);
   });
 
   const renderPdfWithDoc = async (doc) => {
@@ -1086,7 +1082,8 @@ function renderBilingualReader(paper, reader) {
     pdfStatus.hidden = true;
     const firstPage = await doc.getPage(1);
     const baseViewport = firstPage.getViewport({ scale: 1 });
-    const availWidth = Math.max(320, pdfPane.clientWidth - 40);
+    lastPaneWidth = pdfPane.clientWidth;
+    const availWidth = Math.max(240, pdfPane.clientWidth - 36);
     const fitScale = (availWidth / baseViewport.width) * zoomMultiplier;
     const pageHolders = [];
     for (let num = 1; num <= doc.numPages; num += 1) {
@@ -1108,7 +1105,7 @@ function renderBilingualReader(paper, reader) {
         const page = await doc.getPage(num);
         if (destroyed) return;
         const vp0 = page.getViewport({ scale: 1 });
-        const scale = ((Math.max(320, pdfPane.clientWidth - 40)) / vp0.width) * zoomMultiplier;
+        const scale = (Math.max(240, pdfPane.clientWidth - 36) / vp0.width) * zoomMultiplier;
         const viewport = page.getViewport({ scale });
         holder.style.width = Math.round(viewport.width) + "px";
         holder.style.height = Math.round(viewport.height) + "px";
@@ -1249,10 +1246,25 @@ function renderBilingualReader(paper, reader) {
       zhPane.replaceChildren(node("div", "pdf-status", "暂时无法加载中文全文译文，请刷新重试。"));
     });
 
+  if (typeof ResizeObserver !== "undefined") {
+    resizeObserver = new ResizeObserver(() => {
+      if (destroyed || !pdfDoc || Math.abs(pdfPane.clientWidth - lastPaneWidth) < 16) return;
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(async () => {
+        if (destroyed || !pdfDoc) return;
+        const { page, progress } = getPageProgress(pdfPane, ".pdf-page");
+        await renderPdfWithDoc(pdfDoc);
+        scrollPaneToPage(pdfPane, ".pdf-page", page, progress, false);
+      }, 150);
+    });
+    resizeObserver.observe(pdfPane);
+  }
+
   bilingualCleanup = () => {
     destroyed = true;
-    window.clearTimeout(clearDriverTimer);
+    window.clearTimeout(resizeTimer);
     if (observer) observer.disconnect();
+    if (resizeObserver) resizeObserver.disconnect();
     if (activeObjectUrl) URL.revokeObjectURL(activeObjectUrl);
     document.body.classList.remove("bilingual-mode");
   };

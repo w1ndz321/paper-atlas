@@ -1806,16 +1806,23 @@ body.bilingual-mode #sidebar-toggle {
 
 body.bilingual-mode .workspace {
   display: block;
+  width: 100%;
+  height: calc(100dvh - var(--masthead-height));
+  min-height: 0;
+  overflow: hidden;
 }
 
 body.bilingual-mode .workspace > main {
+  width: 100%;
   max-width: none;
+  height: 100%;
   padding: 0;
-  height: calc(100dvh - var(--masthead-height));
   overflow: hidden;
 }
 
 body.bilingual-mode #reader {
+  width: 100%;
+  max-width: none;
   height: 100%;
   margin: 0;
 }
@@ -1823,11 +1830,13 @@ body.bilingual-mode #reader {
 .bilingual-shell {
   display: flex;
   flex-direction: column;
+  width: 100%;
   height: 100%;
   background: var(--page);
 }
 
 .bilingual-toolbar {
+  flex: 0 0 auto;
   display: flex;
   flex-wrap: wrap;
   align-items: center;

@@ -1,0 +1,268 @@
+{
+  "schema_version": 1,
+  "id": "dsgym",
+  "origin": "user",
+  "title": "DSGym: A Holistic Framework for Evaluating and Training Data Science Agents",
+  "authors": [
+    "Fan Nie",
+    "Junlin Wang",
+    "Harper Hua",
+    "Federico Bianchi",
+    "Yongchan Kwon",
+    "Zhenting Qi",
+    "Owen Queen",
+    "Shang Zhu",
+    "James Zou"
+  ],
+  "year": 2026,
+  "paper_type": "framework",
+  "topics": [
+    "agent-benchmarks"
+  ],
+  "tags": [
+    "数据科学 Agent",
+    "DSBio",
+    "DSPredict",
+    "数据依赖",
+    "捷径过滤",
+    "执行验证",
+    "监督微调"
+  ],
+  "one_liner": "DSGym 用统一的容器执行环境评测数据科学 Agent，过滤不读数据也能答对的任务，并用经执行与审核的分析轨迹微调小模型。",
+  "subtopics": [
+    "eval-science-domain",
+    "eval-process",
+    "eval-validity"
+  ],
+  "collections": [],
+  "classification_reason": "DSBio 提供生物信息学科学任务，执行轨迹用于失败诊断，去数据对照和捷径过滤用于检查评测有效性，分别对应三个既有子类。训练示例为监督微调，不构成递归自我改进。",
+  "added_at": "2026-11-25",
+  "updated_at": "2026-11-25",
+  "source": {
+    "url": "https://arxiv.org/abs/2601.16344v1",
+    "sha256": "f7952e98bfbf69cd3900103013fe7b2e8ac4bdc1a5b7af8041009dfa117cfae1",
+    "format": "pdf",
+    "page_count": 37,
+    "attachment": "attachments/dsgym.pdf"
+  },
+  "read_scope": "full",
+  "sections": {
+    "problem": {
+      "text": "数据科学 Agent 答对一道题，是否真的读懂并分析了数据？作者发现，部分带数据文件的基准在撤走文件后仍能被解答；模型可能靠常识、题目线索或记忆得到答案。DSGym 要解决的核心问题，是在可复现的环境中衡量真实数据分析能力，并检查通用分析成绩能否延伸到科学工作流和完整预测建模。",
+      "evidence": [
+        "e1",
+        "e2"
+      ]
+    },
+    "gap": {
+      "text": "既有基准的输入格式、评分规则和执行环境不同，难以直接比较；有些题目还存在答案缺失、选项重复或格式要求不一致。任务覆盖又偏向常规统计与表格处理，较少涉及单细胞数据、专业软件和领域概念。因此，统一 API 之外，还需要审核题目质量、验证数据依赖，并补上专业任务。",
+      "evidence": [
+        "e2",
+        "e3"
+      ]
+    },
+    "method": {
+      "text": "DSGym 将任务统一表示为数据文件、问题、评价指标与元数据。管理容器为每条 Agent 轨迹分配独立工作容器：数据只读挂载，工作区可写，Jupyter 内核保留变量和中间结果。默认 Agent 逐步规划、执行 Python、读取反馈，再提交答案或预测文件；评分在独立进程进行。\n\n任务筛选分两步：先人工清理无效题和答案格式，再让 5 个前沿模型在看不到数据时答题；若至少 3 个模型答对，就剔除该题。新增 DSBio 则由专家从论文发现或后续分析构造问题、提供标准 Notebook，再由另一位专家独立解答复核。\n\n训练示例采用“先探索再验证”：Agent 自己读数据出题并计算参考答案，随后在新环境以温度 0.8 采样候选轨迹；LLM 审核问题可解性、执行正确性和答案依据，再去除语义重复。3,700 个候选最终留下 2,000 对，用于 Qwen3-4B 的监督微调。",
+      "evidence": [
+        "e4",
+        "e3",
+        "e5",
+        "e6"
+      ]
+    },
+    "trace": {
+      "text": "附录 B.1 展示了一个领域理解失败：题目要求比较 LHS 与 LASP 细胞中 ESR1、FOXA1、GATA3 的平均 RNA 表达。GPT‑5.1 载入 .h5ad 后，把 LHS_sub 和 LASP_sub 两个亚型字段误当成主要细胞类型标签，按错误分组计算，答成 GATA3；标准答案为 ESR1。正确分组应使用 author_cell_type。这说明代码能够运行、均值也算出来，仍可能因为元数据的生物学含义读错而分析失败；DSGym 的轨迹记录让这种错误可追查。",
+      "evidence": [
+        "e7"
+      ]
+    },
+    "inputs_outputs": {
+      "text": "框架接收数据、问题、期望答案格式、指标、模型和环境配置，输出执行轨迹、最终答案或 submission.csv，以及评分。表 1 汇总任务生态为 972 道分析题和 114 个预测任务，其中包含新建的 90 道 DSBio，以及 DSPredict 的 38 个容易竞赛和 54 个困难竞赛，也集成 MLEBench-Lite。分析题以允许轻微数值误差的精确匹配计分；预测题使用竞赛原定指标与排行榜。这里评价的是给定问题后的数据驱动研究环节，不覆盖从零提出科学假设的全部发现过程。",
+      "evidence": [
+        "e8",
+        "e9",
+        "e4"
+      ]
+    },
+    "results": {
+      "text": "主评测使用默认 CodeAct 风格 Agent、温度 0，并关闭包括搜索在内的附加工具；GPT‑5.1 等模型另比较推理强度。DSBio 总准确率最高为 Kimi K2 的 43.33%，Sonnet 4.5 为 42.22%。作者对 4 个模型、每类任务各抽取 50 条失败轨迹，人工标注主要错误；DSBio 的领域理解错误占这些抽样失败的 85%–96%，不能读成全部题目的错误率。\n\n表 5 展示了 2,000 对执行验证数据的微调效果。下列数值均为任务答案准确率（%，越高越好），不是相对提升；不同列的题目不同，不宜横向比较难度。\n\n| 任务 | Qwen3-4B 原模型 | DSGym-SFT | GPT‑4o |\n| --- | --- | --- | --- |\n| QRData-Verified | 45.27 | 59.36 | 60.24 |\n| DABStep-easy | 58.33 | 77.78 | 73.61 |\n| DABStep-hard | 2.90 | 33.07 | 7.41 |\n| DAEval-Verified | 64.47 | 86.19 | 92.26 |\n| DSBio | 6.67 | 21.11 | 33.33 |\n\n微调模型在两列 DABStep 超过 GPT‑4o，未在所有任务上超过它。表 4 的 DSPredict-Hard 私有测试中，GPT‑5.1 高推理配置的有效提交率为 85.7%，超过排行榜中位数的比例仅 14.3%，获任意奖牌比例为 4.8%。三个比例都越高越好，但分别衡量文件合规、成绩超过中位和达到奖牌门槛；有效提交只检查文件、行数与列名，不能证明模型有竞争力。",
+      "evidence": [
+        "e9",
+        "e10",
+        "e11",
+        "e12",
+        "e13"
+      ]
+    },
+    "contributions": {
+      "text": "这项工作把统一任务格式、隔离执行、独立评分、基准审计与轨迹训练放进同一套基础设施。DSBio 增加专业科学分析，DSPredict 增加端到端预测建模；两者共同暴露了“会写代码”与“正确理解科学问题、持续优化模型”之间的差距。训练实验还说明，执行验证轨迹能帮助小模型改善复杂分析表现，但并未实现强化学习训练或自动改进器的递归升级。",
+      "evidence": [
+        "e1",
+        "e6",
+        "e14"
+      ]
+    },
+    "limitations": {
+      "text": "当前任务强调确定答案，不覆盖以可视化为主的任务和多种解释都可能合理的开放探索。科学分析主要用生物信息学作为试点，不能代表全部科学领域。知识库分析：5 模型多数票筛出的只是该组模型能无数据解答的任务，不能保证剩余任务不存在其他捷径；领域错误标签也来自有限抽样。\n\nv1 的规模与划分报告有些细节需复现时核对：DSBio 附录表 S1 的单细胞/空间题数为 56/13，而表 3 的分项百分比并不完全对应这组分母；预测表也未明确每列实际参评的完整任务清单。训练部分未充分交代种子题、合成题与评测题的隔离细节，也未提供充分的重复运行方差或置信区间，不宜把单表差值当成精确泛化保证。",
+      "evidence": [
+        "e14",
+        "e15",
+        "e12"
+      ]
+    },
+    "cost": {
+      "text": "复现需要 Docker、Jupyter、数据和领域依赖；容器可配置 CPU、内存与时间限制。DSPredict 的筛选规则要求数据规模小于 15 GB，但这不适用于所有集成基准。微调使用 LlamaFactory，学习率 2×10⁻⁵、6 个 epoch、batch size 8、梯度累积 16、warmup 比例 0.1。论文未清楚报告统一逐题步数/时限、GPU 总时长、训练总费用或合成与审核 token 成本，因此无法据此估计完整复现预算。",
+      "evidence": [
+        "e4",
+        "e13"
+      ]
+    },
+    "relevance": {
+      "text": "知识库分析：DSGym 同时关联科学领域基准、过程评价与失败诊断、评测方法与有效性。去数据对照检查“答对是否需要数据”，领域任务检查“通用分析能力是否迁移”，轨迹案例检查“错误发生在哪一步”。它与 Many AI Analysts 互补：DSGym 强调确定性任务的评分与数据依赖，后者提醒同一数据上合理分析也可能产生不同结论，不能把二者的正确性标准直接混用。",
+      "evidence": []
+    }
+  },
+  "evidence": [
+    {
+      "id": "e1",
+      "page": 1,
+      "locator": "摘要 · 框架、任务扩展与训练目标",
+      "quote": "a standardized framework for evaluating and training"
+    },
+    {
+      "id": "e2",
+      "page": 5,
+      "locator": "§3 · 无数据也能答题的评测捷径",
+      "quote": "many questions can be answered"
+    },
+    {
+      "id": "e3",
+      "page": 6,
+      "locator": "§4.1 · 人工质量核验与多数票捷径过滤",
+      "quote": "Quality verification"
+    },
+    {
+      "id": "e4",
+      "page": 4,
+      "locator": "§2 · 任务、Agent 与隔离有状态执行环境",
+      "quote": "an independent Jupyter kernel"
+    },
+    {
+      "id": "e5",
+      "page": 8,
+      "locator": "§4.2 · 独立专家复核标准解",
+      "quote": "Anindependentexpertreviewsthequalityanddifficulty"
+    },
+    {
+      "id": "e6",
+      "page": 12,
+      "locator": "§6.1–6.2 · 执行验证、轨迹审核与 2,000 对训练数据",
+      "quote": "3,700syntheticquerycandidates"
+    },
+    {
+      "id": "e7",
+      "page": 27,
+      "locator": "附录 B.1 · 细胞类型字段误读案例",
+      "quote": "leading to an incorrect grouping and downstream mean-expression comparison."
+    },
+    {
+      "id": "e8",
+      "page": 8,
+      "locator": "表 1、§4.3 · 任务规模与 DSPredict 划分",
+      "quote": "Table 1: Statistics of"
+    },
+    {
+      "id": "e9",
+      "page": 9,
+      "locator": "§5.1–5.2、表 2 · 默认评测条件与分析题指标",
+      "quote": "all tools are disabled in all evaluations"
+    },
+    {
+      "id": "e10",
+      "page": 10,
+      "locator": "表 3–4 · DSBio 准确率与预测任务表现",
+      "quote": "85.7 4.8 14.3"
+    },
+    {
+      "id": "e11",
+      "page": 11,
+      "locator": "图 8 · 失败轨迹抽样与领域理解错误",
+      "quote": "uniformly sample 50 failed trajectories"
+    },
+    {
+      "id": "e12",
+      "page": 13,
+      "locator": "表 5 · SFT 与原模型及 GPT‑4o 对比",
+      "quote": "59.36 77.78 33.07 86.19 21.11"
+    },
+    {
+      "id": "e13",
+      "page": 33,
+      "locator": "附录 D.2–D.3 · 训练超参与排行榜指标定义",
+      "quote": "the number of items and the column"
+    },
+    {
+      "id": "e14",
+      "page": 14,
+      "locator": "§8 · 强化学习尚待研究、领域与确定性评价边界",
+      "quote": "training signal design"
+    },
+    {
+      "id": "e15",
+      "page": 21,
+      "locator": "表 S1 · DSBio 分项题目计数",
+      "quote": "Single-cell biology 56"
+    }
+  ],
+  "related": [
+    {
+      "id": "many-ai-analysts",
+      "reason": "都通过执行轨迹分析数据科学 Agent 的可靠性；DSGym 用确定答案与去数据对照审计能力，Many AI Analysts 研究合理分析路径带来的结论分布，两者评价目标互补。"
+    }
+  ],
+  "review": {
+    "evidence_checked": true,
+    "compression_checked": true,
+    "reviewed_by": "Codex",
+    "prompt_version": "1.7",
+    "evidence_verified_sha256": "f7952e98bfbf69cd3900103013fe7b2e8ac4bdc1a5b7af8041009dfa117cfae1"
+  },
+  "translations": {
+    "en": {
+      "source_sha256": "f7952e98bfbf69cd3900103013fe7b2e8ac4bdc1a5b7af8041009dfa117cfae1",
+      "one_liner": "DSGym standardizes containerized evaluation, filters tasks solvable without data and fine-tunes small models on execution-verified analysis trajectories.",
+      "sections": {
+        "problem": "Does a correct answer demonstrate real use of data? Some file-grounded benchmark tasks remain solvable when files are withheld, through priors, prompt clues or memorization. DSGym evaluates reproducible data-dependent workflows and tests whether general analysis performance extends to scientific analysis and end-to-end prediction.",
+        "gap": "Existing suites differ in interfaces, scoring and environments, contain invalid annotations or ambiguous formats, and emphasize general tabular analysis over scientific modalities and libraries. A common API therefore needs task auditing, data-dependency checks and broader scientific coverage.",
+        "method": "Tasks combine files, a query, metrics and metadata. A manager allocates isolated workers with read-only datasets, writable workspaces and persistent Jupyter kernels; scoring runs independently. The default agent plans, executes Python and reads feedback before answering or submitting predictions. After manual quality review, five frontier models attempt tasks without files; tasks answered correctly by at least three are removed. DSBio pairs expert-authored questions and Gold Notebooks with independent expert solving. For training, agents explore data, generate questions and execute reference answers. Fresh environments sample candidate trajectories at temperature 0.8, followed by LLM review and semantic diversity filtering. From 3,700 candidates, 2,000 query–trajectory pairs support Qwen3-4B supervised fine-tuning.",
+        "trace": "Appendix B.1 asks GPT-5.1 to compare ESR1, FOXA1 and GATA3 mean RNA expression in LHS versus LASP cells. It loads an .h5ad file but mistakes the subtype fields LHS_sub and LASP_sub for primary cell labels. Its incorrect grouping yields GATA3 instead of the reference ESR1; author_cell_type supplies the intended labels. Runnable code and computed means therefore do not establish scientific correctness. The recorded trajectory exposes the semantic failure.",
+        "inputs_outputs": "Inputs include datasets, questions, answer formats, metrics, a model and environment configuration. Outputs are traces, answers or submission.csv files, and scores. Table 1 reports 972 analysis and 114 prediction tasks, including 90 DSBio questions, 38 easy and 54 hard DSPredict competitions, plus integrated MLEBench-Lite tasks. Analysis uses exact match with slight numerical tolerance; prediction preserves competition metrics and leaderboards. The scope is data-driven investigation after a question is specified, rather than the complete process of scientific discovery.",
+        "results": "Default evaluations use a CodeAct-style agent, temperature zero and no additional tools, including search, with separate reasoning-effort comparisons for models such as GPT-5.1. DSBio overall accuracy peaks at 43.33% for Kimi K2, followed by Sonnet 4.5 at 42.22%. Four models receive manual primary-error annotation on 50 sampled failures per task family; domain-grounding errors account for 85–96% of sampled DSBio failures, not all tasks. In Table 5, base Qwen3-4B / DSGym-SFT / GPT-4o accuracies (%) are respectively 45.27/59.36/60.24 on QRData, 58.33/77.78/73.61 on DABStep-easy, 2.90/33.07/7.41 on DABStep-hard, 64.47/86.19/92.26 on DAEval, and 6.67/21.11/33.33 on DSBio. These are absolute accuracy percentages, higher is better; SFT exceeds GPT-4o on the two DABStep columns, not every task. On DSPredict-Hard private testing, GPT-5.1 high achieves 85.7% valid submissions, 14.3% above-median performance and 4.8% any-medal performance. All are higher-is-better but measure distinct criteria. Validity checks file existence, rows and columns, not predictive competitiveness.",
+        "contributions": "DSGym combines standardized tasks, isolated execution, independent scoring, benchmark auditing and trajectory-based training. DSBio and DSPredict extend scientific analysis and predictive modeling, exposing gaps between writing runnable code and correctly interpreting or improving analyses. Execution-verified trajectories improve a small model, but the paper does not demonstrate RL training or recursively improving improvers.",
+        "limitations": "Deterministic answers exclude visualization-centric and open-ended analyses with multiple valid interpretations. Bioinformatics is a scientific pilot rather than universal coverage. Library analysis: the five-model filter establishes only resistance to that panel’s tested shortcuts; error labels also come from limited samples. Version 1 leaves reporting details to resolve: Table S1 lists 56 single-cell and 13 spatial tasks, whereas Table 3 category percentages do not fully match those denominators; prediction tables do not clearly enumerate the actual evaluated tasks per column. Training sections do not sufficiently establish separation of seed, synthetic and evaluation questions. Repeated-run variance and confidence intervals are not adequately reported, so table differences are not precise generalization guarantees.",
+        "cost": "Reproduction requires Docker, Jupyter, datasets and scientific dependencies. Containers support configurable CPU, memory and time limits. DSPredict selection uses a below-15-GB rule, which does not apply to every integrated benchmark. LlamaFactory SFT uses learning rate 2e-5, six epochs, batch size eight, gradient accumulation 16 and warmup ratio 0.1. Unified per-task step/time caps, total GPU hours, total training cost and synthesis/audit token costs are not clearly reported, preventing a complete budget estimate.",
+        "relevance": "Library analysis. DSGym connects scientific-domain benchmarks, failure diagnosis and evaluation validity. Withheld-data controls ask whether answers require files; scientific tasks test transfer; traces locate failures. Many AI Analysts complements its deterministic scoring by studying distributions of defensible conclusions on fixed data. Their standards of correctness should not be conflated."
+      },
+      "locators": {
+        "e1": "Abstract · Framework, tasks and training",
+        "e2": "§3 · Solvability without data",
+        "e3": "§4.1 · Quality and shortcut filtering",
+        "e4": "§2 · Tasks, agents and stateful isolated environments",
+        "e5": "§4.2 · Independent expert review",
+        "e6": "§6.1–6.2 · Execution-verified synthesis and training pairs",
+        "e7": "Appendix B.1 · Incorrect cell-type grouping",
+        "e8": "Table 1 / §4.3 · Task counts and prediction splits",
+        "e9": "§5.1–5.2 / Table 2 · Setup and analysis metrics",
+        "e10": "Tables 3–4 · Scientific accuracy and prediction results",
+        "e11": "Figure 8 · Sampled failure annotation",
+        "e12": "Table 5 · SFT, base model and GPT-4o",
+        "e13": "Appendix D.2–D.3 · Training and leaderboard metrics",
+        "e14": "§8 · RL, scientific scope and deterministic evaluation",
+        "e15": "Table S1 · DSBio category counts"
+      },
+      "related": {
+        "many-ai-analysts": "Both inspect execution traces for data-science reliability. DSGym audits deterministic tasks and data dependence, while Many AI Analysts studies conclusion distributions across defensible pipelines."
+      }
+    }
+  }
+}

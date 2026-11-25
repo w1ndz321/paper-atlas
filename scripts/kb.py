@@ -638,6 +638,13 @@ def build(output, root=ROOT):
         if p["id"] in fulltext_files:
             entry["has_fulltext_zh"] = True
         built_papers.append(entry)
+        # User-submitted PDFs are already public attachments; serve them from
+        # the same Pages origin so the bilingual reader needs no CORS permission.
+        attachment = p["source"].get("attachment")
+        if p["id"] in fulltext_files and attachment:
+            target = output / attachment
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(root / attachment, target)
     if fulltext_files:
         tr_out = output / "translations"
         tr_out.mkdir(parents=True, exist_ok=True)

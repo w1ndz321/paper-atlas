@@ -968,7 +968,7 @@ function loadPdfJs() {
 }
 function resolvePdfUrl(paper) {
   if (paper.source?.attachment)
-    return data.config.repository_url + "/raw/refs/heads/main/" + paper.source.attachment;
+    return paper.source.attachment;
   const raw = paper.source?.url || "";
   const arxiv = raw.match(/https?:\/\/arxiv\.org\/(?:abs|pdf)\/(\d{4}\.\d{4,5}(?:v\d+)?)/i);
   if (arxiv) return "https://arxiv.org/pdf/" + arxiv[1];
@@ -979,11 +979,14 @@ function fulltextKindLabel(kind) {
   const map = {
     prose: t("正文"),
     figure: t("图表页"),
-    references: t("参考文献（略）"),
+    references: t("参考文献"),
     appendix_prompt: t("附录提示词"),
     math: t("公式推导"),
   };
   return map[kind] || t("正文");
+}
+function pageTopInPane(pane, page) {
+  return page.getBoundingClientRect().top - pane.getBoundingClientRect().top + pane.scrollTop;
 }
 function getPageProgress(pane, selector) {
   const items = pane.querySelectorAll(selector);
@@ -991,17 +994,17 @@ function getPageProgress(pane, selector) {
   const anchor = pane.scrollTop + 28;
   let current = items[0];
   for (const el of items) {
-    if (el.offsetTop <= anchor) current = el;
+    if (pageTopInPane(pane, el) <= anchor + 1) current = el;
     else break;
   }
   const height = Math.max(1, current.offsetHeight);
-  const progress = Math.min(1, Math.max(0, (anchor - current.offsetTop) / height));
+  const progress = Math.min(1, Math.max(0, (anchor - pageTopInPane(pane, current)) / height));
   return { page: Number(current.dataset.page) || 1, progress };
 }
 function scrollPaneToPage(pane, selector, page, progress = 0, smooth = false) {
   const target = pane.querySelector(`${selector}[data-page="${page}"]`);
   if (!target) return;
-  const top = Math.max(0, target.offsetTop + progress * target.offsetHeight - 28);
+  const top = Math.max(0, pageTopInPane(pane, target) + progress * target.offsetHeight - 28);
   if (smooth) pane.scrollTo({ top, behavior: "smooth" });
   else pane.scrollTop = top;
 }

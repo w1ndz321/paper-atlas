@@ -57,7 +57,7 @@ const englishUI = {
   "对齐当前页": "Align to current page",
   "正文": "Body",
   "图表页": "Figure",
-  "参考文献（略）": "References (stub)",
+  "参考文献": "References",
   "附录提示词": "Appendix prompt",
   "公式推导": "Math proof",
 };

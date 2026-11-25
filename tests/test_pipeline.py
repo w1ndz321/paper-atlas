@@ -178,6 +178,17 @@ class PipelineTests(unittest.TestCase):
         kb.write(self.root / '.local/uploaded/draft.json', p)
         kb.finalize(argparse.Namespace(draft=self.root / '.local/uploaded/draft.json', update=False), self.root)
         self.assertEqual(kb.validate(self.root)[0]['id'], 'uploaded')
+        kb.write(self.root / 'translations/uploaded.json', {
+            'schema_version': 1, 'id': 'uploaded', 'language': 'zh',
+            'source_sha256': source['sha256'], 'page_count': 1,
+            'pages': [{'page': 1, 'kind': 'prose', 'label': '正文', 'markdown': '完整中文译文。'}],
+        })
+        (self.root / 'pdfs').mkdir()
+        (self.root / 'pdfs/private-cache.pdf').write_bytes(b'not for publication')
+        kb.build(self.root / 'dist', self.root)
+        self.assertEqual((self.root / 'dist/attachments/uploaded.pdf').read_bytes(), pdf.read_bytes())
+        self.assertFalse((self.root / 'dist/pdfs/private-cache.pdf').exists())
+
 
     def test_build_excludes_drafts_and_fulltext(self):
         self.store(self.paper())
@@ -684,6 +695,33 @@ assert.equal(api.preferredLanguage('?lang=bad',{getItem:()=>{throw Error('denied
         subprocess.run(["node", "-e", program, str(kb.ROOT / "web/locale.js")],
                        input=json.dumps({"config": kb.config(), "papers": kb.records(), "sections": kb.SECTIONS}),
                        text=True, capture_output=True, check=True)
+
+    @unittest.skipUnless(shutil.which("node"), "需要 Node 验证双语原文来源")
+    def test_bilingual_pdf_uses_same_origin_uploaded_attachment(self):
+        program = r"""
+const fs = require('node:fs'), vm = require('node:vm'), assert = require('node:assert/strict');
+const source = fs.readFileSync(process.argv[1], 'utf8').replace(/\ninit\(\);\s*$/, '');
+const api = vm.runInNewContext(source + '\n;({resolvePdfUrl,fulltextKindLabel,getPageProgress,scrollPaneToPage})', {URLSearchParams,location:{search:''},t:x=>x});
+const relative = api.resolvePdfUrl({source:{attachment:'attachments/dsgym.pdf',url:'https://arxiv.org/abs/2601.16344v1'}});
+assert.equal(new URL(relative,'https://example.org/paper-atlas/').href,'https://example.org/paper-atlas/attachments/dsgym.pdf');
+assert.equal(api.resolvePdfUrl({source:{url:'https://arxiv.org/abs/2601.16344v1'}}),'https://arxiv.org/pdf/2601.16344v1');
+assert.equal(api.fulltextKindLabel('references'),'参考文献');
+const pages = [0,1,2].map(i=>({dataset:{page:String(i+1)},offsetHeight:800,
+  getBoundingClientRect:()=>({top:113+i*820-pane.scrollTop})}));
+const pane = {scrollTop:0,getBoundingClientRect:()=>({top:113}),
+  querySelectorAll:()=>pages,querySelector:()=>pages[1]};
+api.scrollPaneToPage(pane,'.page',2);
+assert.equal(pane.scrollTop,792);
+assert.equal(api.getPageProgress(pane,'.page').page,2);
+assert.equal(api.getPageProgress(pane,'.page').progress,0);
+api.scrollPaneToPage(pane,'.page',2,0.5);
+assert.equal(pane.scrollTop,1192);
+assert.equal(api.getPageProgress(pane,'.page').progress,0.5);
+pane.scrollTop = 791.6;
+assert.equal(api.getPageProgress(pane,'.page').page,2);
+
+"""
+        subprocess.run(["node", "-e", program, str(kb.ROOT / "web/app.js")], text=True, capture_output=True, check=True)
 
     def test_fulltext_translation_validates_and_builds(self):
         p = self.paper()

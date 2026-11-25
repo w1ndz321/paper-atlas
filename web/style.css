@@ -2043,6 +2043,7 @@ body.is-resizing-panes .bilingual-resizer::after {
 }
 
 .bilingual-pane.is-pdf {
+  scrollbar-gutter: stable;
   background: #e9eef5;
   padding: 18px 16px 36px;
   transition: background 0.15s ease;

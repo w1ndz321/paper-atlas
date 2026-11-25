@@ -410,6 +410,34 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(4, sum(s["topic"] == "llm-interpretability" for s in cfg["subtopics"].values()))
         self.assertFalse(any(s["topic"] == "interest-exploration" for s in cfg["subtopics"].values()))
 
+    @unittest.skipUnless(shutil.which("node"), "需要 Node 验证标题搜索")
+    def test_title_search_and_global_navigation(self):
+        program = r"""
+const fs = require('node:fs'), vm = require('node:vm'), assert = require('node:assert/strict');
+const source = fs.readFileSync(process.argv[1], 'utf8').replace(/\ninit\(\);\s*$/, '');
+const fields = {'type-filter':{value:'benchmark'}, 'read-status':{value:'reference'}};
+const api = vm.runInNewContext(source + `
+;let refreshed;
+refreshView = push => { refreshed = push; };
+({titleSearchTerms, matchesTitle, searchPapers,
+  setView: () => {topic='rsi'; subtopic='rsi-rec-agent'; collection='test'; guideOpen=true;},
+  getView: () => ({topic,subtopic,collection,guideOpen,refreshed})})`,
+  {URLSearchParams, location:{search:''}, document:{getElementById:id=>fields[id]}});
+const paper = {title:'Many AI Analysts, One Dataset: Navigating the Agentic Data Science Multiverse'};
+for (const q of [paper.title, 'MANY ai analysts', 'One Dataset Navigating', 'ＡＩ Analysts，One Dataset', 'Multiverse'])
+  assert.ok(api.matchesTitle(paper, api.titleSearchTerms(q)), q);
+assert.ok(api.matchesTitle({title:'Don’t Pass@k'}, api.titleSearchTerms("Don't Pass@k")));
+assert.ok(api.matchesTitle({title:'中文论文：分析多宇宙'}, api.titleSearchTerms('分析多宇宙')));
+assert.ok(!api.matchesTitle({...paper,one_liner:'unrelated keyword'}, api.titleSearchTerms('unrelated keyword')));
+assert.ok(api.matchesTitle(paper, api.titleSearchTerms('  ')));
+api.setView(); api.searchPapers();
+assert.equal(api.getView().topic,''); assert.equal(api.getView().subtopic,'');
+assert.equal(api.getView().collection,''); assert.equal(api.getView().guideOpen,false);
+assert.equal(api.getView().refreshed,false);
+assert.equal(fields['type-filter'].value,''); assert.equal(fields['read-status'].value,'');
+"""
+        subprocess.run(["node", "-e", program, str(kb.ROOT / "web/app.js")], text=True, capture_output=True, check=True)
+
     @unittest.skipUnless(shutil.which("node"), "需要 Node 验证读者页面筛选逻辑")
     def test_unclassified_entries_remain_reachable(self):
         program = r"""

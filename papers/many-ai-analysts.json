@@ -1,0 +1,228 @@
+{
+  "schema_version": 1,
+  "id": "many-ai-analysts",
+  "origin": "user",
+  "title": "Many AI Analysts, One Dataset: Navigating the Agentic Data Science Multiverse",
+  "authors": [
+    "Martin Bertran",
+    "Riccardo Fogliato",
+    "Zhiwei Steven Wu"
+  ],
+  "year": 2026,
+  "paper_type": "analysis",
+  "topics": [
+    "agent-benchmarks"
+  ],
+  "tags": [
+    "AI 数据分析",
+    "分析多宇宙",
+    "多分析者研究",
+    "统计推断",
+    "选择性报告",
+    "提示词敏感性",
+    "AI 审核"
+  ],
+  "one_liner": "让不同模型与角色的 AI 独立分析同一数据，再审核完整执行记录，发现分析结论既会分散，也会随寻找支持证据的指令系统性偏移。",
+  "subtopics": [
+    "eval-process",
+    "eval-validity"
+  ],
+  "collections": [],
+  "classification_reason": "研究数据科学 Agent 的完整分析轨迹、方法合规性与结论稳定性，归入过程评价与失败诊断、评测方法与有效性；它是实证分析与评价研究，不是固定标准答案的科学领域能力基准。",
+  "added_at": "2026-11-25",
+  "updated_at": "2026-11-25",
+  "source": {
+    "url": "https://arxiv.org/abs/2602.18710v2",
+    "sha256": "07c9f12858a594d90aecea05c85e479e1736c8e24e17fb23cbbc07b148412fb7",
+    "format": "pdf",
+    "page_count": 24,
+    "attachment": "attachments/many-ai-analysts.pdf"
+  },
+  "read_scope": "full",
+  "sections": {
+    "problem": {
+      "text": "同一份数据能否给出稳定的科学结论？研究者通常要决定删掉哪些样本、怎样处理缺失值、加入哪些控制变量，以及如何计算误差。这些选择即使各有理由，也可能改变效应大小，甚至让“支持假设”变成“不支持”。作者研究的是这类分析选择带来的不确定性：当 AI 能自主完成整条数据分析流程时，它会产生怎样的结论分布？",
+      "evidence": [
+        "e1"
+      ]
+    },
+    "gap": {
+      "text": "过去的“多分析者研究”把同一数据交给多个人类团队，直接观察团队之间的分歧，但协调成本高，很难成为常规检查。人工预先列举多种合理分析的“多宇宙分析”也依赖研究者决定哪些路径值得探索。只看 AI 某一次运行是否完成任务，会遗漏这些路径造成的差异；即使固定目标效应，也仍有许多合理的处理方法。",
+      "evidence": [
+        "e1",
+        "e2"
+      ]
+    },
+    "method": {
+      "text": "作者交叉设置 **3 个数据任务、4 个底座模型和 5 种分析者角色**，独立重复运行。模型是 Claude Sonnet 4.5、Haiku 4.5、Qwen3 Coder 480B 和 Qwen3 235B A22B；角色从怀疑、中立、相信假设，到主动寻找支持证据（CS）和更激进的强 CS。后两种会鼓励搜索有利的模型、变换和检验方式。\n\n每个分析者收到数据、假设和预先固定的“待估量”，即大家必须估计的同一个效应；清洗、建模和推断由它自行决定。Agent 在 Inspect AI 中使用 ReAct 流程，借助 Python、Shell 和文件编辑器执行分析，提交代码与报告。独立的 Sonnet 4.5 审核者读取完整对话、工具输出和代码，检查报告是否对应实际计算、是否遵守研究设计，再提取效应、区间、p 值和支持判断。最后将各次估计按大小排列成“规格曲线”，并在下方标出每次采用的分析选择。",
+      "evidence": [
+        "e2",
+        "e3",
+        "e4"
+      ]
+    },
+    "trace": {
+      "text": "ANES 任务问：更常看电视新闻的人，其自报意识形态与具体政策立场是否更一致？分析者需要构造两者的“不一致程度”，再估计电视新闻暴露对它的标准化 OLS 回归系数；按任务方向，负系数对应更一致。即使目标相同，不同运行仍会选择不同控制变量、回归方法、标准误和跨选举年份的合并方式。图 1 将这些选择与上方的效应估计逐一对应：审核通过的结果仍跨越负值与正值。这里展示的是整组运行的真实现象，论文没有给出可完整复述的一条单次代码轨迹。",
+      "evidence": [
+        "e2",
+        "e5"
+      ]
+    },
+    "inputs_outputs": {
+      "text": "输入是固定数据文件、自然语言假设、预定待估量，以及模型与角色提示词。三个任务分别估计：足球数据中深浅肤色球员被出示红牌的调整后概率差；METR 编程随机试验中按开发者分组处理的 AI/对照实现时间几何均值比；ANES 中电视新闻与意识形态不一致程度的标准化系数。时间比大于 1 表示 AI 组更慢，不能误读成生产率提高。输出包括可复现代码、叙述报告、审核结果，以及跨运行的效应和结论分布；这是分析与审计流程，不是产出唯一正确答案的验证器。",
+      "evidence": [
+        "e2",
+        "e3"
+      ]
+    },
+    "results": {
+      "text": "正文记录 **4,946 次运行中 3,303 次通过审核，约 67%**。审核后的结论仍明显分散。作者报告，从怀疑角色到强 CS，假设支持率差距在 ANES 为 34 个百分点，在 METR 为 66 个百分点；这是特定任务中“判为支持”的运行比例变化，不是准确率提升，也不是每个模型都会增加同样幅度。图 2 分开画出全部运行与合规子集，审核会缩小这种角色差异，却无法消除。\n\n表 2 给出的按角色汇总剔除率如下。它衡量未通过方法审核的比例，越低表示越少运行被剔除，但不能单独评价结论真假。\n\n| 分析者角色 | 剔除率 |\n| --- | --- |\n| 怀疑 | 21% |\n| 中立 | 23% |\n| 相信假设 | 22% |\n| 寻找支持证据（CS） | 53% |\n| 强 CS | 57% |\n\n表中总体剔除率写作 34%，而正文计数推得约 33.2%；两者不能视为精确一致，论文未解释差异。图 3 的 p 值也随角色变化：主文将双侧值按效应方向转换为单侧值，同向取 p/2，反向取 1−p/2，假定零假设下检验统计量对称。这些差异来自同一数据上的分析路径变化，不能解释成重新抽样的数据波动。",
+      "evidence": [
+        "e6",
+        "e7",
+        "e8"
+      ]
+    },
+    "contributions": {
+      "text": "这项工作把代价高的人类多分析者研究转化为可大规模重复、可控制模型与角色条件的 AI 实验，并把结论差异与具体分析选择连接起来。它还演示了一个应用：给 AI 提供足球研究中 Pope and Pope 团队已公开的分析规格，允许它在认为必要处偏离，得到的估计集中在原始人类估计附近，结论没有改变。这个案例表明 AI 可以帮助检查公开方法中未写明的选择有多大影响；作者据此主张把提示词与代码、数据一起披露，并报告多条分析路径的结果。",
+      "evidence": [
+        "e9",
+        "e10"
+      ]
+    },
+    "limitations": {
+      "text": "“审核通过”只表示满足这个 AI 审核者采用的标准。作者没有给出足以把审核结果当成科学真值的独立人工标注验证；附录还承认，少于 1% 的运行把支持方向判反，审核者未稳定发现，需用确定性的后处理纠正。因而不能把 67% 当作真实正确率。\n\nAI 也可能共享训练数据中的惯例与盲点，探索不到人类会选择的分析路径；本研究没有证明覆盖了全部合理分析。足球结论广为流传，存在训练数据污染风险；新近的 METR 与低污染设定的 ANES 用于缓解该问题，并不构成污染已被排除的证明。已发表规格的压力测试仅是一个实例，不能外推成普遍复现能力。",
+      "evidence": [
+        "e11",
+        "e8",
+        "e2",
+        "e10"
+      ]
+    },
+    "cost": {
+      "text": "每次分析的温度为 1.0，上限为 250 条消息或 60 分钟，先到者为准；审核还需读取完整执行轨迹。论文强调比协调人类团队便宜，但未提供统一的单次美元费用、实际总耗时或审核 token 成本，不能据此算出明确节省比例。",
+      "evidence": [
+        "e3"
+      ]
+    },
+    "relevance": {
+      "text": "知识库分析：这篇论文直接补充数据科学 Agent 的过程评价与评测有效性。它提醒评测者同时记录运行分布、提示词、工具轨迹和审核条件，避免以单条合规报告替代稳健性证据。它也说明“任务完成”“方法合规”“结论稳定”是不同评价目标；论文没有提供所有任务的科学真值，因此支持率不宜用于模型能力排名。",
+      "evidence": []
+    }
+  },
+  "evidence": [
+    {
+      "id": "e1",
+      "page": 2,
+      "locator": "§1 · 人类多分析者研究成本与分析路径差异",
+      "quote": "requiring months to years of coordination among dozens of independent teams."
+    },
+    {
+      "id": "e2",
+      "page": 5,
+      "locator": "表 1、§3.2 · 三个任务与固定待估量",
+      "quote": "allowing direct comparison of effect sizes across runs"
+    },
+    {
+      "id": "e3",
+      "page": 5,
+      "locator": "§3.3 · 模型、工具、运行预算",
+      "quote": "60 minutes per run, whichever comes first."
+    },
+    {
+      "id": "e4",
+      "page": 6,
+      "locator": "§3.4–3.6 · 角色操纵与完整轨迹审核",
+      "quote": "reviews the full conversation transcript for each run"
+    },
+    {
+      "id": "e5",
+      "page": 7,
+      "locator": "§4.1、图 1 说明 · 合规运行的效应方向分歧",
+      "quote": "compliant runs disagree not only on magnitude but on the direction of"
+    },
+    {
+      "id": "e6",
+      "page": 6,
+      "locator": "§4 开头、表 2 · 运行计数和剔除率",
+      "quote": "Of 4,946 total runs, 3,303 (67%) passed auditor-based compliance screening."
+    },
+    {
+      "id": "e7",
+      "page": 7,
+      "locator": "§4.2、图 2 · 支持率差异及审核影响",
+      "quote": "34 percentage points (anes-views) to 66 percentage points (metr-rct)"
+    },
+    {
+      "id": "e8",
+      "page": 21,
+      "locator": "附录 A · 方向纠错、单侧 p 值转换与假设",
+      "quote": "This transformation assumes a symmetric test statistic under the null"
+    },
+    {
+      "id": "e9",
+      "page": 9,
+      "locator": "§5.1 · 多宇宙报告与提示词披露",
+      "quote": "the exact prompts used should be disclosed"
+    },
+    {
+      "id": "e10",
+      "page": 9,
+      "locator": "§5.1、附录 B 图 5 · 已发表规格压力测试",
+      "quote": "the undocumented decisions the agents surfaced did not shift the conclusion"
+    },
+    {
+      "id": "e11",
+      "page": 9,
+      "locator": "§5.2 · 审核标准与 AI 路径覆盖的局限",
+      "quote": "its overlap with the human multiverse remains an empirical question."
+    }
+  ],
+  "related": [
+    {
+      "id": "dont-pass-at-k",
+      "reason": "两篇都要求用分布与不确定性理解重复评测；该文研究固定数据下分析选择引起的结论分散，Don’t Pass@k 研究有限采样下评分和模型排名的不确定性，不能混作同一误差来源。"
+    }
+  ],
+  "review": {
+    "evidence_checked": true,
+    "compression_checked": true,
+    "reviewed_by": "Codex",
+    "prompt_version": "1.7",
+    "evidence_verified_sha256": "07c9f12858a594d90aecea05c85e479e1736c8e24e17fb23cbbc07b148412fb7"
+  },
+  "translations": {
+    "en": {
+      "source_sha256": "07c9f12858a594d90aecea05c85e479e1736c8e24e17fb23cbbc07b148412fb7",
+      "one_liner": "Independent AI analysts and a transcript auditor reveal that conclusions on fixed data remain dispersed and can be systematically steered by confirmation-seeking prompts.",
+      "sections": {
+        "problem": "Can one dataset yield stable scientific conclusions? Analysts choose exclusions, missing-data handling, covariates and uncertainty estimators. Individually defensible choices can alter effect sizes or reverse support decisions. The paper studies this analytic uncertainty when AI agents autonomously execute complete analysis pipelines.",
+        "gap": "Human many-analyst studies make disagreements visible but require expensive coordination. Manually enumerated multiverse analyses also depend on which branches researchers include. Evaluating whether one AI run completes a task misses variability across defensible pipelines, even when their target estimand is fixed.",
+        "method": "The design crosses three dataset–hypothesis tasks, four models and five personas. Models are Claude Sonnet 4.5, Haiku 4.5, Qwen3 Coder 480B and Qwen3 235B A22B. Personas range from Negative, Standard and Positive to Confirmation Seeking (CS) and Strong CS, which encourage increasingly favorable specification search. Each Inspect AI ReAct analyst receives data, a hypothesis and a fixed estimand, but independently chooses preprocessing, modeling and inference using Python, a shell and a file editor. A separate Sonnet 4.5 auditor examines full transcripts, tool outputs and code for computational and methodological consistency. Extracted effects, intervals, p-values and support decisions are paired with analytic choices in specification curves.",
+        "trace": "The ANES task asks whether greater TV news exposure predicts closer alignment between symbolic ideology and policy positions. Analysts construct ideological misalignment and estimate the xy-standardized OLS coefficient of TV news exposure; a negative coefficient matches greater alignment. Covariates, regression methods, standard errors and pooling across election waves vary. Figure 1 links these choices to effect estimates, which span negative and positive values even among compliant runs. This is an observed population-level example; the paper does not provide a complete single-run code walkthrough.",
+        "inputs_outputs": "Inputs are a fixed dataset, hypothesis, primary estimand, model and persona prompt. Targets are the adjusted red-card risk difference between dark- and light-skinned players, the developer-blocked geometric mean ratio of implementation time for AI versus control in METR, and the standardized coefficient for TV news predicting ideological misalignment in ANES. A time ratio above one means the AI group is slower, not more productive. Outputs include reproducible code, narrative reports, audit results and cross-run distributions. The workflow is not a verifier with a unique known correct answer.",
+        "results": "The text reports 3,303 of 4,946 runs passing compliance screening, approximately 67%. Conclusions remain dispersed after screening. Reported Negative-to-Strong-CS support-rate gaps range from 34 percentage points for ANES to 66 for METR. These are changes in the fraction concluding support, not accuracy gains or a uniform increase for every model. Figure 2 separates all runs from compliant subsets; screening reduces but does not remove steering. Table 2 gives exclusion rates of 21%, 23%, 22%, 53% and 57% for Negative, Standard, Positive, CS and Strong CS respectively. Lower exclusion means fewer audit failures, not necessarily truer conclusions. Its overall 34% exclusion rate differs from the approximately 33.2% implied by the text counts; the paper does not explain the discrepancy. Main-text p-values are converted from two-sided values: p/2 in the predicted direction and 1−p/2 otherwise, assuming symmetric null test statistics. Their variation reflects analytic choices on fixed data rather than resampling variability.",
+        "contributions": "The study turns many-analyst research into a scalable experiment with controlled model and persona conditions, linking outcome variation to analytic choices. In an illustrative stress test, agents receive the published soccer specification of Pope and Pope and may deviate where warranted. Estimates cluster near the original human estimate and the conclusion remains unchanged. The authors advocate multiverse reporting and disclosure of exact prompts alongside code and data.",
+        "limitations": "Compliance means meeting this AI auditor’s chosen standards. The paper provides no independent human-label validation sufficient to treat the auditor as scientific ground truth. In fewer than 1% of analyses, support direction was confused and the auditor did not consistently catch it; deterministic post-processing corrected those cases. Thus 67% is not true accuracy. AI analysts may share conventions and blind spots and need not cover human or all defensible analytic paths. Soccer carries contamination risk; newer METR data and the low-contamination ANES task mitigate rather than establish absence of contamination. One published-specification example does not prove general replication ability.",
+        "cost": "Analysts use temperature 1.0 and a cap of 250 messages or 60 minutes, whichever comes first. Auditing additionally processes full execution traces. The paper argues the approach is cheaper than coordinating human teams, but gives no standardized per-run dollar cost, actual total runtime or auditing token cost from which to compute savings.",
+        "relevance": "Library analysis. This study informs process evaluation and evaluation validity for data-science agents. It motivates preserving run distributions, prompts, tool traces and audit conditions, and distinguishing task completion, methodological compliance and conclusion stability. Because scientific ground truth is not supplied for all tasks, support rates should not rank model capability."
+      },
+      "locators": {
+        "e1": "§1 · Coordination costs and analytic variability",
+        "e2": "Table 1 / §3.2 · Tasks and fixed estimands",
+        "e3": "§3.3 · Models, tools and run limits",
+        "e4": "§3.4–3.6 · Persona steering and transcript auditing",
+        "e5": "§4.1 / Figure 1 discussion · Effect-direction disagreement",
+        "e6": "§4 / Table 2 · Run counts and exclusions",
+        "e7": "§4.2 / Figure 2 · Support-rate gaps and filtering",
+        "e8": "Appendix A · Direction corrections and one-sided p-values",
+        "e9": "§5.1 · Multiverse reporting and prompt disclosure",
+        "e10": "§5.1 / Appendix B Figure 5 · Published-specification stress test",
+        "e11": "§5.2 · Auditor standards and multiverse coverage"
+      },
+      "related": {
+        "dont-pass-at-k": "Both use distributions and uncertainty to interpret repeated evaluation. This paper studies analytic choices on fixed data; Don’t Pass@k studies finite-sample scoring and ranking uncertainty. These are distinct sources of variation."
+      }
+    }
+  }
+}

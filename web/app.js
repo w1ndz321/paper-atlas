@@ -367,12 +367,25 @@ function renderGuide() {
   panel.append(details);
 }
 
+function titleSearchTerms(value) {
+  return value.normalize("NFKC").toLocaleLowerCase()
+    .replace(/[\p{P}\p{S}]+/gu, " ").trim().split(/\s+/).filter(Boolean);
+}
+function matchesTitle(paper, terms) {
+  const title = titleSearchTerms(paper.title).join(" ");
+  return terms.every((term) => title.includes(term));
+}
+function searchPapers() {
+  topic = "";
+  subtopic = "";
+  collection = "";
+  guideOpen = false;
+  $("type-filter").value = "";
+  $("read-status").value = "";
+  refreshView(false);
+}
 function renderList() {
-  const terms = $("search")
-    .value.trim()
-    .toLocaleLowerCase()
-    .split(/\s+/)
-    .filter(Boolean);
+  const terms = titleSearchTerms($("search").value);
   const type = $("type-filter").value;
   const status = $("read-status").value;
   const scope = data.entries.filter(
@@ -383,7 +396,7 @@ function renderList() {
     (p) =>
       (!type || p.paper_type === type) &&
       (!status || p.entry_kind === status) &&
-      terms.every((t) => p.searchText.includes(t)),
+      matchesTitle(p, terms),
   );
   const mode = $("sort").value;
   filtered.sort((a, b) =>
@@ -1596,26 +1609,7 @@ function applyLocale(nextLanguage) {
     $("type-filter").append(option);
   }
   $("type-filter").value = selectedType;
-  const englishLabels = originalData.config.translations?.en || {};
-  for (const paper of data.papers) {
-    paper.entry_kind = "card";
-    const original = originalData.papers.find((item) => item.id === paper.id);
-    const visibleText = (record) => Object.entries(record.sections)
-      .filter(([key]) => key !== "relevance").map(([, section]) => section.text);
-    const labels = [
-      ...paper.topics.map((id) => originalData.config.topics[id]),
-      ...paper.subtopics.map((id) => originalData.config.subtopics[id].label),
-      ...paper.collections.map((id) => originalData.config.collections[id].label),
-    ];
-    paper.searchText = JSON.stringify([
-      paper.title, paper.authors, paper.tags, paper.one_liner, visibleText(paper),
-      original.one_liner, visibleText(original),
-      paper.translations?.en?.one_liner,
-      Object.entries(paper.translations?.en?.sections || {})
-        .filter(([key]) => key !== "relevance").map(([, text]) => text),
-      labels.map((label) => [label, englishLabels[label] || label]),
-    ]).toLocaleLowerCase();
-  }
+  for (const paper of data.papers) paper.entry_kind = "card";
   const manifest = data.reading_lists || { lists: {}, references: [] };
   const reviewedIds = new Set(data.papers.map((p) => p.id));
   const references = manifest.references.filter((p) => !reviewedIds.has(p.id)).map((ref) => {
@@ -1627,10 +1621,6 @@ function applyLocale(nextLanguage) {
       source: { url: ref.source_url }, added_at: ref.verified_at,
       one_liner: language === "en" ? ref.one_liner_en : ref.one_liner,
       context: language === "en" ? ref.context_en : ref.context,
-      searchText: JSON.stringify([ref.title, ref.authors, ref.one_liner, ref.one_liner_en, ref.context, ref.context_en,
-        topics.map((id) => [originalData.config.topics[id], data.config.topics[id]]),
-        collections.map((id) => [originalData.config.collections[id].label, data.config.collections[id].label]),
-      ]).toLocaleLowerCase(),
     };
   });
   data.entries = [...data.papers, ...references];
@@ -1681,7 +1671,10 @@ async function init() {
       const toc = $("reader").querySelector(".toc");
       if (toc) toc.open = event.matches;
     });
-    $("search-form").onsubmit = (event) => event.preventDefault();
+    $("search-form").onsubmit = (event) => {
+      event.preventDefault();
+      searchPapers();
+    };
     $("clear-search").onclick = () => {
       $("search").value = "";
       renderList();
@@ -1696,13 +1689,7 @@ async function init() {
       renderList();
       $("search").focus();
     };
-    $("search").oninput = () => {
-      if (guideOpen) {
-        guideOpen = false;
-        renderTopics();
-      }
-      renderList();
-    };
+    $("search").oninput = searchPapers;
     $("type-filter").onchange = renderList;
     $("read-status").onchange = renderList;
     $("sort").onchange = renderList;
